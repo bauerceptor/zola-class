@@ -1,32 +1,30 @@
 {#
-  repo2/templates/shortcodes/slides.html
-  Identical to repo1's shortcode.
-  Embeds a self-contained slides HTML file as an iframe.
+  templates/shortcodes/slides.html
 
-  Usage:
+  Renders a clickable card that opens a standalone slide deck in a new
+  browser tab. Replaces the previous in-page iframe embed: iframes
+  trapped reveal.js keyboard input, fought the theme's j/k/h/l
+  shortcuts, and constrained the deck to a fixed height. A new tab gives
+  the deck the full viewport and the browser's back/close handles return.
+
+  Usage in markdown:
     {{ slides(src="/slides/cs101/module1/lec01/index.html") }}
-    {{ slides(src="/slides/cs101/module1/lec01/index.html", height="600") }}
     {{ slides(src="/slides/cs101/module1/lec01/index.html", title="Lecture 1") }}
+    {{ slides(src="/slides/cs101/module1/lec01/index.html", title="Lecture 1", note="42 slides · 25 min") }}
 #}
-{%- set h     = height | default(value="540") %}
-{%- set label = title  | default(value="Slides") %}
-{# Normalize src so authors can write absolute-looking paths ("/slides/...")
-   and Zola still emits a base_url-aware URL under subpath deploys. #}
-{%- set src_path = src | trim_start_matches(pat="/") %}
-{%- set src_url  = get_url(path=src_path) %}
+{%- set label = title | default(value="Slide deck") -%}
+{%- set src_path = src | trim_start_matches(pat="/") -%}
+{%- set src_url  = get_url(path=src_path) -%}
 
-<div class="slides-embed">
-  <div class="slides-embed__frame-wrap" style="height:{{ h }}px;">
-    <iframe
-      src="{{ src_url }}"
-      title="{{ label }}"
-      width="100%"
-      height="{{ h }}"
-      allowfullscreen
-      loading="lazy">
-    </iframe>
-  </div>
-  <p class="slides-embed__caption">
-    <a href="{{ src_url }}" target="_blank" rel="noopener">Open fullscreen ↗</a>
-  </p>
-</div>
+<a class="slides-card" href="{{ src_url }}" target="_blank" rel="noopener" aria-label="Open slides: {{ label }} (opens in new tab)">
+  <span class="slides-card__glyph" aria-hidden="true">▶</span>
+  <span class="slides-card__body">
+    <span class="slides-card__title">{{ label }}</span>
+    {%- if note %}
+    <span class="slides-card__note">{{ note }}</span>
+    {%- else %}
+    <span class="slides-card__note">Slide deck · opens in new tab</span>
+    {%- endif %}
+  </span>
+  <span class="slides-card__cue" aria-hidden="true">↗</span>
+</a>

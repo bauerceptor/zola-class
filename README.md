@@ -105,12 +105,23 @@ Lecture body in Markdown.
 ### A new slide deck
 
 Slides are standalone HTML files under `static/slides/<path>/index.html`
-(any deck framework works; current ones use reveal.js). Embed them in a
-lecture with the `slides` shortcode:
+(any deck framework works; current ones use reveal.js). The `slides`
+shortcode renders a clickable card that opens the deck in a new browser
+tab — this avoids iframe-vs-theme keyboard conflicts and lets the deck
+own the full viewport.
 
 ```markdown
-{{ slides(src="/slides/cs350/module1/lec04/index.html", height="520", title="Lec 4") }}
+{{ slides(src="/slides/cs350/module1/lec04/index.html", title="Lec 4 — Scheduling") }}
+{{ slides(src="/slides/cs350/module1/lec04/index.html", title="Lec 4", note="42 slides · 25 min") }}
 ```
+
+Parameters:
+
+| Name    | Default        | Purpose                                |
+|---------|----------------|----------------------------------------|
+| `src`   | required       | Absolute-style path under `static/`   |
+| `title` | `"Slide deck"` | Card label                             |
+| `note`  | auto           | Small line below the title (slide count, duration, anything) |
 
 The shortcode passes `src` through `get_url()`, so leading `/` is fine
 under the GitHub Pages subpath deploy.
