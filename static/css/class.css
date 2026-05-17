@@ -353,3 +353,61 @@ main > .viewer .tab ul li {
     right: 0.9rem !important;
   }
 }
+
+/* ── Sidebar font (Nerd Font, not Barlow) ─────────────────────────────────
+ * The theme's templates/components/files.html inlines Nerd Font PUA glyphs
+ * (e.g. U+F4A5 ) directly in the link text. Those glyphs only exist in
+ * JetBrainsMonoNL Nerd Font; with body set to Barlow they render as tofu.
+ * Override the sidebar to JetBrainsMono so the icons appear. Side effect:
+ * the file tree renders monospaced, which actually suits the neovim look. */
+main > .files,
+main > .files * {
+  font-family: JetBrainsMono, "JetBrains Mono", ui-monospace, monospace;
+}
+
+/* ── Panel dividers ──────────────────────────────────────────────────────
+ * Theme uses 3px hard cream-coloured box-shadows as separators between
+ * .files, .tab, and .prompt. At full var(--font-color) opacity they read
+ * as harsh outlines. Drop to 1px at low alpha — still a clear divider,
+ * but reads as panel chrome instead of a stripe. */
+@media only screen and (min-width: 768px) {
+  main > .files {
+    box-shadow: 1px 0 0 0 rgba(205, 214, 244, 0.18) !important;
+  }
+}
+main > .viewer > .tab {
+  box-shadow: 0 1px 0 0 rgba(205, 214, 244, 0.18) !important;
+}
+main > .prompt {
+  box-shadow: 0 -1px 0 0 rgba(205, 214, 244, 0.18) !important;
+}
+
+/* ── Delight: yanked-pulse on the selected sidebar item ──────────────────
+ * When keyboard nav (j/k) lands on a file, briefly pulse the chip so the
+ * eye catches the move. Quick (320ms), once on selection change, never on
+ * idle. Honours prefers-reduced-motion. */
+@keyframes nv-yank {
+  0%   { background-color: rgba(130, 170, 255, 0.42); }
+  100% { background-color: rgba(130, 170, 255, 0.28); }
+}
+main > .files .selected {
+  animation: nv-yank 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  main > .files .selected { animation: none; }
+}
+
+/* ── Delight: hamburger micro-interaction ────────────────────────────────
+ * Subtle scale + brightness lift on hover, snap back on release. */
+.menu-wrap .hamburger {
+  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+              background-color 0.2s ease,
+              border-color 0.2s ease !important;
+}
+.menu-wrap:hover .hamburger {
+  transform: scale(1.05);
+}
+.menu-wrap:active .hamburger {
+  transform: scale(0.96);
+}
+

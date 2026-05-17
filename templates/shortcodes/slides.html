@@ -10,11 +10,15 @@
 #}
 {%- set h     = height | default(value="540") %}
 {%- set label = title  | default(value="Slides") %}
+{# Normalize src so authors can write absolute-looking paths ("/slides/...")
+   and Zola still emits a base_url-aware URL under subpath deploys. #}
+{%- set src_path = src | trim_start_matches(pat="/") %}
+{%- set src_url  = get_url(path=src_path) %}
 
 <div class="slides-embed">
   <div class="slides-embed__frame-wrap" style="height:{{ h }}px;">
     <iframe
-      src="{{ src }}"
+      src="{{ src_url }}"
       title="{{ label }}"
       width="100%"
       height="{{ h }}"
@@ -23,6 +27,6 @@
     </iframe>
   </div>
   <p class="slides-embed__caption">
-    <a href="{{ src }}" target="_blank" rel="noopener">Open fullscreen ↗</a>
+    <a href="{{ src_url }}" target="_blank" rel="noopener">Open fullscreen ↗</a>
   </p>
 </div>

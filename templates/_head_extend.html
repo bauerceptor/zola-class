@@ -17,3 +17,18 @@
 
 <script src="{{ get_url(path='js/menu.js') }}" defer></script>
 <script src="{{ get_url(path='js/copy-code.js') }}" defer></script>
+
+<script>
+(function () {
+  if (typeof console === 'undefined') return;
+  var title = 'color:#82aaff;font:600 13px/1.4 ui-monospace,JetBrains Mono,monospace';
+  var body  = 'color:#cdd6f4cc;font:400 12px/1.4 ui-monospace,JetBrains Mono,monospace';
+  console.log(
+    '%c~/class %c$ welcome\n' +
+    '   Notes, lectures, and slides by Hassan Aziz.\n' +
+    '   Press shift+h / shift+l to move focus; j / k to scroll.\n' +
+    '   Source: github.com/bauerceptor/zola-class',
+    title, body
+  );
+})();
+</script>
