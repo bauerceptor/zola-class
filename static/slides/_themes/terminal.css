@@ -1,0 +1,155 @@
+/* ───────────────────────────────────────────────────────────────────────
+ * terminal.css — third deck theme.
+ * All JetBrains Mono, tokyo-night palette, deliberately monochromatic.
+ * Reads like a slide-format console session. Pairs well with the site's
+ * own neovim aesthetic on the lecture pages.
+ * ─────────────────────────────────────────────────────────────────────── */
+
+:root {
+  --font-mono:  "JetBrains Mono", ui-monospace, monospace;
+  --font-serif: var(--font-mono);
+  --font-sans:  var(--font-mono);
+
+  --bg:        oklch(16% 0.025 270);
+  --bg-2:      oklch(22% 0.020 270);
+  --fg:        oklch(92% 0.018 260);
+  --fg-2:      oklch(72% 0.020 260);
+  --fg-3:      oklch(55% 0.020 260);
+  --rule:      oklch(92% 0.018 260 / 0.18);
+  --accent:    oklch(80% 0.11 245);
+  --accent-warm: oklch(83% 0.09 65);
+  --accent-mint: oklch(80% 0.09 170);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg:     oklch(97% 0.012 80);
+    --bg-2:   oklch(94% 0.014 80);
+    --fg:     oklch(30% 0.025 270);
+    --fg-2:   oklch(50% 0.025 270);
+    --fg-3:   oklch(68% 0.020 270);
+    --rule:   oklch(30% 0.025 270 / 0.18);
+    --accent: oklch(48% 0.16 255);
+    --accent-warm: oklch(58% 0.16 60);
+    --accent-mint: oklch(55% 0.14 150);
+  }
+}
+
+body, html, .reveal-viewport { background: var(--bg) !important; }
+.reveal { font-family: var(--font-mono); color: var(--fg); }
+.reveal .slides { text-align: left; }
+.reveal section { padding: 4.5rem 2rem 2rem; }
+
+.reveal .slide-number {
+  left: 14px; right: auto; bottom: 12px; top: auto;
+  font-family: var(--font-mono);
+  font-size: 0.8rem; letter-spacing: 0.04em;
+  color: var(--fg-3); background: transparent; padding: 0;
+}
+
+.reveal h1, .reveal h2, .reveal h3, .reveal h4 {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  line-height: 1.15;
+  text-transform: none;
+  margin: 0 0 1.2rem;
+}
+.reveal h1 { font-size: 2.8rem; color: var(--accent); }
+.reveal h1::before { content: "# "; color: var(--fg-3); }
+.reveal h2 { font-size: 2.0rem; color: var(--accent-warm); }
+.reveal h2::before { content: "## "; color: var(--fg-3); }
+.reveal h3 { font-size: 1.4rem; color: var(--accent-mint); }
+.reveal h3::before { content: "### "; color: var(--fg-3); }
+
+.reveal p { font-size: 1.2rem; line-height: 1.6; color: var(--fg); }
+.reveal ul { font-size: 1.15rem; line-height: 1.65; }
+.reveal ul li { margin-bottom: 0.4rem; }
+.reveal ul li::marker { color: var(--accent); content: "› "; }
+
+.reveal a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; border-bottom: 0; }
+
+.reveal code, .reveal pre {
+  font-family: var(--font-mono);
+  font-feature-settings: "calt" 1, "liga" 1;
+}
+.reveal pre {
+  position: relative;
+  background: var(--bg-2);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 1rem 1.2rem;
+  font-size: 0.92rem; line-height: 1.55;
+  width: 100%; box-shadow: none; overflow: auto;
+}
+.reveal pre code.hljs { background: transparent; padding: 0; line-height: 1.55; display: block; }
+.reveal :not(pre) > code { font-size: 0.92em; padding: 1px 6px; background: var(--bg-2); border-radius: 2px; color: var(--accent); }
+
+.reveal blockquote {
+  border-left: 2px solid var(--accent);
+  padding-left: 1rem;
+  color: var(--fg-2);
+  font-style: normal;
+  font-family: var(--font-mono);
+  background: transparent; box-shadow: none;
+}
+
+.reveal .progress { color: var(--accent); background: var(--rule); height: 2px; }
+
+.copy-btn {
+  position: absolute; top: 8px; right: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 4px 8px; border-radius: 2px;
+  background: var(--bg); border: 1px solid var(--rule);
+  color: var(--fg-2);
+  cursor: pointer; opacity: 0;
+  transition: opacity 180ms ease, color 180ms ease, border-color 180ms ease;
+}
+pre:hover .copy-btn, pre:focus-within .copy-btn { opacity: 1; }
+.copy-btn:hover, .copy-btn.copied { color: var(--accent); border-color: var(--accent); }
+
+#back-to-site {
+  position: fixed; top: 24px; right: 32px; z-index: 100;
+  font-family: var(--font-mono);
+  font-size: 0.75rem; letter-spacing: 0.04em; text-transform: uppercase;
+  color: var(--fg-3); text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color 180ms ease, border-color 180ms ease;
+}
+#back-to-site::before { content: "$ cd "; color: var(--fg-3); opacity: 0.6; }
+#back-to-site:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+#nav-keys {
+  position: fixed; right: 24px; bottom: 24px; z-index: 100;
+  display: grid;
+  grid-template-columns: repeat(3, 36px);
+  grid-template-rows: repeat(2, 36px);
+  gap: 4px;
+  font-family: var(--font-mono); user-select: none;
+}
+#nav-keys .key {
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bg); border: 1px solid var(--rule); border-radius: 3px;
+  font-size: 16px; line-height: 1; color: var(--fg-3); cursor: pointer;
+}
+#nav-keys .key.up    { grid-column: 2; grid-row: 1; }
+#nav-keys .key.left  { grid-column: 1; grid-row: 2; }
+#nav-keys .key.down  { grid-column: 2; grid-row: 2; }
+#nav-keys .key.right { grid-column: 3; grid-row: 2; }
+#nav-keys .key.active { color: var(--accent); border-color: var(--accent); }
+#nav-keys .key:not(.active) { opacity: 0.35; cursor: default; }
+
+#slide-counter {
+  position: fixed; right: 152px; bottom: 28px; z-index: 100;
+  font-family: var(--font-mono);
+  font-size: 0.75rem; letter-spacing: 0.04em;
+  color: var(--fg-3); pointer-events: none;
+}
+
+#help { position: fixed; inset: 0; z-index: 200; background: oklch(15% 0.012 270 / 0.6); display: none; align-items: center; justify-content: center; }
+#help.open { display: flex; }
+#help pre { background: var(--bg); border: 1px solid var(--rule); border-radius: 4px; padding: 28px 40px; color: var(--fg); font-family: var(--font-mono); font-size: 14px; line-height: 1.7; margin: 0; box-shadow: none; }
+
+.mermaid { margin: 1rem 0; text-align: center; font-family: var(--font-mono); }
+.mermaid svg { max-width: 100%; height: auto; }

@@ -505,7 +505,7 @@ main > .viewer .tab ul li {
  * stop competing with prose. The theme set inline code to 1.2em (loud);
  * we already pulled that down earlier. */
 .viewer .content {
-  font-size: 1.05rem;          /* prose at ~17px instead of 16 */
+  font-size: 1.12rem;          /* prose at ~18px — denser theme padding makes it look smaller than the number suggests */
 }
 .viewer .content h1,
 .viewer .content .nv-page-title {

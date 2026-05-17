@@ -1,0 +1,128 @@
+{# Custom 404 — extends the theme's base.html so it inherits the same chrome
+   (file tree, tab strip, prompt) as every real page. The viewer pane gets a
+   typed-out terminal message instead of a missing-lecture body. #}
+{%- extends "base.html" -%}
+
+{%- block content -%}
+<div class="nv-404">
+  <p class="nv-404__line nv-404__line--err">
+    <span class="nv-404__prompt">$</span>
+    open
+    <span class="nv-404__path">{{ current_url | default(value=current_path | default(value="(unknown)")) }}</span>
+  </p>
+  <p class="nv-404__line nv-404__line--err">
+    <span class="nv-404__tag">err</span>
+    no such file or directory
+  </p>
+  <p class="nv-404__line nv-404__line--err">
+    <span class="nv-404__tag">code</span>
+    404
+  </p>
+
+  <hr class="nv-404__rule">
+
+  <h1 class="nv-404__title">Page not found.</h1>
+  <p class="nv-404__lede">
+    The path you opened isn't part of the class site, or it was moved.
+    Use the file tree on the left, or jump straight to something below.
+  </p>
+
+  <ul class="nv-404__links">
+    <li><a href="{{ get_url(path='') }}">{{ get_url(path='') }}<span class="nv-404__hint"> — home</span></a></li>
+    <li><a href="{{ get_url(path='cs101/') }}">{{ get_url(path='cs101/') }}<span class="nv-404__hint"> — CS 101</span></a></li>
+    <li><a href="{{ get_url(path='speeches/') }}">{{ get_url(path='speeches/') }}<span class="nv-404__hint"> — speeches and talks</span></a></li>
+  </ul>
+
+  <p class="nv-404__hint nv-404__keys">
+    Or press <kbd>:</kbd> then type <code>find &lt;query&gt;</code> for fuzzy file search.
+  </p>
+</div>
+
+<style>
+  .nv-404 {
+    max-width: 60ch;
+    margin: 1rem 0;
+    font-family: JetBrainsMono, "JetBrains Mono", ui-monospace, monospace;
+  }
+  .nv-404__line {
+    margin: 0.25rem 0;
+    font-size: 0.95rem;
+    color: var(--nv-fg-muted, currentColor);
+  }
+  .nv-404__prompt { color: var(--nv-accent); margin-right: 0.5em; }
+  .nv-404__tag {
+    display: inline-block;
+    min-width: 4ch;
+    padding: 0 0.4em;
+    margin-right: 0.6em;
+    font-size: 0.78rem;
+    color: var(--nv-accent-warm, currentColor);
+    border: 1px solid rgb(var(--nv-accent-rgb) / 0.30);
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .nv-404__path {
+    color: var(--nv-fg);
+    background: rgb(var(--nv-accent-rgb) / 0.10);
+    padding: 0 0.4em;
+    border-radius: 3px;
+  }
+  .nv-404__rule {
+    border: 0;
+    border-top: 1px solid var(--nv-rule);
+    margin: 1.4rem 0;
+  }
+  .nv-404__title {
+    font-family: "Barlow", system-ui, sans-serif !important;
+    font-size: 2.4rem !important;
+    color: var(--nv-accent) !important;
+    margin: 0.6rem 0 0.8rem !important;
+  }
+  .nv-404__lede {
+    font-family: "Barlow", system-ui, sans-serif !important;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: var(--nv-fg);
+    max-width: 60ch;
+  }
+  .nv-404__links {
+    list-style: none;
+    padding-left: 0;
+    margin: 1.3rem 0;
+  }
+  .nv-404__links li {
+    margin: 0.35rem 0;
+    font-size: 0.95rem;
+  }
+  .nv-404__links a {
+    color: var(--nv-accent) !important;
+    text-decoration: underline;
+    text-decoration-color: rgb(var(--nv-accent-rgb) / 0.4);
+    text-underline-offset: 3px;
+  }
+  .nv-404__links a::before { content: none !important; }
+  .nv-404__hint {
+    color: var(--nv-fg-muted);
+    font-size: 0.85rem;
+  }
+  .nv-404__keys {
+    margin-top: 2rem;
+    font-family: JetBrainsMono, "JetBrains Mono", ui-monospace, monospace;
+  }
+  .nv-404__keys kbd {
+    background: var(--nv-bg-panel);
+    border: 1px solid var(--nv-rule-strong);
+    border-radius: 3px;
+    padding: 1px 6px;
+    font-size: 0.85em;
+  }
+  .nv-404__keys code {
+    background: var(--nv-inline-code-bg) !important;
+    color: var(--nv-inline-code-fg) !important;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 0.9em;
+  }
+</style>
+{%- endblock content -%}

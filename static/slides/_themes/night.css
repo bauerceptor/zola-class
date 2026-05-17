@@ -1,0 +1,124 @@
+/* ───────────────────────────────────────────────────────────────────────
+ * night.css — repo2's original "midnight playfair" deck theme,
+ * preserved as an alternative. Dark surfaces, Playfair Display titles,
+ * Nanum Gothic body, lime accent. Lectures that prefer the moodier
+ * tokyo-night vibe can swap to this from the default `clean.css`.
+ *
+ *   Apply by replacing the deck's <link rel="stylesheet" …> href with
+ *   ../../../_themes/night.css (count ../ to match deck depth).
+ * ─────────────────────────────────────────────────────────────────────── */
+
+:root {
+  --r-background-color:  #0f1117;
+  --r-main-color:        #dde3ed;
+  --r-heading-color:     #f5f0e8;
+  --r-link-color:        #63b3ed;
+  --r-link-color-hover:  #90cdf4;
+  --r-selection-color:   #fff;
+  --r-selection-background-color: rgba(99,179,237,0.3);
+
+  --r-heading-font: 'Playfair Display', Georgia, serif;
+  --r-main-font:    'Nanum Gothic', sans-serif;
+  --r-code-font:    'JetBrains Mono', ui-monospace, monospace;
+
+  --r-heading-font-weight: 700;
+  --r-heading-letter-spacing: -0.01em;
+  --r-heading-line-height: 1.15;
+
+  /* Aliases so deck-utils.js + shared markup work with both themes. */
+  --bg:        var(--r-background-color);
+  --bg-2:      rgba(255,255,255,0.05);
+  --fg:        var(--r-main-color);
+  --fg-2:      rgba(221,227,237,0.7);
+  --fg-3:      rgba(221,227,237,0.45);
+  --rule:      rgba(255,255,255,0.1);
+  --accent:    #c8ff47;
+  --font-mono: var(--r-code-font);
+}
+
+body, html, .reveal-viewport { background: var(--r-background-color) !important; }
+.reveal { font-family: var(--r-main-font); color: var(--r-main-color); }
+.reveal .slides { text-align: left; }
+.reveal section { padding: 4.5rem 1rem 1rem; }
+
+.reveal .slide-number {
+  left: 14px; right: auto; bottom: 12px; top: auto;
+  font-family: var(--r-code-font);
+  font-size: 0.78em; letter-spacing: 0.04em;
+  color: rgba(255,255,255,0.45);
+  background: transparent; padding: 0;
+}
+
+.reveal h1, .reveal h2, .reveal h3, .reveal h4 {
+  font-family: var(--r-heading-font);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  color: var(--r-heading-color);
+}
+.reveal h1 { font-size: 3rem; }
+.reveal h2 { font-size: 2.2rem; }
+.reveal h3 { font-size: 1.5rem; }
+
+.reveal p { font-size: 1.3rem; line-height: 1.55; color: var(--r-main-color); }
+.reveal ul { font-size: 1.2rem; line-height: 1.7; }
+.reveal a { color: var(--r-link-color); text-decoration: none; border-bottom: 1px solid var(--r-link-color); }
+.reveal a:hover { color: var(--r-link-color-hover); }
+
+.reveal pre code {
+  border-radius: 6px;
+  font-size: 0.78em; line-height: 1.65;
+  padding: 1rem;
+  font-family: var(--r-code-font);
+}
+
+.accent   { color: #c8ff47; }
+.muted    { color: rgba(255,255,255,0.5); }
+.em       { font-style: italic; color: #f6ad55; }
+
+.box {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 0.75rem 1.25rem;
+  margin: 0.5rem 0;
+}
+
+.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start; }
+
+/* Shared chrome bits so the same scaffolding works with night.css too. */
+.copy-btn {
+  position: absolute; top: 8px; right: 8px;
+  font-family: var(--r-code-font);
+  font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 4px 8px; border-radius: 3px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.6);
+  cursor: pointer; opacity: 0;
+  transition: opacity 180ms ease, color 180ms ease, border-color 180ms ease;
+}
+pre:hover .copy-btn, pre:focus-within .copy-btn { opacity: 1; }
+.copy-btn:hover, .copy-btn.copied { color: var(--accent); border-color: var(--accent); }
+
+#back-to-site, #slide-counter, #nav-keys .key {
+  font-family: var(--r-code-font);
+}
+#back-to-site { color: rgba(255,255,255,0.45); border-bottom: 1px solid transparent; transition: color 180ms ease, border-color 180ms ease; }
+#back-to-site:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+#nav-keys .key {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.45);
+}
+#nav-keys .key.active { color: var(--accent); border-color: var(--accent); }
+#nav-keys .key:not(.active) { opacity: 0.35; }
+
+#help pre {
+  background: var(--r-background-color); border: 1px solid rgba(255,255,255,0.1);
+  color: var(--r-main-color);
+}
+
+.mermaid { margin: 1rem 0; text-align: center; font-family: var(--r-code-font); }
+.mermaid svg { max-width: 100%; height: auto; }

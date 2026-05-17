@@ -2,6 +2,20 @@
    Loads project fonts, theme overrides, and the overdrive layer
    (theme switcher, WebGL aurora, enhanced :prompt). #}
 
+{# Favicons: PNG primary (better browser support), SVG modern fallback.
+   Each asset is named by the mode it's USED IN:
+   class-light.* renders well on a light tab bar; class-dark.* on a dark one. #}
+<link rel="icon" type="image/png" sizes="32x32"   href="{{ get_url(path='img/class-light-32.png') }}"  media="(prefers-color-scheme: light)">
+<link rel="icon" type="image/png" sizes="192x192" href="{{ get_url(path='img/class-light-192.png') }}" media="(prefers-color-scheme: light)">
+<link rel="icon" type="image/png" sizes="32x32"   href="{{ get_url(path='img/class-dark-32.png') }}"   media="(prefers-color-scheme: dark)">
+<link rel="icon" type="image/png" sizes="192x192" href="{{ get_url(path='img/class-dark-192.png') }}"  media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" sizes="192x192" href="{{ get_url(path='img/class-light-192.png') }}">
+{# Modern SVG variants — Chromium/Firefox will prefer these when supported. #}
+<link rel="icon" type="image/svg+xml" href="{{ get_url(path='img/class-light.svg') }}" media="(prefers-color-scheme: light)">
+<link rel="icon" type="image/svg+xml" href="{{ get_url(path='img/class-dark.svg') }}"  media="(prefers-color-scheme: dark)">
+{# Fallback for browsers that ignore both SVG and media queries on icon. #}
+<link rel="icon" type="image/png" sizes="32x32" href="{{ get_url(path='img/class-light-32.png') }}">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link
@@ -53,47 +67,71 @@
 <script src="{{ get_url(path='js/prompt-enhance.js') }}" defer></script>
 
 {# Mermaid rendering — only loaded when a page opts in via [extra] mermaid = true.
-   Zola emits mermaid code blocks as <pre><code class="language-mermaid">; we
-   convert them to <div class="mermaid"> so mermaid.js can render them as SVG.
-   Theme follows the resolved light/dark mode. #}
+   Zola emits ```mermaid blocks as <pre><code class="language-mermaid">. We
+   read the source text directly out of each block and call mermaid.render()
+   explicitly (rather than letting mermaid auto-walk the DOM), which avoids
+   the "Syntax error in text" failures that come from auto-detection picking
+   up partially-rendered or whitespace-padded blocks. #}
 {%- if page and page.extra and page.extra.mermaid -%}
 <script type="module">
   import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.esm.min.mjs";
+
   function effective() {
     return document.documentElement.classList.contains("light") ? "default" : "dark";
   }
-  function convertBlocks() {
-    document.querySelectorAll("pre > code.language-mermaid").forEach(function (code) {
-      var pre = code.parentElement;
-      if (!pre || pre.dataset.nvMermaidDone) return;
-      pre.dataset.nvMermaidDone = "1";
-      var div = document.createElement("div");
-      div.className = "mermaid";
-      div.textContent = code.textContent;
-      pre.replaceWith(div);
-    });
-  }
-  function render() {
-    convertBlocks();
-    mermaid.initialize({ startOnLoad: false, theme: effective(), securityLevel: "loose" });
-    mermaid.run({ querySelector: ".mermaid:not([data-processed='true'])" });
-  }
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", render);
-  } else { render(); }
 
-  /* Re-render on theme toggle so flowcharts retint with the rest of the site. */
+  function configure() {
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: effective(),
+      securityLevel: "loose",
+      flowchart: { useMaxWidth: true, htmlLabels: true, curve: "basis" },
+      themeVariables: { fontFamily: "JetBrainsMono, JetBrains Mono, ui-monospace, monospace" },
+    });
+  }
+
+  var counter = 0;
+  async function renderOne(source) {
+    var id = "nv-mmd-" + (++counter) + "-" + Date.now();
+    try {
+      var result = await mermaid.render(id, source);
+      return result.svg;
+    } catch (err) {
+      console.warn("[mermaid]", err && err.message ? err.message : err);
+      return '<pre class="nv-mermaid-fallback">' + source.replace(/&/g, "&amp;").replace(/</g, "&lt;") + "</pre>";
+    }
+  }
+
+  async function renderAll() {
+    configure();
+    var blocks = document.querySelectorAll("pre > code.language-mermaid, div.mermaid:not([data-rendered])");
+    for (var i = 0; i < blocks.length; i++) {
+      var node = blocks[i];
+      var pre = node.tagName === "CODE" ? node.parentElement : node;
+      var source = (node.dataset.source || node.textContent || "").trim();
+      if (!source) continue;
+      var svg = await renderOne(source);
+      var wrap = document.createElement("div");
+      wrap.className = "mermaid";
+      wrap.dataset.rendered = "1";
+      wrap.dataset.source = source;
+      wrap.innerHTML = svg;
+      pre.replaceWith(wrap);
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", renderAll);
+  } else {
+    renderAll();
+  }
+
+  /* Re-render with the new theme when the user toggles light/dark. */
   window.addEventListener("themechange", function () {
-    document.querySelectorAll(".mermaid").forEach(function (d) {
-      d.removeAttribute("data-processed");
-      d.innerHTML = d.dataset.nvSource || d.textContent;
+    document.querySelectorAll("div.mermaid[data-source]").forEach(function (d) {
+      d.removeAttribute("data-rendered");
     });
-    /* Cache the source first time we see each block. */
-    document.querySelectorAll(".mermaid").forEach(function (d) {
-      if (!d.dataset.nvSource) d.dataset.nvSource = d.textContent;
-    });
-    mermaid.initialize({ startOnLoad: false, theme: effective(), securityLevel: "loose" });
-    mermaid.run({ querySelector: ".mermaid" });
+    renderAll();
   });
 </script>
 {%- endif -%}
