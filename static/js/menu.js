@@ -73,10 +73,6 @@
               "</nav>" +
               '<div class="menu-overlay__divider"></div>' +
               '<div class="menu-overlay__controls">' +
-                '<button class="menu-ctrl-btn" id="theme-cycle-btn" aria-label="Cycle colour theme">' +
-                  '<span id="theme-icon">☀</span>' +
-                  '<span id="theme-label">Light</span>' +
-                "</button>" +
                 '<button class="menu-ctrl-btn" id="copy-toggle-btn" aria-pressed="true" aria-label="Toggle copy-to-clipboard">' +
                   "⧉ Copy: <span id='copy-state'>On</span>" +
                 "</button>" +
@@ -116,16 +112,6 @@
         toggler.checked = false;
       }
     });
-
-    /* Wire up the theme cycle button (theme-toggle.js sets the logic) */
-    var themeBtn = document.getElementById("theme-cycle-btn");
-    if (themeBtn) {
-      themeBtn.addEventListener("click", function () {
-        if (typeof window.cycleTheme === "function") {
-          window.cycleTheme();
-        }
-      });
-    }
 
     /* Wire up copy toggle (copy-code.js reads this state) */
     var copyBtn = document.getElementById("copy-toggle-btn");

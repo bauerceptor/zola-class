@@ -15,7 +15,7 @@ function command() {
 
   switch (command) {
     case "help":
-      window.location.href = "/readme";
+      window.location.href = window.HELP_URL || "/readme";
       break;
 
     case "set":

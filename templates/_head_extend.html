@@ -11,3 +11,9 @@
 <link rel="stylesheet" href="{{ get_url(path='css/menu.css') }}">
 <link rel="stylesheet" href="{{ get_url(path='css/class.css') }}">
 <link rel="stylesheet" href="{{ get_url(path='css/copy-btn.css') }}">
+
+{# Base-aware URL for the :help command (theme's commands.js reads this). #}
+<script>window.HELP_URL = "{{ get_url(path='readme') }}";</script>
+
+<script src="{{ get_url(path='js/menu.js') }}" defer></script>
+<script src="{{ get_url(path='js/copy-code.js') }}" defer></script>

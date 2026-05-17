@@ -27,20 +27,24 @@
 .menu-wrap .hamburger {
   position: relative;
   width: 40px; height: 40px;
-  background: rgba(20, 20, 20, 0.75);
+  background: rgba(130, 170, 255, 0.14);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid rgba(130, 170, 255, 0.28);
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1;
-  transition: border-color 0.2s ease;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
 .menu-wrap:hover .hamburger {
-  border-color: rgba(200, 255, 71, 0.4);
+  background: rgba(130, 170, 255, 0.22);
+}
+
+.menu-wrap:hover .hamburger {
+  border-color: rgba(130, 170, 255, 0.5);
 }
 
 /* Three bars */
@@ -135,7 +139,7 @@
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #c8ff47;
+  color: #82aaff;
   margin-bottom: 2.5rem;
   text-decoration: none;
   display: block;
@@ -162,7 +166,7 @@
 }
 
 .menu-overlay__nav a:hover {
-  color: #c8ff47;
+  color: #82aaff;
   transform: translateX(6px);
 }
 
@@ -205,14 +209,14 @@
 }
 
 .menu-ctrl-btn:hover {
-  border-color: #c8ff47;
-  color: #c8ff47;
+  border-color: #82aaff;
+  color: #82aaff;
 }
 
 .menu-ctrl-btn[aria-pressed="true"] {
-  background: rgba(200,255,71,0.1);
-  border-color: rgba(200,255,71,0.35);
-  color: #c8ff47;
+  background: rgba(130, 170, 255, 0.14);
+  border-color: rgba(130, 170, 255, 0.4);
+  color: #82aaff;
 }
 
 /* Social links */
@@ -230,7 +234,7 @@
   transition: color 0.18s ease;
 }
 
-.menu-overlay__social a:hover { color: #c8ff47; }
+.menu-overlay__social a:hover { color: #82aaff; }
 
 /* ── Light-mode adjustments ─────────────────────────────────────────────── */
 /* Serene adds class `light` to <html> for light mode */

@@ -28,12 +28,10 @@
 </head>
 
 {%- if config.extra.background_image -%}
-
-<body onkeydown="exec(event)" style="background-image: url({{ get_url(path=config.extra.background_image) }}); ">
-  {%- else -%}
-
-  <body onkeydown='exec(event)' style='background-image: url("{{ get_url(path="assets/background.jpg") }}");'>
-    {%- endif -%}
+<body onkeydown="exec(event)" style="background-image: url({{ get_url(path=config.extra.background_image) }});">
+{%- else -%}
+<body onkeydown="exec(event)">
+{%- endif -%}
     <main>
       <div class="files" id="files" tabindex="0">
         {%- include "components/files.html" -%}
