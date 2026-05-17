@@ -132,6 +132,33 @@ To copy the demo deck from repo1 as a starting template:
 cp -r /path/to/repo1/static/slides/demo static/slides/<your-path>/
 ```
 
+### Slide themes
+
+Both repos ship the same three themes under `static/slides/_themes/`:
+
+| Theme        | File          | Look                                                                 |
+|--------------|---------------|----------------------------------------------------------------------|
+| `clean`      | `clean.css`   | **Default.** Editorial serif (Newsreader) + Inter; auto-switches by system theme. |
+| `night`      | `night.css`   | Tokyo-night dark, Playfair Display titles, Nanum Gothic body, lime accent. |
+| `terminal`   | `terminal.css`| All JetBrains Mono, neovim-aligned, `# / ## / ###` heading prefixes. |
+
+Every deck links one theme:
+
+```html
+<!-- adjust the ../ count to match your deck's directory depth -->
+<link rel="stylesheet" href="../../../_themes/clean.css">
+<script src="../../../_themes/deck-utils.js" defer></script>
+```
+
+`deck-utils.js` adds copy-to-clipboard on every `<pre>`, renders mermaid
+fences as SVG, draws a bottom-right arrow-key indicator, and wires `?`
+to open a slide-deck keyboard help overlay. It's a no-op if the deck
+already injected its own copy buttons.
+
+Mermaid in slides: put a ` ```mermaid` fence or a `<pre class="mermaid">`
+block anywhere; `deck-utils.js` lazy-loads mermaid only when at least
+one block exists.
+
 ---
 
 ## Theme system (light / dark / system)

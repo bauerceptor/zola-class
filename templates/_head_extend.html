@@ -27,6 +27,13 @@
 <link rel="stylesheet" href="{{ get_url(path='css/class.css') }}">
 <link rel="stylesheet" href="{{ get_url(path='css/copy-btn.css') }}">
 
+{# Zola syntax highlighting (style = "class") emits one CSS per theme at
+   /syntax-theme-light.css and /syntax-theme-dark.css. We swap which one
+   is active via the `media` attribute; theme-toggle.js overrides on an
+   explicit user pick. #}
+<link id="hl-light" rel="stylesheet" href="{{ get_url(path='syntax-theme-light.css') }}" media="(prefers-color-scheme: light)">
+<link id="hl-dark"  rel="stylesheet" href="{{ get_url(path='syntax-theme-dark.css') }}"  media="(prefers-color-scheme: dark)">
+
 {# Theme switcher must run SYNCHRONOUSLY before paint so the right palette
    is already on <html> when the first frame draws (no flash). #}
 <script src="{{ get_url(path='js/theme-toggle.js') }}"></script>

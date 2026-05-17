@@ -375,9 +375,9 @@ html.light .viewer .content code,
 html.light .viewer .content blockquote { background-color: var(--nv-code-bg) !important; }
 html.light .viewer .content pre {
   background-color: var(--nv-code-bg) !important;
-  color: var(--nv-fg) !important;
 }
-html.light .viewer .content pre > code { color: var(--nv-fg) !important; }
+/* Don't force a color on pre > code in either mode — let Zola's
+   per-token syntax CSS paint keywords/strings/comments/etc. */
 
 /* The h1 phosphor halo loses meaning on light backgrounds; switch to a
    restrained shadow that adds depth instead of glow. */
@@ -564,6 +564,10 @@ main > .viewer .tab ul li {
 .viewer .content pre > code {
   font-size: inherit !important;
   font-family: JetBrainsMono, "JetBrains Mono", ui-monospace, monospace !important;
+  /* Let Zola's syntax classes paint per-token colors; force the wrapper
+   * to inherit so theme's hardcoded color doesn't suppress them. */
+  color: inherit !important;
+  background-color: transparent !important;
 }
 
 /* ── Heading colors (token-driven, theme-aware) ──────────────────────────
@@ -580,13 +584,14 @@ main > .viewer .tab ul li {
 .viewer .content h3 {
   color: var(--nv-accent-mint) !important;
 }
-/* The vendored theme prepends Nerd Font numeric-in-box glyphs (󰲡 󰲣 󰲥)
- * to every h1/h2/h3 via ::before. They render as "1/2/3" boxes that read
- * as ugly counter chips and add no information. Remove. */
+/* The vendored theme prepends Nerd Font glyphs to headings (󰲡 󰲣 󰲥 — "1
+ * /2/3-in-box") and to every content link (󰌹 chain). Both read as ugly
+ * counter / decoration chips and add no information. Drop them. */
 .viewer .content h1::before,
 .viewer .content h2::before,
 .viewer .content h3::before,
-.viewer .content .nv-page-title::before {
+.viewer .content .nv-page-title::before,
+.viewer .content a::before {
   content: none !important;
 }
 

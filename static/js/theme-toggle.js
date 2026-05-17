@@ -41,6 +41,14 @@
     return theme;
   }
 
+  function swapSyntax(effective) {
+    var light = document.getElementById("hl-light");
+    var dark  = document.getElementById("hl-dark");
+    if (!light || !dark) return;
+    if (effective === "dark") { light.media = "not all"; dark.media = "all"; }
+    else                      { light.media = "all";     dark.media = "not all"; }
+  }
+
   function apply(theme) {
     var html = document.documentElement;
     html.classList.remove("light", "dark");
@@ -48,6 +56,7 @@
     html.classList.add(effective);
     html.dataset.themeMode = theme;
     html.dataset.themeEffective = effective;
+    swapSyntax(effective);
     updateMenuButton(theme);
     window.dispatchEvent(new CustomEvent("themechange", {
       detail: { mode: theme, effective: effective }
