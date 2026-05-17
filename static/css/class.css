@@ -204,10 +204,10 @@ code, pre, kbd, samp,
   --nv-fg-muted:            oklch(0.70 0.020 260);
   --nv-rule:                oklch(0.92 0.018 260 / 0.18);
   --nv-rule-strong:         oklch(0.92 0.018 260 / 0.30);
-  --nv-accent:              oklch(0.78 0.13 268);
+  --nv-accent:              oklch(0.80 0.11 245);   /* ice blue, slightly less saturated */
   --nv-accent-rgb:          130 170 255;
-  --nv-accent-warm:         oklch(0.84 0.14 80);
-  --nv-accent-mint:         oklch(0.85 0.14 145);
+  --nv-accent-warm:         oklch(0.83 0.09 65);    /* warm amber, lower chroma */
+  --nv-accent-mint:         oklch(0.80 0.09 170);   /* soft teal, less green */
   --nv-selection-bg:        oklch(0.78 0.13 268 / 0.16);
   --nv-selection-bg-strong: oklch(0.78 0.13 268 / 0.28);
   --nv-code-bg:             oklch(0.20 0.020 270);
@@ -215,9 +215,9 @@ code, pre, kbd, samp,
   --nv-inline-code-fg:      oklch(0.86 0.07 268);
 
   /* Aurora shader colors (read by aurora.js via getComputedStyle). */
-  --nv-aur-a:               oklch(0.32 0.06 268);
-  --nv-aur-b:               oklch(0.27 0.05 248);
-  --nv-aur-c:               oklch(0.40 0.07 200);
+  --nv-aur-a:               oklch(0.34 0.06 268);
+  --nv-aur-b:               oklch(0.28 0.05 248);
+  --nv-aur-c:               oklch(0.30 0.06 195);
   --nv-aur-intensity:       1.0;
 }
 
@@ -248,10 +248,13 @@ html.light {
   --nv-inline-code-bg:      oklch(0.48 0.16 255 / 0.10);
   --nv-inline-code-fg:      oklch(0.36 0.14 255);
 
-  --nv-aur-a:               oklch(0.90 0.04 80);
-  --nv-aur-b:               oklch(0.86 0.05 70);
-  --nv-aur-c:               oklch(0.92 0.03 240);
-  --nv-aur-intensity:       1.05;
+  /* Light-mode aurora uses MID-darkness colors so multiply blend reads
+     as soft shadows on the cream backdrop. Light colors would multiply
+     to ~1 and disappear. */
+  --nv-aur-a:               oklch(0.60 0.09 250);
+  --nv-aur-b:               oklch(0.68 0.07 70);
+  --nv-aur-c:               oklch(0.62 0.10 200);
+  --nv-aur-intensity:       0.55;
 }
 
 /* Theme transition: a 220ms swap when the html.light/.dark class changes,
@@ -364,12 +367,8 @@ main > .files .selected {
 }
 
 /* ── Light-mode content adjustments ───────────────────────────────────────
- * Theme's hardcoded heading hues (#82aaff blue / #ffc777 yellow / #c3e88d
- * green) read fine on dark navy but turn invisible on cream. Re-anchor
- * each to the theme-aware accent tokens, AA-contrast in either palette. */
-html.light .viewer .content h1 { color: var(--nv-accent) !important; }
-html.light .viewer .content h2 { color: var(--nv-accent-warm) !important; }
-html.light .viewer .content h3 { color: var(--nv-accent-mint) !important; }
+ * Heading colors come from theme-aware tokens (set further down); these
+ * cover everything else the vendored theme hardcoded for dark navy. */
 html.light .viewer .content a,
 html.light .viewer .content a::before { color: var(--nv-accent) !important; }
 html.light .viewer .content code,
@@ -382,8 +381,20 @@ html.light .viewer .content pre > code { color: var(--nv-fg) !important; }
 
 /* The h1 phosphor halo loses meaning on light backgrounds; switch to a
    restrained shadow that adds depth instead of glow. */
-html.light .viewer .content h1 {
+html.light .viewer .content h1,
+html.light .viewer .content .nv-page-title {
   text-shadow: 0 1px 0 rgb(var(--nv-accent-rgb) / 0.10);
+}
+
+/* Mermaid diagram container — center the rendered SVG, give breathing room. */
+.mermaid {
+  margin: 1.6rem 0;
+  text-align: center;
+  font-family: JetBrainsMono, "JetBrains Mono", monospace;
+}
+.mermaid svg {
+  max-width: 100%;
+  height: auto;
 }
 
 /* ── View Transitions ─────────────────────────────────────────────────────
@@ -427,10 +438,13 @@ html.light .viewer .content h1 {
 }
 
 /* ── Body backdrop ────────────────────────────────────────────────────────
- * Static gradient fallback for when WebGL is unavailable or before the
- * aurora canvas mounts. The aurora canvas (z-index -1) covers this once
- * it's running; this only shows for a split second on first paint or as
- * the reduced-motion / no-WebGL fallback. */
+ * Three layers, back to front:
+ *   1. body bg-color: solid base tint that fills before anything paints.
+ *   2. #nv-aurora canvas (z-index -2): living color field (WebGL shader).
+ *   3. body::after grain (z-index -1): subtle SVG fractal-noise overlay
+ *      that gives the smooth gradient an "image" texture without
+ *      adding distracting color.
+ * main and content sit above all three at default stacking. */
 body {
   min-height: 100vh;
   background-color: var(--nv-bg-base);
@@ -440,18 +454,35 @@ body {
   background-attachment: fixed;
 }
 
-/* ── Aurora canvas: full-viewport, behind everything ─────────────────── */
 #nv-aurora {
   position: fixed;
   inset: 0;
   width: 100vw;
   height: 100vh;
+  z-index: -2;
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
   z-index: -1;
   pointer-events: none;
-  opacity: 0.78;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.5  0 0 0 0 0.5  0 0 0 0 0.5  0 0 0 1 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.75'/></svg>");
+  background-size: 240px 240px;
+  opacity: 0.18;
+  mix-blend-mode: overlay;
 }
+
 html.light #nv-aurora {
-  opacity: 0.55;       /* lighter palette wants less coverage */
+  opacity: 0.55;
+  mix-blend-mode: multiply;       /* darken cream bg into soft shadows */
+}
+html.light body::after {
+  opacity: 0.10;
+  mix-blend-mode: multiply;       /* grain reads as paper, not film */
 }
 
 /* ── Tab strip ────────────────────────────────────────────────────────────
@@ -470,39 +501,102 @@ main > .viewer .tab ul li {
 }
 
 /* ── Typography rhythm ───────────────────────────────────────────────────
- * Theme gives h1/h2/h3 default browser sizes — flat scale. Set a 1.3x
- * ratio scale so the visual hierarchy actually reads at a glance. */
-.viewer .content h1 {
-  font-size: 2.15rem;
-  line-height: 1.15;
-  margin: 1.6rem 0 1rem;
-  letter-spacing: -0.015em;
+ * 1.32x scale, bigger body text. Code blocks dropped to ~0.92em so they
+ * stop competing with prose. The theme set inline code to 1.2em (loud);
+ * we already pulled that down earlier. */
+.viewer .content {
+  font-size: 1.05rem;          /* prose at ~17px instead of 16 */
+}
+.viewer .content h1,
+.viewer .content .nv-page-title {
+  font-size: 2.6rem;
+  line-height: 1.1;
+  margin: 0.2rem 0 0.8rem;
+  letter-spacing: -0.02em;
+  font-weight: 700;
 }
 .viewer .content h2 {
-  font-size: 1.55rem;
-  line-height: 1.25;
-  margin: 2.2rem 0 0.75rem;
-  letter-spacing: -0.01em;
+  font-size: 1.85rem;
+  line-height: 1.2;
+  margin: 2.4rem 0 0.85rem;
+  letter-spacing: -0.012em;
+  font-weight: 700;
 }
 .viewer .content h3 {
-  font-size: 1.2rem;
+  font-size: 1.35rem;
   line-height: 1.3;
-  margin: 1.6rem 0 0.5rem;
+  margin: 1.8rem 0 0.55rem;
   letter-spacing: -0.005em;
+  font-weight: 600;
 }
+.viewer .content h4 {
+  font-size: 1.1rem;
+  line-height: 1.35;
+  margin: 1.5rem 0 0.4rem;
+  font-weight: 600;
+}
+
 .viewer .content p,
 .viewer .content li {
-  line-height: 1.65;
+  line-height: 1.68;
 }
-.viewer .content > p + p {
-  margin-top: 0.9rem;
-}
+.viewer .content > p + p { margin-top: 0.95rem; }
 .viewer .content > ul,
-.viewer .content > ol {
-  padding-left: 1.4rem;
+.viewer .content > ol { padding-left: 1.5rem; }
+.viewer .content li + li { margin-top: 0.35rem; }
+
+/* Kicker line under the page title: course · lecture · date. */
+.viewer .content .nv-page-kicker {
+  font-family: JetBrainsMono, "JetBrains Mono", monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--nv-fg-muted);
+  margin: -0.5rem 0 2rem;
 }
-.viewer .content li + li {
-  margin-top: 0.35rem;
+
+/* Code blocks: trim from theme's huge size to readable parity with prose. */
+.viewer .content pre {
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+.viewer .content pre > code {
+  font-size: inherit !important;
+  font-family: JetBrainsMono, "JetBrains Mono", ui-monospace, monospace !important;
+}
+
+/* ── Heading colors (token-driven, theme-aware) ──────────────────────────
+ * Replace the vendored theme's hardcoded #82aaff / #ffc777 / #c3e88d trio
+ * with semantic OKLCH tokens so light + dark stay AA-contrast and the
+ * three-hue identity is preserved without the saturation overload. */
+.viewer .content h1,
+.viewer .content .nv-page-title {
+  color: var(--nv-accent) !important;
+}
+.viewer .content h2 {
+  color: var(--nv-accent-warm) !important;
+}
+.viewer .content h3 {
+  color: var(--nv-accent-mint) !important;
+}
+.viewer .content h1::before,
+.viewer .content h2::before,
+.viewer .content h3::before {
+  /* Match each heading's ::before glyph color to its heading color. */
+  color: inherit !important;
+}
+
+/* ── Tabs: theme hardcodes white tab text — fix light mode ──────────── */
+main > .viewer > .tab ul a,
+main > .viewer > .tab ul li {
+  color: var(--nv-fg) !important;
+}
+main > .viewer > .tab ul li:not(.selected) a {
+  color: var(--nv-fg-muted) !important;
+}
+main > .viewer > .tab ul .selected a,
+main > .viewer > .tab ul li:hover a {
+  color: var(--nv-accent) !important;
 }
 
 /* ── Inline code refinement ──────────────────────────────────────────────

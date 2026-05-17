@@ -11,7 +11,7 @@ copy  = true
 
 ## Slides
 
-{{ slides(src="/slides/speeches/demo-talk/index.html", height="520", title="Demo Talk") }}
+{{ slides(src="/slides/speeches/demo-talk/index.html", title="Demo Talk") }}
 
 ---
 

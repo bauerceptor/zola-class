@@ -52,6 +52,52 @@
 <script src="{{ get_url(path='js/tree-fold.js') }}" defer></script>
 <script src="{{ get_url(path='js/prompt-enhance.js') }}" defer></script>
 
+{# Mermaid rendering — only loaded when a page opts in via [extra] mermaid = true.
+   Zola emits mermaid code blocks as <pre><code class="language-mermaid">; we
+   convert them to <div class="mermaid"> so mermaid.js can render them as SVG.
+   Theme follows the resolved light/dark mode. #}
+{%- if page and page.extra and page.extra.mermaid -%}
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.esm.min.mjs";
+  function effective() {
+    return document.documentElement.classList.contains("light") ? "default" : "dark";
+  }
+  function convertBlocks() {
+    document.querySelectorAll("pre > code.language-mermaid").forEach(function (code) {
+      var pre = code.parentElement;
+      if (!pre || pre.dataset.nvMermaidDone) return;
+      pre.dataset.nvMermaidDone = "1";
+      var div = document.createElement("div");
+      div.className = "mermaid";
+      div.textContent = code.textContent;
+      pre.replaceWith(div);
+    });
+  }
+  function render() {
+    convertBlocks();
+    mermaid.initialize({ startOnLoad: false, theme: effective(), securityLevel: "loose" });
+    mermaid.run({ querySelector: ".mermaid:not([data-processed='true'])" });
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", render);
+  } else { render(); }
+
+  /* Re-render on theme toggle so flowcharts retint with the rest of the site. */
+  window.addEventListener("themechange", function () {
+    document.querySelectorAll(".mermaid").forEach(function (d) {
+      d.removeAttribute("data-processed");
+      d.innerHTML = d.dataset.nvSource || d.textContent;
+    });
+    /* Cache the source first time we see each block. */
+    document.querySelectorAll(".mermaid").forEach(function (d) {
+      if (!d.dataset.nvSource) d.dataset.nvSource = d.textContent;
+    });
+    mermaid.initialize({ startOnLoad: false, theme: effective(), securityLevel: "loose" });
+    mermaid.run({ querySelector: ".mermaid" });
+  });
+</script>
+{%- endif -%}
+
 <script>
 (function () {
   if (typeof console === 'undefined') return;

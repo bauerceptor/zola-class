@@ -19,7 +19,7 @@ Embed the lecture slides using the `slides` shortcode.
 The `src` path is relative to your site root and points to the
 self-contained HTML file in `static/slides/`.
 
-{{ slides(src="/slides/cs101/module1/lec01/index.html", height="520", title="Lecture 1 — Introduction") }}
+{{ slides(src="/slides/cs101/module1/lec01/index.html", title="Lecture 1 — Introduction") }}
 
 ---
 

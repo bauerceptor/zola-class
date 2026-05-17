@@ -15,7 +15,7 @@ copy        = true
 
 ## Slides
 
-{{ slides(src="/slides/cs101/module2/lec03/index.html", height="520", title="Lecture 3 — Control Flow") }}
+{{ slides(src="/slides/cs101/module2/lec03/index.html", title="Lecture 3 — Control Flow") }}
 
 ---
 
