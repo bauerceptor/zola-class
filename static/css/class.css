@@ -1,0 +1,137 @@
+/*
+ * class.css — repo2 (zola-class)
+ * Overrides Neovim theme defaults with Barlow font and
+ * class-site specific styles: lecture layout, slides embed.
+ */
+
+/* ── Font override ──────────────────────────────────────────────────────── */
+body,
+.prose,
+p, li, td, th, blockquote {
+  font-family: "Barlow", system-ui, sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Barlow", system-ui, sans-serif;
+  font-weight: 700;
+}
+
+code, pre, kbd, samp,
+.neovim-filename,
+.neovim-tab {
+  font-family: "JetBrains Mono", "Fira Code", monospace !important;
+}
+
+/* ── Slides embed ───────────────────────────────────────────────────────── */
+.slides-embed {
+  margin: 2rem 0;
+}
+
+.slides-embed__frame-wrap {
+  position: relative;
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(128,128,128,0.2);
+  background: #000;
+}
+
+.slides-embed__frame-wrap iframe {
+  display: block;
+  border: none;
+  width: 100%;
+}
+
+.slides-embed__caption {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.72rem;
+  opacity: 0.5;
+  text-align: right;
+  margin-top: 0.4rem;
+}
+
+.slides-embed__caption a {
+  color: inherit;
+}
+
+/* ── Lecture header ─────────────────────────────────────────────────────── */
+.lecture-header {
+  margin-bottom: 2rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid rgba(128,128,128,0.15);
+}
+
+.lecture-header__course {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.55;
+  margin-bottom: 0.5rem;
+}
+
+.lecture-header__meta {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  font-size: 0.82rem;
+  opacity: 0.6;
+  margin-top: 0.5rem;
+  font-family: "JetBrains Mono", monospace;
+}
+
+/* ── Syllabus / course index table ──────────────────────────────────────── */
+.syllabus-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  margin: 1.5rem 0;
+}
+
+.syllabus-table th {
+  font-family: "Barlow", sans-serif;
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 2px solid rgba(128,128,128,0.2);
+  opacity: 0.6;
+}
+
+.syllabus-table td {
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid rgba(128,128,128,0.1);
+  vertical-align: top;
+}
+
+.syllabus-table tr:hover td {
+  background: rgba(128,128,128,0.05);
+}
+
+.syllabus-table a {
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+.syllabus-table a:hover { opacity: 0.7; }
+
+.lecture-num {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.78rem;
+  opacity: 0.5;
+}
+
+/* ── Tag badges on lectures ─────────────────────────────────────────────── */
+.lecture-tag {
+  display: inline-block;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  padding: 0.15em 0.5em;
+  border-radius: 3px;
+  border: 1px solid rgba(128,128,128,0.2);
+  opacity: 0.7;
+  margin-right: 0.3rem;
+}

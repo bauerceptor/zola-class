@@ -1,0 +1,28 @@
+{#
+  repo2/templates/shortcodes/slides.html
+  Identical to repo1's shortcode.
+  Embeds a self-contained slides HTML file as an iframe.
+
+  Usage:
+    {{ slides(src="/slides/cs101/module1/lec01/index.html") }}
+    {{ slides(src="/slides/cs101/module1/lec01/index.html", height="600") }}
+    {{ slides(src="/slides/cs101/module1/lec01/index.html", title="Lecture 1") }}
+#}
+{%- set h     = height | default(value="540") %}
+{%- set label = title  | default(value="Slides") %}
+
+<div class="slides-embed">
+  <div class="slides-embed__frame-wrap" style="height:{{ h }}px;">
+    <iframe
+      src="{{ src }}"
+      title="{{ label }}"
+      width="100%"
+      height="{{ h }}"
+      allowfullscreen
+      loading="lazy">
+    </iframe>
+  </div>
+  <p class="slides-embed__caption">
+    <a href="{{ src }}" target="_blank" rel="noopener">Open fullscreen ↗</a>
+  </p>
+</div>

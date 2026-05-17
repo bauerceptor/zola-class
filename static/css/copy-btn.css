@@ -1,0 +1,68 @@
+/*
+ * copy-btn.css
+ * Styles for the copy-to-clipboard button injected by copy-code.js.
+ * Loaded globally via _head_extend.html so it's available on every page.
+ * Works in both light and dark Serene themes.
+ */
+
+.copy-btn {
+  position: absolute;
+  top: 0.55rem;
+  right: 0.55rem;
+
+  font-family: var(--code-font, monospace);
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  line-height: 1;
+
+  padding: 0.28rem 0.6rem;
+  border-radius: 4px;
+
+  /* Neutral colours that work on both light and dark code backgrounds */
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.7);
+
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.18s ease, background 0.18s ease, color 0.18s ease;
+  pointer-events: none;
+}
+
+/* Show on pre hover */
+pre:hover .copy-btn,
+pre:focus-within .copy-btn {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.copy-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+/* Confirmed state */
+.copy-btn--ok {
+  background: rgba(104, 211, 145, 0.25);
+  border-color: rgba(104, 211, 145, 0.45);
+  color: #68d391;
+  opacity: 1;
+}
+
+/* Light mode adjustment */
+html.light .copy-btn {
+  background: rgba(0, 0, 0, 0.06);
+  border-color: rgba(0, 0, 0, 0.12);
+  color: rgba(0, 0, 0, 0.5);
+}
+
+html.light .copy-btn:hover {
+  background: rgba(0, 0, 0, 0.12);
+  color: rgba(0, 0, 0, 0.8);
+}
+
+html.light .copy-btn--ok {
+  background: rgba(40, 120, 70, 0.12);
+  border-color: rgba(40, 120, 70, 0.3);
+  color: #287846;
+}

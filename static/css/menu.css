@@ -1,0 +1,256 @@
+/*
+ * menu.css
+ * Hamburger overlay menu — mortezasharifinia style.
+ * Identical file used in both repo1 and repo2.
+ * The menu DOM is injected by menu.js into every page's <body>.
+ */
+
+/* ── Wrapper & checkbox toggle trick ───────────────────────────────────── */
+.menu-wrap {
+  position: fixed;
+  top: 1.25rem;
+  right: 1.5rem;
+  z-index: 1000;
+}
+
+.menu-wrap .toggler {
+  position: absolute;
+  top: 0; right: 0;
+  width: 50px; height: 50px;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 2;
+  -webkit-touch-callout: none;
+}
+
+/* ── Hamburger icon ─────────────────────────────────────────────────────── */
+.menu-wrap .hamburger {
+  position: relative;
+  width: 40px; height: 40px;
+  background: rgba(20, 20, 20, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  transition: border-color 0.2s ease;
+}
+
+.menu-wrap:hover .hamburger {
+  border-color: rgba(200, 255, 71, 0.4);
+}
+
+/* Three bars */
+.menu-wrap .hamburger > div {
+  position: relative;
+  width: 22px; height: 2px;
+  background: #f0ede6;
+  transition: all 0.4s ease;
+}
+
+.menu-wrap .hamburger > div::before,
+.menu-wrap .hamburger > div::after {
+  content: '';
+  position: absolute;
+  width: 100%; height: 2px;
+  background: #f0ede6;
+  transition: all 0.4s ease;
+}
+
+.menu-wrap .hamburger > div::before { top: -7px; }
+.menu-wrap .hamburger > div::after  { top:  7px; }
+
+/* Animate to X on open */
+.menu-wrap .toggler:checked + .hamburger > div {
+  background: transparent;
+}
+
+.menu-wrap .toggler:checked + .hamburger > div::before {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+
+.menu-wrap .toggler:checked + .hamburger > div::after {
+  transform: rotate(-45deg) translate(5px, -5px);
+}
+
+/* ── Full-screen overlay ────────────────────────────────────────────────── */
+.menu-overlay {
+  position: fixed;
+  inset: 0;
+  visibility: hidden;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  z-index: 999;
+}
+
+/* The coloured panel slides in from the right */
+.menu-overlay__panel {
+  background: #111110;
+  border-left: 1px solid rgba(255,255,255,0.07);
+  width: min(420px, 100vw);
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding: 5rem 3rem 3rem;
+  transform: translateX(100%);
+  transition: transform 0.45s cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+/* Backdrop */
+.menu-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+
+/* Open state */
+.menu-wrap .toggler:checked ~ .menu-overlay {
+  visibility: visible;
+}
+
+.menu-wrap .toggler:checked ~ .menu-overlay::before {
+  opacity: 1;
+}
+
+.menu-wrap .toggler:checked ~ .menu-overlay .menu-overlay__panel {
+  transform: translateX(0);
+}
+
+/* ── Panel inner content ────────────────────────────────────────────────── */
+.menu-overlay__inner {
+  width: 100%;
+}
+
+.menu-overlay__site-name {
+  font-family: "Ubuntu", system-ui, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #c8ff47;
+  margin-bottom: 2.5rem;
+  text-decoration: none;
+  display: block;
+}
+
+/* Nav links */
+.menu-overlay__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin-bottom: 2.5rem;
+}
+
+.menu-overlay__nav a {
+  font-family: "Ubuntu", system-ui, sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #f0ede6;
+  text-decoration: none;
+  line-height: 1.3;
+  transition: color 0.18s ease, transform 0.18s ease;
+  display: inline-block;
+}
+
+.menu-overlay__nav a:hover {
+  color: #c8ff47;
+  transform: translateX(6px);
+}
+
+/* External link indicator */
+.menu-overlay__nav a[target="_blank"]::after {
+  content: ' ↗';
+  font-size: 0.7em;
+  opacity: 0.6;
+}
+
+/* Divider */
+.menu-overlay__divider {
+  height: 1px;
+  background: rgba(255,255,255,0.07);
+  margin-bottom: 1.5rem;
+}
+
+/* Controls row: theme toggle + copy toggle */
+.menu-overlay__controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.menu-ctrl-btn {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px;
+  padding: 0.45rem 0.85rem;
+  font-family: "Ubuntu", system-ui, sans-serif;
+  font-size: 0.78rem;
+  color: #f0ede6;
+  cursor: pointer;
+  transition: border-color 0.18s ease, color 0.18s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.menu-ctrl-btn:hover {
+  border-color: #c8ff47;
+  color: #c8ff47;
+}
+
+.menu-ctrl-btn[aria-pressed="true"] {
+  background: rgba(200,255,71,0.1);
+  border-color: rgba(200,255,71,0.35);
+  color: #c8ff47;
+}
+
+/* Social links */
+.menu-overlay__social {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.menu-overlay__social a {
+  font-family: "Ubuntu", system-ui, sans-serif;
+  font-size: 0.78rem;
+  color: #888480;
+  text-decoration: none;
+  transition: color 0.18s ease;
+}
+
+.menu-overlay__social a:hover { color: #c8ff47; }
+
+/* ── Light-mode adjustments ─────────────────────────────────────────────── */
+/* Serene adds class `light` to <html> for light mode */
+html.light .menu-wrap .hamburger {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(0,0,0,0.1);
+}
+
+html.light .menu-wrap .hamburger > div,
+html.light .menu-wrap .hamburger > div::before,
+html.light .menu-wrap .hamburger > div::after {
+  background: #1a1917;
+}
+
+html.light .menu-wrap .toggler:checked + .hamburger > div {
+  background: transparent;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .menu-overlay__panel { padding: 5rem 1.5rem 2rem; }
+  .menu-overlay__nav a { font-size: 1.6rem; }
+}

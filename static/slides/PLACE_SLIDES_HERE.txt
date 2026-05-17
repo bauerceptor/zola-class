@@ -1,0 +1,14 @@
+Place self-contained Reveal.js slide decks here.
+Structure mirrors the content structure but is not required to match exactly.
+You provide the full path in the slides() shortcode.
+
+Examples already in use:
+  slides/cs101/module1/lec01/index.html  (demo lecture 1)
+
+Add more by creating a folder and placing your index.html inside.
+All assets needed by a deck (images, custom CSS) go in the same folder
+and are referenced by relative paths within the HTML file.
+
+Fonts used in slide decks (Playfair Display + Nanum Gothic + JetBrains Mono)
+are loaded from Google Fonts CDN inside each slide HTML — see the demo deck
+for the exact <link> tag to copy.

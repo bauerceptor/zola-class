@@ -1,0 +1,42 @@
+base_url = "https://bauerceptor.github.io/zola-class"
+title = "Class — Your Name"
+description = "Lectures, notes, and course materials."
+default_language = "en"
+theme = "neovim-theme"
+compile_sass = true
+build_search_index = true
+generate_feeds = false
+
+[markdown]
+highlight_code = true
+render_emoji = true
+smart_punctuation = true
+external_links_target_blank = true
+
+[markdown.highlighting]
+# Same class-based dual-theme approach as main site.
+# JS swaps the sheets based on user preference stored in localStorage.
+style = "class"
+light_theme = "GitHub Light"
+dark_theme  = "One Dark Pro"
+
+[search]
+include_title = true
+include_description = true
+include_path = true
+include_content = true
+truncate_content_length = 100
+
+# ── Neovim theme config ──────────────────────────────────────────────────────
+# The Neovim theme is vendored directly into themes/neovim-theme/.
+# It was copied from https://github.com/Super-Botman/neovim-theme at commit:
+#   COMMIT_HASH_PLACEHOLDER
+# To update: copy the theme files again and record the new hash here.
+[extra]
+# data-site-name is injected by menu.js to label the menu overlay
+site_name = "Class — Your Name"
+
+# Nav links — same list as main site, used by menu.js
+# (menu.js is identical in both repos; edit the NAV_LINKS array there)
+
+author = "Your Name"
