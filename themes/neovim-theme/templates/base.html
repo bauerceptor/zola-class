@@ -7,31 +7,31 @@
   <title>{{ config.extra.blog_name }}</title>
   <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"
     integrity="sha256-WCzAhd2P6gRJF9Hv3oOOd+hFJi/QJbv+Azn4CGB8gfY=" crossorigin="anonymous" defer></script>
-  <script src="/js/index.js" defer></script>
-  <script src="/js/prompt.js" defer></script>
-  <script src="/js/keyboard.js" defer></script>
-  <script src="/js/tab.js" defer></script>
-  <script src="/js/commands.js" defer></script>
-  <script src="/js/config.js" defer></script>
+  <script src="{{ get_url(path='js/index.js') }}" defer></script>
+  <script src="{{ get_url(path='js/prompt.js') }}" defer></script>
+  <script src="{{ get_url(path='js/keyboard.js') }}" defer></script>
+  <script src="{{ get_url(path='js/tab.js') }}" defer></script>
+  <script src="{{ get_url(path='js/commands.js') }}" defer></script>
+  <script src="{{ get_url(path='js/config.js') }}" defer></script>
   {%- if config.extra.config_js -%}
-  <script src="/{{ config.extra.config_js }}"></script>
+  <script src="{{ get_url(path=config.extra.config_js) }}"></script>
   {%- endif -%}
-  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="{{ get_url(path='css/base.css') }}">
 
   {%- if config.extra.custom_css -%}
-  <link rel="stylesheet" href="{{ config.extra.custom_css }}">
+  <link rel="stylesheet" href="{{ get_url(path=config.extra.custom_css) }}">
   {%- endif -%}
   {%- if page -%}
-  <link rel="stylesheet" href="/css/page.css">
+  <link rel="stylesheet" href="{{ get_url(path='css/page.css') }}">
   {%- endif -%}
 </head>
 
 {%- if config.extra.background_image -%}
 
-<body onkeydown="exec(event)" style="background-image: url({{ config.extra.background_image }}); ">
+<body onkeydown="exec(event)" style="background-image: url({{ get_url(path=config.extra.background_image) }}); ">
   {%- else -%}
 
-  <body onkeydown='exec(event)' style='background-image: url("/assets/background.jpg");'>
+  <body onkeydown='exec(event)' style='background-image: url("{{ get_url(path="assets/background.jpg") }}");'>
     {%- endif -%}
     <main>
       <div class="files" id="files" tabindex="0">
