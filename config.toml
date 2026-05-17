@@ -33,6 +33,9 @@ truncate_content_length = 100
 #   86f7eff97fa3a4778d30f21502118407bf5e6ff2
 # To update: copy the theme files again and record the new hash here.
 [extra]
+# Required by neovim-theme (rendered as <title> in base.html)
+blog_name = "Class — Your Name"
+
 # data-site-name is injected by menu.js to label the menu overlay
 site_name = "Class — Your Name"
 
