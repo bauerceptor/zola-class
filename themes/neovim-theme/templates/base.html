@@ -24,6 +24,7 @@
   {%- if page -%}
   <link rel="stylesheet" href="{{ get_url(path='css/page.css') }}">
   {%- endif -%}
+  {%- include "_head_extend.html" ignore missing -%}
 </head>
 
 {%- if config.extra.background_image -%}

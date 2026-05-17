@@ -135,3 +135,104 @@ code, pre, kbd, samp,
   opacity: 0.7;
   margin-right: 0.3rem;
 }
+
+/* ── Neovim theme polish (vendored Super-Botman/neovim-theme) ─────────────
+ * Loaded after the theme's own base.css via templates/_head_extend.html.
+ * Keeps the tokyo-night palette; fixes the cramped 20% sidebar, softens
+ * the harsh saturated selection color, and caps prose line length. */
+
+:root {
+  --nv-sidebar-w:           clamp(240px, 24vw, 320px);
+  --nv-accent:              rgb(130, 170, 255);
+  --nv-selection-bg:        rgba(130, 170, 255, 0.16);
+  --nv-selection-bg-strong: rgba(130, 170, 255, 0.28);
+}
+
+/* Sidebar / viewer layout — swap the theme's 20% column for a CSS-var width
+ * that grows with the viewport but stops being a postage stamp on narrow
+ * laptops and stops swallowing the page on ultrawides. */
+@media only screen and (min-width: 768px) {
+  main > .files {
+    width: calc(var(--nv-sidebar-w) - 10px) !important;
+    padding: 22px 12px 0 18px;
+    font-size: 0.88rem;
+    line-height: 1.55;
+  }
+  main > .viewer {
+    width: calc(100% - var(--nv-sidebar-w)) !important;
+    margin-left: var(--nv-sidebar-w) !important;
+  }
+}
+
+/* Allow long course / module / lecture names to wrap. The theme uses
+ * literal └── connector glyphs inside their own <span>, so wrapping the
+ * link text preserves the ASCII tree art instead of breaking it. */
+main > .files,
+main > .files ul,
+main > .files li,
+main > .files span,
+main > .files a {
+  text-wrap: pretty;
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+main > .files {
+  overflow-x: hidden !important;
+}
+
+main > .files li > ul {
+  padding-left: 1.2em;
+  margin-top: 0.1em;
+}
+
+main > .files li li {
+  font-size: 0.95em;
+  margin-top: 0.1em;
+}
+
+/* Selection + hover: theme default is a saturated 50%-alpha blue fill that
+ * fights the rest of the palette. Drop it to a quiet accent chip. */
+main > .files a:hover,
+main > .files .selected,
+main > .viewer .content a:hover,
+main > .viewer .tab ul li:hover,
+main > .viewer .tab ul .selected {
+  background-color: var(--nv-selection-bg) !important;
+  border-radius: 3px;
+  transition: background-color 0.18s ease;
+}
+
+main > .files .selected {
+  background-color: var(--nv-selection-bg-strong) !important;
+}
+
+/* The theme's heading and link ::before pseudo-elements use Nerd Font
+ * glyphs (󰲡 󰲣 󰲥 󰌹). Restoring JetBrainsMono on them so the glyphs keep
+ * rendering after the Barlow swap on headings above. */
+.viewer .content h1::before,
+.viewer .content h2::before,
+.viewer .content h3::before,
+.viewer .content a::before {
+  font-family: JetBrainsMono, "JetBrains Mono", monospace;
+}
+
+/* Cap prose line length so the README and lecture pages don't stretch
+ * edge-to-edge on wide screens. */
+.viewer .content {
+  padding-right: 28px !important;
+}
+
+.viewer .content > p,
+.viewer .content > ul,
+.viewer .content > ol,
+.viewer .content > blockquote {
+  max-width: 72ch;
+}
+
+/* Quieter blockquote rail — theme default is a 3.5px bright bar. */
+.viewer .content blockquote::before {
+  width: 2px !important;
+  background-color: rgba(130, 170, 255, 0.55) !important;
+}

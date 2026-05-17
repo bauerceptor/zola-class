@@ -1,19 +1,6 @@
-{% raw %}<!--
-  repo2/templates/_head_extend.html  (or equivalent hook in neovim-theme)
-  Injected into every page's <head> in the class site.
+{# Injected into <head> by themes/neovim-theme/templates/base.html.
+   Loads project-level fonts and overrides on top of the vendored theme. #}
 
-  NOTE: The Neovim theme may use a different hook name than Serene.
-  Check themes/neovim-theme/templates/base.html for the correct block name
-  and adjust this file's extension accordingly.
-  Common patterns: {% block extra_head %}, {% block head_extra %},
-  or a direct include of _head_extend.html.
-
-  Fonts for the class site:
-    Non-code text : Barlow
-    Code          : JetBrains Mono (already in code-font CSS var)
-    Slides titles : Playfair Display  (loaded in the slides HTML itself)
-    Slides body   : Nanum Gothic      (loaded in the slides HTML itself)
--->{% endraw %}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link
@@ -21,17 +8,6 @@
   rel="stylesheet"
 >
 
-<!-- Syntax highlight sheets -->
-<link id="hl-light" rel="stylesheet" href="/giallo-light.css"
-      media="(prefers-color-scheme: light)">
-<link id="hl-dark"  rel="stylesheet" href="/giallo-dark.css"
-      media="(prefers-color-scheme: dark)">
-
-<!-- Menu overlay styles (same file as main site) -->
-<link rel="stylesheet" href="/css/menu.css">
-
-<!-- Class-site overrides (Barlow font, body tweaks) -->
-<link rel="stylesheet" href="/css/class.css">
-
-<!-- Copy button styles -->
-<link rel="stylesheet" href="/css/copy-btn.css">
+<link rel="stylesheet" href="{{ get_url(path='css/menu.css') }}">
+<link rel="stylesheet" href="{{ get_url(path='css/class.css') }}">
+<link rel="stylesheet" href="{{ get_url(path='css/copy-btn.css') }}">

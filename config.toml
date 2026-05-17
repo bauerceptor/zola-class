@@ -1,5 +1,5 @@
 base_url = "https://bauerceptor.github.io/zola-class"
-title = "Class — Your Name"
+title = "Class — Hassan Aziz"
 description = "Lectures, notes, and course materials."
 default_language = "en"
 theme = "neovim-theme"
@@ -34,12 +34,12 @@ truncate_content_length = 100
 # To update: copy the theme files again and record the new hash here.
 [extra]
 # Required by neovim-theme (rendered as <title> in base.html)
-blog_name = "Class — Your Name"
+blog_name = "Class — Hassan Aziz"
 
 # data-site-name is injected by menu.js to label the menu overlay
-site_name = "Class — Your Name"
+site_name = "Class — Hassan Aziz"
 
 # Nav links — same list as main site, used by menu.js
 # (menu.js is identical in both repos; edit the NAV_LINKS array there)
 
-author = "Your Name"
+author = "Hassan Aziz"

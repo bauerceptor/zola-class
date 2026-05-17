@@ -13,9 +13,9 @@
 
   /* ── Site identity ─────────────────────────────────────────────────────
      Change SITE_NAME per repo.
-     repo1: "Your Name"
-     repo2: "Class — Your Name"                                          */
-  var SITE_NAME = document.documentElement.dataset.siteName || "Class — Your Name";
+     repo1: "Hassan Aziz"
+     repo2: "Class — Hassan Aziz"                                        */
+  var SITE_NAME = document.documentElement.dataset.siteName || "Class — Hassan Aziz";
 
   /* ── Navigation links ──────────────────────────────────────────────────
      Shared across both sites. External links get target="_blank".
