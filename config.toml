@@ -30,7 +30,7 @@ truncate_content_length = 100
 # ── Neovim theme config ──────────────────────────────────────────────────────
 # The Neovim theme is vendored directly into themes/neovim-theme/.
 # It was copied from https://github.com/Super-Botman/neovim-theme at commit:
-#   COMMIT_HASH_PLACEHOLDER
+#   86f7eff97fa3a4778d30f21502118407bf5e6ff2
 # To update: copy the theme files again and record the new hash here.
 [extra]
 # data-site-name is injected by menu.js to label the menu overlay
