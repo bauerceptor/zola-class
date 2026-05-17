@@ -1,5 +1,6 @@
 {# Injected into <head> by themes/neovim-theme/templates/base.html.
-   Loads project-level fonts and overrides on top of the vendored theme. #}
+   Loads project fonts, theme overrides, and the overdrive layer
+   (theme switcher, WebGL aurora, enhanced :prompt). #}
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,11 +13,44 @@
 <link rel="stylesheet" href="{{ get_url(path='css/class.css') }}">
 <link rel="stylesheet" href="{{ get_url(path='css/copy-btn.css') }}">
 
-{# Base-aware URL for the :help command (theme's commands.js reads this). #}
-<script>window.HELP_URL = "{{ get_url(path='readme') }}";</script>
+{# Theme switcher must run SYNCHRONOUSLY before paint so the right palette
+   is already on <html> when the first frame draws (no flash). #}
+<script src="{{ get_url(path='js/theme-toggle.js') }}"></script>
+
+{# Inline base-aware URL hooks for the enhanced prompt: it needs to know
+   the help target and the site's page index for fuzzy :find search. #}
+<script>
+  window.HELP_URL  = "{{ get_url(path='readme') }}";
+  window.SITE_BASE = "{{ get_url(path='') }}";
+  window.SITE_PAGES = (function () {
+    var pages = [];
+    {%- set root = get_section(path="_index.md") %}
+    {%- for page in root.pages %}
+    pages.push({ title: {{ page.title | json_encode | safe }}, url: {{ page.permalink | json_encode | safe }} });
+    {%- endfor %}
+    {%- for subpath in root.subsections %}
+      {%- set sub = get_section(path=subpath) %}
+    pages.push({ title: {{ sub.title | json_encode | safe }}, url: {{ sub.permalink | json_encode | safe }} });
+      {%- for page in sub.pages %}
+    pages.push({ title: {{ page.title | json_encode | safe }}, url: {{ page.permalink | json_encode | safe }} });
+      {%- endfor %}
+      {%- for sub2path in sub.subsections %}
+        {%- set sub2 = get_section(path=sub2path) %}
+    pages.push({ title: {{ sub2.title | json_encode | safe }}, url: {{ sub2.permalink | json_encode | safe }} });
+        {%- for page in sub2.pages %}
+    pages.push({ title: {{ page.title | json_encode | safe }}, url: {{ page.permalink | json_encode | safe }} });
+        {%- endfor %}
+      {%- endfor %}
+    {%- endfor %}
+    return pages;
+  })();
+</script>
 
 <script src="{{ get_url(path='js/menu.js') }}" defer></script>
 <script src="{{ get_url(path='js/copy-code.js') }}" defer></script>
+<script src="{{ get_url(path='js/aurora.js') }}" defer></script>
+<script src="{{ get_url(path='js/tree-fold.js') }}" defer></script>
+<script src="{{ get_url(path='js/prompt-enhance.js') }}" defer></script>
 
 <script>
 (function () {
@@ -27,6 +61,7 @@
     '%c~/class %c$ welcome\n' +
     '   Notes, lectures, and slides by Hassan Aziz.\n' +
     '   Press shift+h / shift+l to move focus; j / k to scroll.\n' +
+    '   Hit `:` and type `find <query>` for fuzzy file search.\n' +
     '   Source: github.com/bauerceptor/zola-class',
     title, body
   );

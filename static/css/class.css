@@ -136,16 +136,90 @@ code, pre, kbd, samp,
   margin-right: 0.3rem;
 }
 
-/* ── Neovim theme polish (vendored Super-Botman/neovim-theme) ─────────────
+/* ── Neovim theme polish + theme tokens (light / dark / system) ──────────
  * Loaded after the theme's own base.css via templates/_head_extend.html.
- * Keeps the tokyo-night palette; fixes the cramped 20% sidebar, softens
- * the harsh saturated selection color, and caps prose line length. */
+ * Defines the semantic OKLCH tokens the rest of the site (and the WebGL
+ * aurora) reads. theme-toggle.js adds html.light or html.dark; missing
+ * class = follow system. */
 
 :root {
   --nv-sidebar-w:           clamp(240px, 24vw, 320px);
-  --nv-accent:              rgb(130, 170, 255);
-  --nv-selection-bg:        rgba(130, 170, 255, 0.16);
-  --nv-selection-bg-strong: rgba(130, 170, 255, 0.28);
+
+  /* ── Dark palette (default + html.dark) ─────────────────────────────── */
+  --nv-bg-base:             oklch(0.16 0.025 270);
+  --nv-bg-panel:            oklch(0.22 0.020 270 / 0.78);
+  --nv-fg:                  oklch(0.92 0.018 260);
+  --nv-fg-muted:            oklch(0.70 0.020 260);
+  --nv-rule:                oklch(0.92 0.018 260 / 0.18);
+  --nv-rule-strong:         oklch(0.92 0.018 260 / 0.30);
+  --nv-accent:              oklch(0.78 0.13 268);
+  --nv-accent-rgb:          130 170 255;
+  --nv-accent-warm:         oklch(0.84 0.14 80);
+  --nv-accent-mint:         oklch(0.85 0.14 145);
+  --nv-selection-bg:        oklch(0.78 0.13 268 / 0.16);
+  --nv-selection-bg-strong: oklch(0.78 0.13 268 / 0.28);
+  --nv-code-bg:             oklch(0.20 0.020 270);
+  --nv-inline-code-bg:      oklch(0.78 0.13 268 / 0.10);
+  --nv-inline-code-fg:      oklch(0.86 0.07 268);
+
+  /* Aurora shader colors (read by aurora.js via getComputedStyle). */
+  --nv-aur-a:               oklch(0.32 0.06 268);
+  --nv-aur-b:               oklch(0.27 0.05 248);
+  --nv-aur-c:               oklch(0.40 0.07 200);
+  --nv-aur-intensity:       1.0;
+}
+
+/* Explicit dark mode (same values as :root defaults — kept for clarity
+   and to override an inherited light state). */
+html.dark {
+  color-scheme: dark;
+}
+
+/* ── Light palette (tokyo-night-day inspired) ────────────────────────────
+ * Warm paper-cream surface tinted toward navy, deep ink for text, the
+ * same blue/yellow/green accent family but darkened for AA contrast. */
+html.light {
+  color-scheme: light;
+  --nv-bg-base:             oklch(0.97 0.012 80);
+  --nv-bg-panel:            oklch(0.99 0.008 80 / 0.85);
+  --nv-fg:                  oklch(0.30 0.025 270);
+  --nv-fg-muted:            oklch(0.50 0.025 270);
+  --nv-rule:                oklch(0.30 0.025 270 / 0.16);
+  --nv-rule-strong:         oklch(0.30 0.025 270 / 0.30);
+  --nv-accent:              oklch(0.48 0.16 255);
+  --nv-accent-rgb:          54 100 200;
+  --nv-accent-warm:         oklch(0.58 0.16 60);
+  --nv-accent-mint:         oklch(0.55 0.14 150);
+  --nv-selection-bg:        oklch(0.48 0.16 255 / 0.13);
+  --nv-selection-bg-strong: oklch(0.48 0.16 255 / 0.24);
+  --nv-code-bg:             oklch(0.94 0.012 80);
+  --nv-inline-code-bg:      oklch(0.48 0.16 255 / 0.10);
+  --nv-inline-code-fg:      oklch(0.36 0.14 255);
+
+  --nv-aur-a:               oklch(0.90 0.04 80);
+  --nv-aur-b:               oklch(0.86 0.05 70);
+  --nv-aur-c:               oklch(0.92 0.03 240);
+  --nv-aur-intensity:       1.05;
+}
+
+/* Theme transition: a 220ms swap when the html.light/.dark class changes,
+   short enough not to be a distraction, long enough not to be a flash. */
+html, body, main, main *, .menu-overlay, .menu-overlay__panel {
+  transition: background-color 0.22s ease, color 0.22s ease,
+              border-color 0.22s ease, box-shadow 0.22s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  html, body, main, main *, .menu-overlay, .menu-overlay__panel {
+    transition: none;
+  }
+}
+
+/* Map theme tokens onto the theme's existing CSS variables. The vendored
+   base.css uses --bg-color and --font-color; route them through ours so
+   one toggle updates every component the theme draws. */
+:root {
+  --bg-color:   var(--nv-bg-panel);
+  --font-color: var(--nv-fg);
 }
 
 /* Sidebar / viewer layout — swap the theme's 20% column for a CSS-var width
@@ -234,23 +308,98 @@ main > .files .selected {
 /* Quieter blockquote rail — theme default is a 3.5px bright bar. */
 .viewer .content blockquote::before {
   width: 2px !important;
-  background-color: rgba(130, 170, 255, 0.55) !important;
+  background-color: rgb(var(--nv-accent-rgb) / 0.55) !important;
+}
+
+/* ── Light-mode content adjustments ───────────────────────────────────────
+ * Theme's hardcoded heading hues (#82aaff blue / #ffc777 yellow / #c3e88d
+ * green) read fine on dark navy but turn invisible on cream. Re-anchor
+ * each to the theme-aware accent tokens, AA-contrast in either palette. */
+html.light .viewer .content h1 { color: var(--nv-accent) !important; }
+html.light .viewer .content h2 { color: var(--nv-accent-warm) !important; }
+html.light .viewer .content h3 { color: var(--nv-accent-mint) !important; }
+html.light .viewer .content a,
+html.light .viewer .content a::before { color: var(--nv-accent) !important; }
+html.light .viewer .content code,
+html.light .viewer .content blockquote { background-color: var(--nv-code-bg) !important; }
+html.light .viewer .content pre {
+  background-color: var(--nv-code-bg) !important;
+  color: var(--nv-fg) !important;
+}
+html.light .viewer .content pre > code { color: var(--nv-fg) !important; }
+
+/* The h1 phosphor halo loses meaning on light backgrounds; switch to a
+   restrained shadow that adds depth instead of glow. */
+html.light .viewer .content h1 {
+  text-shadow: 0 1px 0 rgb(var(--nv-accent-rgb) / 0.10);
+}
+
+/* ── View Transitions ─────────────────────────────────────────────────────
+ * Cross-document fade between lectures. The browser snapshots the old
+ * page and cross-fades to the new one. With navigation: auto, every
+ * same-origin link gets it automatically. Falls back to instant nav on
+ * Firefox (no cross-document VT) and respects reduced-motion. */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 240ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Slide the content area subtly from the right; cross-fade the rest.
+   The .viewer .content element gets a named transition so we can target
+   it specifically without disturbing the chrome (sidebar, tabs, prompt). */
+.viewer > .content {
+  view-transition-name: nv-content;
+}
+
+::view-transition-old(nv-content) {
+  animation: nv-vt-leave 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+::view-transition-new(nv-content) {
+  animation: nv-vt-enter 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes nv-vt-leave {
+  to { opacity: 0; transform: translateX(-12px); }
+}
+@keyframes nv-vt-enter {
+  from { opacity: 0; transform: translateX(14px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @view-transition { navigation: none; }
 }
 
 /* ── Body backdrop ────────────────────────────────────────────────────────
- * Replaces the theme's bundled tokyo-night JPG (651 KB, generic) with a
- * tinted OKLCH gradient. The whole site sits on top of this; main has its
- * own 20px-radius dark panel, so the gradient only peeks through at the
- * frame edges and corners. */
+ * Static gradient fallback for when WebGL is unavailable or before the
+ * aurora canvas mounts. The aurora canvas (z-index -1) covers this once
+ * it's running; this only shows for a split second on first paint or as
+ * the reduced-motion / no-WebGL fallback. */
 body {
   min-height: 100vh;
-  background-color: oklch(0.16 0.025 270);
+  background-color: var(--nv-bg-base);
   background-image:
-    radial-gradient(ellipse 80% 60% at 25% 0%,
-      oklch(0.32 0.06 268 / 0.55) 0%, transparent 65%),
-    radial-gradient(ellipse 70% 50% at 80% 100%,
-      oklch(0.27 0.05 248 / 0.45) 0%, transparent 60%);
+    radial-gradient(ellipse 80% 60% at 25% 0%, var(--nv-aur-a) 0%, transparent 65%),
+    radial-gradient(ellipse 70% 50% at 80% 100%, var(--nv-aur-b) 0%, transparent 60%);
   background-attachment: fixed;
+}
+
+/* ── Aurora canvas: full-viewport, behind everything ─────────────────── */
+#nv-aurora {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.78;
+}
+html.light #nv-aurora {
+  opacity: 0.55;       /* lighter palette wants less coverage */
 }
 
 /* ── Tab strip ────────────────────────────────────────────────────────────
@@ -310,8 +459,8 @@ main > .viewer .tab ul li {
 .viewer .content :not(pre) > code {
   font-size: 0.92em !important;
   padding: 0.12em 0.4em !important;
-  background-color: rgba(130, 170, 255, 0.10) !important;
-  color: oklch(0.86 0.07 268) !important;
+  background-color: var(--nv-inline-code-bg) !important;
+  color: var(--nv-inline-code-fg) !important;
   border-radius: 3px;
 }
 
@@ -332,7 +481,7 @@ main > .viewer .tab ul li {
 /* ── Delight: phosphor glow on the home page heading ─────────────────────
  * Tiny terminal-monitor-style halo on h1 only. Restrained, single accent. */
 .viewer .content h1 {
-  text-shadow: 0 0 18px rgba(130, 170, 255, 0.18);
+  text-shadow: 0 0 18px rgb(var(--nv-accent-rgb) / 0.18);
 }
 
 /* ── Mobile / narrow screens ─────────────────────────────────────────────
@@ -363,6 +512,92 @@ main > .viewer .tab ul li {
 main > .files,
 main > .files * {
   font-family: JetBrainsMono, "JetBrains Mono", ui-monospace, monospace;
+}
+
+/* ── Tree fold chevrons (tree-fold.js) ──────────────────────────────────
+ * Sidebar starts with every folder collapsed (except the path to the
+ * current page). Click the ▾/▸ button to toggle; state persists per
+ * folder in localStorage. */
+.nv-fold-toggle {
+  background: transparent;
+  border: 0;
+  padding: 0 0.25em 0 0;
+  margin: 0;
+  color: var(--nv-fg-muted, currentColor);
+  font: inherit;
+  cursor: pointer;
+  width: 1.25em;
+  line-height: 1;
+  display: inline-block;
+  text-align: center;
+  border-radius: 2px;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+.nv-fold-toggle:hover {
+  color: var(--nv-accent);
+  background-color: rgb(var(--nv-accent-rgb) / 0.10);
+}
+.nv-fold-toggle:focus-visible {
+  outline: 1px solid var(--nv-accent);
+  outline-offset: 1px;
+}
+main > .files li.nv-fold-closed > ul {
+  display: none;
+}
+
+/* ── Enhanced :prompt dropdown (prompt-enhance.js) ───────────────────────
+ * Fuzzy match results render in a panel that floats above the prompt
+ * input. Keyboard nav (↑/↓ in the input) updates the highlighted row;
+ * Enter opens. */
+.nv-prompt-dropdown {
+  position: absolute;
+  bottom: 100%;
+  left: 12px;
+  right: 12px;
+  max-width: 720px;
+  margin: 0 auto 6px;
+  background: var(--nv-bg-base);
+  border: 1px solid var(--nv-rule-strong);
+  border-radius: 8px;
+  box-shadow: 0 14px 40px -10px rgb(0 0 0 / 0.45);
+  overflow: hidden;
+  font-family: JetBrainsMono, "JetBrains Mono", ui-monospace, monospace;
+  font-size: 0.85rem;
+  z-index: 10;
+}
+.nv-prompt-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1.2rem;
+  padding: 0.45rem 0.85rem;
+  color: var(--nv-fg);
+  text-decoration: none;
+  border-bottom: 1px solid var(--nv-rule);
+  transition: background-color 0.12s ease;
+}
+.nv-prompt-row:last-child { border-bottom: 0; }
+.nv-prompt-row__title {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.nv-prompt-row__url {
+  color: var(--nv-fg-muted);
+  font-size: 0.78rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 50%;
+}
+.nv-prompt-row--sel {
+  background: var(--nv-selection-bg-strong);
+  color: var(--nv-accent);
+}
+.nv-prompt-row--sel .nv-prompt-row__url {
+  color: var(--nv-accent);
+  opacity: 0.7;
 }
 
 /* ── Panel dividers ──────────────────────────────────────────────────────

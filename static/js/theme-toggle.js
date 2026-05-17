@@ -1,110 +1,84 @@
 /**
- * theme-toggle.js
- * Cycles through three states: system → light → dark → system …
+ * theme-toggle.js — three-way theme switcher: system → light → dark → …
  *
- * How it works with Serene:
- *   Serene reads the `html` element's class: "light" | "dark" | (none = system).
- *   We add/remove those classes and persist the choice in localStorage.
+ * The class on <html> (`light`, `dark`, or absent for system) drives every
+ * theme-aware CSS rule in class.css (the OKLCH palette tokens) and the
+ * WebGL aurora reads the same CSS variables so it follows along.
  *
- * How it works with syntax highlighting:
- *   Zola generates /giallo-light.css and /giallo-dark.css.
- *   The <link> tags for these are in _head_extend.html with id="hl-light" / "hl-dark".
- *   We swap their `media` attributes so only the correct one applies.
+ * Loaded SYNCHRONOUSLY (not deferred) so the initial paint already has
+ * the correct theme applied — prevents a flash of the wrong palette.
  *
  * Exposed globals:
- *   window.cycleTheme()   — called by the menu button in menu.js
+ *   window.cycleTheme()       cycle to next mode (called by the menu button)
+ *   window.currentTheme()     "system" | "light" | "dark"
+ *   window.effectiveTheme()   resolves "system" to the actual OS preference
  */
 
 (function () {
   "use strict";
 
-  var STORAGE_KEY = "site-theme"; // "light" | "dark" | "system"
+  var STORAGE_KEY = "site-theme";
   var THEMES = ["system", "light", "dark"];
+  var ICONS  = { system: "⬢", light: "☼", dark: "☽" };
+  var LABELS = { system: "System",  light: "Light", dark: "Dark" };
 
-  var ICONS  = { system: "⬡", light: "☀", dark: "☾" };
-  var LABELS = { system: "System", light: "Light", dark: "Dark" };
-
-  /* ── Read persisted preference ─────────────────────────────────────── */
   function getSaved() {
     try {
       var v = localStorage.getItem(STORAGE_KEY);
       return THEMES.indexOf(v) !== -1 ? v : "system";
-    } catch (_) {
-      return "system";
-    }
+    } catch (_) { return "system"; }
   }
 
   function save(theme) {
     try { localStorage.setItem(STORAGE_KEY, theme); } catch (_) {}
   }
 
-  /* ── Apply a theme to the document ────────────────────────────────── */
+  function resolveEffective(theme) {
+    if (theme === "system") {
+      return window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark" : "light";
+    }
+    return theme;
+  }
+
   function apply(theme) {
     var html = document.documentElement;
-
-    /* Serene's theme toggle uses `light` / `dark` classes on <html> */
     html.classList.remove("light", "dark");
-    if (theme === "light") html.classList.add("light");
-    if (theme === "dark")  html.classList.add("dark");
-
-    /* Resolve effective theme for highlight sheet swap */
-    var effective = theme;
-    if (theme === "system") {
-      effective = window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
-        : "light";
-    }
-    swapHighlight(effective);
+    var effective = resolveEffective(theme);
+    html.classList.add(effective);
+    html.dataset.themeMode = theme;
+    html.dataset.themeEffective = effective;
     updateMenuButton(theme);
+    window.dispatchEvent(new CustomEvent("themechange", {
+      detail: { mode: theme, effective: effective }
+    }));
   }
 
-  /* ── Swap highlight stylesheets ────────────────────────────────────── */
-  function swapHighlight(effective) {
-    var light = document.getElementById("hl-light");
-    var dark  = document.getElementById("hl-dark");
-
-    if (!light || !dark) return;
-
-    if (effective === "dark") {
-      light.media = "not all"; /* disable */
-      dark.media  = "all";     /* enable  */
-    } else {
-      light.media = "all";
-      dark.media  = "not all";
-    }
-  }
-
-  /* ── Update the menu button label/icon ─────────────────────────────── */
   function updateMenuButton(theme) {
     var icon  = document.getElementById("theme-icon");
     var label = document.getElementById("theme-label");
-    if (icon)  icon.textContent  = ICONS[theme]  || "⬡";
-    if (label) label.textContent = LABELS[theme] || "System";
+    if (icon)  icon.textContent  = ICONS[theme]  || ICONS.system;
+    if (label) label.textContent = LABELS[theme] || LABELS.system;
   }
 
-  /* ── Cycle to next theme ───────────────────────────────────────────── */
   function cycleTheme() {
     var current = getSaved();
-    var idx  = THEMES.indexOf(current);
-    var next = THEMES[(idx + 1) % THEMES.length];
+    var next = THEMES[(THEMES.indexOf(current) + 1) % THEMES.length];
     save(next);
     apply(next);
   }
 
-  /* Expose globally so menu.js can call it */
   window.cycleTheme = cycleTheme;
+  window.currentTheme = getSaved;
+  window.effectiveTheme = function () { return resolveEffective(getSaved()); };
 
-  /* ── React to OS preference changes (when in "system" mode) ────────── */
-  var mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-  mediaQuery.addEventListener("change", function () {
+  var media = window.matchMedia("(prefers-color-scheme: dark)");
+  media.addEventListener("change", function () {
     if (getSaved() === "system") apply("system");
   });
 
-  /* ── Init on load ──────────────────────────────────────────────────── */
-  /* Apply immediately (before paint) to avoid flash */
   apply(getSaved());
 
-  /* Re-apply after DOM ready in case menu button nodes weren't available */
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", function () {
       apply(getSaved());

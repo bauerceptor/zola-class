@@ -1,183 +1,299 @@
-# zola-class — Class Site
+# zola-class
 
-Course materials, lectures, and talks built with
-[Zola](https://www.getzola.org/) and the
-[Neovim theme](https://github.com/Super-Botman/neovim-theme) (vendored).
+Hassan Aziz's class site: lectures, course notes, slides, talks.
 
-Live at: `https://bauerceptor.github.io/zola-class`
+Built with [Zola](https://www.getzola.org/) on a vendored
+[Super-Botman/neovim-theme](https://github.com/Super-Botman/neovim-theme),
+heavily customized with a theme switcher, WebGL aurora backdrop, foldable
+sidebar, and an enhanced `:` command prompt.
 
-The companion main site lives at `bauerceptor/bauerceptor.github.io`.
-
----
-
-## Areas
-
-| Path | Purpose |
-|------|---------|
-| `/cs101/` | CS 101 course — syllabus + module/lecture hierarchy |
-| `/speeches/` | Conference talks and speaker notes |
-
-Add more courses by creating `content/COURSE-CODE/_index.md`.
+**Live**: <https://bauerceptor.github.io/zola-class/>
 
 ---
 
-## First-time setup
-
-### 1. Vendor the Neovim theme
-
-See `themes/neovim-theme/VENDOR_INSTRUCTIONS.md` for the exact commands.
-This must be done before `zola serve` will work.
-
-### 2. Install Zola
+## Quickstart
 
 ```bash
-brew install zola   # macOS
+git clone git@github.com:bauerceptor/zola-class.git
+cd zola-class
+
+# Install Zola 0.19.2 (must match CI)
+brew install zola              # macOS
 # or download from https://github.com/getzola/zola/releases
-# Use version 0.19.2 — same as the CI workflow
+
+zola serve                     # http://127.0.0.1:1111
 ```
 
-### 3. Serve locally
+The Neovim theme is vendored under `themes/neovim-theme/`, so no submodule
+fetch is required. To re-vendor a newer version, see
+[Re-vendoring the theme](#re-vendoring-the-theme).
 
-```bash
-zola serve
-# → http://127.0.0.1:1111
+---
+
+## Project layout
+
+```
+.
+├── config.toml                  Site config (base_url, theme, [extra])
+├── content/                     All site content (Markdown)
+│   ├── _index.md                Root section frontmatter
+│   ├── readme.md                Homepage body (rendered by theme index.html)
+│   ├── cs101/
+│   │   ├── _index.md            Course metadata
+│   │   └── module1/
+│   │       ├── _index.md        Module metadata
+│   │       └── lec01-intro.md   A lecture
+│   └── speeches/
+│       └── demo-talk.md
+├── static/                      Copied verbatim to site root
+│   ├── css/                     Project overrides (class, menu, copy-btn)
+│   ├── js/                      Theme switcher, aurora, prompt, menu, …
+│   └── slides/                  Standalone slide decks (reveal.js)
+├── templates/
+│   ├── _head_extend.html        Injected into the theme's <head>
+│   └── shortcodes/
+│       └── slides.html          `{{ slides(src=…) }}` shortcode
+└── themes/neovim-theme/         Vendored; safe to patch in place
 ```
 
 ---
 
 ## Adding content
 
-### New course
+### A new course
 
-1. Create `content/COURSE-CODE/_index.md` with the syllabus table
-2. Create `content/COURSE-CODE/module1/_index.md`
-3. Add lecture files: `content/COURSE-CODE/module1/lec01-title.md`
-
-Lecture front matter:
-
-```toml
+```bash
+mkdir -p content/cs350
+cat > content/cs350/_index.md <<'EOF'
 +++
-title = "Lecture N — Topic"
-date = 2025-01-15
+title = "CS 350 — Operating Systems"
+sort_by = "weight"
++++
+
+Course overview goes here.
+EOF
+```
+
+The sidebar picks it up on the next build.
+
+### A new module within a course
+
+```bash
+mkdir -p content/cs350/module1
+cat > content/cs350/module1/_index.md <<'EOF'
++++
+title = "Module 1 — Processes"
 weight = 1
-description = "One sentence summary."
-
-[extra]
-lang        = "en"
-course      = "COURSE-CODE"
-lecture_num = N
-math        = false   # true = KaTeX
-mermaid     = false
-copy        = true
 +++
+EOF
 ```
 
-### Embedding slides
+### A new lecture page
 
-Place your Reveal.js HTML under `static/slides/` at any depth:
+```markdown
++++
+title = "Lecture 4 — Scheduling"
+date  = 2026-05-20
+weight = 4
++++
 
+Lecture body in Markdown.
+
+`code` and code blocks render via Zola syntax highlighting.
 ```
-static/slides/course-code/module1/lecN/index.html
+
+### A new slide deck
+
+Slides are standalone HTML files under `static/slides/<path>/index.html`
+(any deck framework works; current ones use reveal.js). Embed them in a
+lecture with the `slides` shortcode:
+
+```markdown
+{{ slides(src="/slides/cs350/module1/lec04/index.html", height="520", title="Lec 4") }}
 ```
 
-Then in the lecture Markdown:
+The shortcode passes `src` through `get_url()`, so leading `/` is fine
+under the GitHub Pages subpath deploy.
 
+To copy the demo deck from repo1 as a starting template:
+
+```bash
+cp -r /path/to/repo1/static/slides/demo static/slides/<your-path>/
 ```
-{{ slides(src="/slides/course-code/module1/lecN/index.html") }}
-{{ slides(src="/slides/course-code/module1/lecN/index.html", height="600") }}
-```
-
-### New talk / speech
-
-Create `content/speeches/YYYY-MM-DD-talk-title.md`. See `demo-talk.md`
-for the front matter structure.
 
 ---
 
-## Slide deck conventions
+## Theme system (light / dark / system)
 
-Every Reveal.js deck should:
+The hamburger menu (top-right) has a **System / Light / Dark** cycle
+button. Choice is persisted in `localStorage` under `site-theme`.
 
-1. Load fonts from Google Fonts CDN: **Playfair Display** (titles),
-   **Nanum Gothic** (body/headings), **JetBrains Mono** (code)
-2. Use the Moon base theme as a starting point
-3. Be a fully self-contained HTML file (no external asset dependencies
-   other than CDN links)
+- All palette is defined as OKLCH CSS variables in `static/css/class.css`
+  (`--nv-bg-base`, `--nv-fg`, `--nv-accent`, …).
+- `html.light` and `html.dark` classes swap the values.
+- `theme-toggle.js` runs **synchronously** (not deferred) so the right
+  theme paints on first frame — no flash of wrong palette.
+- The WebGL aurora background reads `--nv-aur-a/b/c` and retints when
+  the theme changes via the `themechange` custom event.
 
-Copy the header from `static/slides/cs101/module1/lec01/index.html`
-as your starting template.
-
----
-
-## Fonts
-
-| Context | Font |
-|---------|------|
-| Page body | Barlow |
-| Code blocks | JetBrains Mono |
-| Slide titles | Playfair Display (inside slide HTML) |
-| Slide body | Nanum Gothic (inside slide HTML) |
-| Slide code | JetBrains Mono (inside slide HTML) |
+To re-skin a theme, edit the OKLCH tokens in `class.css`. The aurora,
+menu, sidebar, content, and code blocks all follow.
 
 ---
 
-## Keeping the menu in sync
+## Keyboard shortcuts
 
-`static/js/menu.js` must stay identical to the main site's version
-except for the `SITE_NAME` variable at the top (already set to
-`"Class — Your Name"` in this repo).
+Inherited from the Neovim theme:
 
-When you add or rename nav links, update **both repos**.
+| Keys                | Action                                     |
+|---------------------|--------------------------------------------|
+| `shift+h` / `shift+l` | Move focus: file tree ↔ content viewer    |
+| `j` / `k`            | Scroll content; move selection in tree    |
+| `enter`              | Open the selected file in current tab     |
+| `shift+t` + `enter`  | Open the selected file in a new tab       |
+| `tab`                | Cycle through open tabs                   |
+| `shift+q`            | Close the current tab                     |
+| `esc` then `:`       | Open the command prompt                   |
+
+Added by this project:
+
+| Keys                | Action                                     |
+|---------------------|--------------------------------------------|
+| `↑` / `↓` in prompt  | Cycle command history (when no dropdown)  |
+| `↑` / `↓` in prompt  | Move selection in fuzzy dropdown          |
+| `tab` in prompt      | Autocomplete to top fuzzy match           |
+| `esc` in prompt      | Dismiss the fuzzy dropdown                |
+| Click chevron in sidebar | Fold / unfold a directory             |
 
 ---
 
-## Deployment
+## Command prompt (`:` mode)
 
-Push to `main`. GitHub Actions builds with Zola 0.19.2 and deploys
-to GitHub Pages automatically.
+| Command           | What it does                                 |
+|-------------------|----------------------------------------------|
+| `:help`           | Jump to the homepage (which doubles as help) |
+| `:q`              | Exit the site                                |
+| `:set mouse=true` | Show the cursor (default)                    |
+| `:set mouse=false`| Hide the cursor (presentation mode)          |
+| `:find <query>`   | Fuzzy-search all pages; ↑/↓ select; ⏎ opens  |
+| `:f <query>`      | Alias for `:find`                            |
+| `:edit <query>`   | Open the top fuzzy match directly            |
+| `:e <query>`      | Alias for `:edit`                            |
+| `:ls`             | List the first 8 pages in the dropdown       |
 
-**One-time setup:** Go to repo Settings → Pages → Source: set to
-"GitHub Actions".
+History persists in `localStorage` under `nv-prompt-history` (last 50).
 
 ---
 
-## File structure
+## Customizing the chrome
 
+### Navigation links
+
+`static/js/menu.js` → `NAV_LINKS` array. Each entry:
+
+```js
+{ label: "Home", url: "https://…", external: false }
 ```
-zola-class/
-├── config.toml
-├── themes/
-│   └── neovim-theme/          ← vendored; see VENDOR_INSTRUCTIONS.md
-├── templates/
-│   ├── _head_extend.html      ← fonts, highlight sheets, menu CSS
-│   └── shortcodes/
-│       └── slides.html        ← {{ slides(src="...") }}
-├── static/
-│   ├── css/
-│   │   ├── class.css          ← Barlow font override, lecture styles
-│   │   ├── menu.css           ← hamburger overlay (keep in sync)
-│   │   └── copy-btn.css       ← copy button (keep in sync)
-│   ├── js/
-│   │   ├── menu.js            ← hamburger menu (keep in sync)
-│   │   ├── theme-toggle.js    ← light/dark/system cycle
-│   │   └── copy-code.js       ← copy-to-clipboard toggle
-│   └── slides/
-│       └── cs101/module1/lec01/index.html   ← demo deck
-├── content/
-│   ├── _index.md
-│   ├── cs101/
-│   │   ├── _index.md          ← syllabus
-│   │   ├── module1/
-│   │   │   ├── _index.md
-│   │   │   ├── lec01-intro.md
-│   │   │   └── lec02-types.md
-│   │   └── module2/
-│   │       ├── _index.md
-│   │       └── lec03-control.md
-│   └── speeches/
-│       ├── _index.md
-│       └── demo-talk.md
-└── .github/
-    └── workflows/
-        └── deploy.yml
+
+### Social links in the menu footer
+
+Same file → `SOCIAL_LINKS` array.
+
+### Aurora intensity / colors
+
+`static/css/class.css` → `--nv-aur-a/b/c` tokens (separate values inside
+`html.light` and `:root` for dark). Or set `--nv-aur-intensity: 0` to
+disable visually while keeping the canvas mounted.
+
+### Fonts
+
+`templates/_head_extend.html` loads Barlow (body) and JetBrains Mono
+(code). Change there.
+
+### Code copy button
+
+`static/js/copy-code.js` injects a "Copy" button on every `<pre><code>`
+block. Toggle in the hamburger menu (state persists).
+
+---
+
+## Deploy
+
+Push to `main` triggers `.github/workflows/deploy.yml`, which:
+
+1. Installs Zola 0.19.2 via `taiki-e/install-action`.
+2. Runs `zola build`.
+3. Uploads the `public/` directory as a GitHub Pages artifact.
+4. Deploys to the `github-pages` environment.
+
+No submodule fetch — the Neovim theme is vendored.
+
+---
+
+## Re-vendoring the theme
+
+```bash
+git clone https://github.com/Super-Botman/neovim-theme /tmp/neovim-theme
+cd /tmp/neovim-theme && git rev-parse HEAD          # record the hash
+
+# Wipe and replace (keeps our patches lost — see below)
+rm -rf themes/neovim-theme/{templates,sass,static,content,LICENSE,README.md,theme.toml}
+cp -r /tmp/neovim-theme/{templates,sass,static,content,LICENSE,README.md,theme.toml} themes/neovim-theme/
+rm -rf themes/neovim-theme/.git
 ```
+
+**Patches this project applies to the vendored theme** — re-apply after
+re-vendoring:
+
+- `themes/neovim-theme/templates/base.html`
+  - All asset URLs use `get_url(path=…)` (subpath-deploy compatible).
+  - Body has no inline `background-image` style when `config.extra.background_image` is unset — lets the project CSS gradient + aurora canvas show through.
+  - `{% include "_head_extend.html" ignore missing %}` before `</head>`.
+- `themes/neovim-theme/sass/css/base.scss`
+  - `@font-face` font URL is `../JetBrainsMonoNLNerdFont-Regular.ttf` (relative).
+- `themes/neovim-theme/static/js/commands.js`
+  - `:help` uses `window.HELP_URL` (set in `_head_extend.html`) instead of hardcoded `/readme`.
+
+Record the new commit hash in `config.toml` under `[extra]`.
+
+---
+
+## Browser support
+
+- **Modern Chromium / Safari 17+ / Firefox 121+**: everything works.
+- **Cross-document View Transitions**: Chromium and Safari only. Firefox
+  falls back to instant navigation. CSS `@view-transition` block has
+  no effect in unsupporting browsers.
+- **WebGL aurora**: any browser with WebGL. No WebGL → CSS gradient
+  fallback only.
+- **`prefers-reduced-motion`**: aurora pauses, View Transitions disabled,
+  yank pulse suppressed.
+
+---
+
+## File-by-file reference
+
+| File | Purpose |
+|---|---|
+| `config.toml` | Site title, base URL, theme name, syntax highlighting style. `[extra]` block holds `blog_name` (required by theme), `site_name` (menu overlay), `author`, optional `background_image`. |
+| `content/_index.md` | Root section frontmatter. Sidebar pulls from here downward. |
+| `content/readme.md` | The homepage body (the theme's `index.html` renders this via `get_page(path="readme.md")`). |
+| `templates/_head_extend.html` | Injected into theme's `<head>`. Loads fonts, project CSS, all JS, exposes `window.HELP_URL` + `window.SITE_PAGES` for the prompt. |
+| `templates/shortcodes/slides.html` | `{{ slides(src=…, height=…, title=…) }}` shortcode. |
+| `static/css/class.css` | Theme tokens (light/dark), sidebar widening, typography, fold styles, prompt dropdown, View Transitions. |
+| `static/css/menu.css` | Hamburger overlay menu. |
+| `static/css/copy-btn.css` | Per-codeblock copy button. |
+| `static/js/theme-toggle.js` | Cycles system / light / dark; dispatches `themechange` event. |
+| `static/js/menu.js` | Builds and injects the hamburger overlay. |
+| `static/js/aurora.js` | WebGL backdrop. Reads CSS tokens; pauses when hidden or reduced-motion. |
+| `static/js/tree-fold.js` | Adds chevron toggles to sidebar folders; persists state. |
+| `static/js/prompt-enhance.js` | Adds `:find`/`:edit`/`:ls` + history to the theme's command prompt. |
+| `static/js/copy-code.js` | Injects "Copy" buttons into code blocks. |
+| `themes/neovim-theme/` | Vendored upstream theme + the patches listed above. |
+
+---
+
+## License
+
+Content © Hassan Aziz. Site code MIT.
+Vendored neovim-theme: MIT (Super-Botman).
