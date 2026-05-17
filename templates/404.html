@@ -1,128 +1,198 @@
-{# Custom 404 — extends the theme's base.html so it inherits the same chrome
-   (file tree, tab strip, prompt) as every real page. The viewer pane gets a
-   typed-out terminal message instead of a missing-lecture body. #}
-{%- extends "base.html" -%}
+{# 404 — standalone editorial page, no theme chrome.
+   Hosts its own <head> so we drop the file tree / tab strip / prompt and
+   give the error its own full-screen presence. Loads the same theme
+   tokens, aurora, hamburger, and theme switcher as the rest of the site
+   so it stays coherent. #}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>404 · {{ config.title }}</title>
 
-{%- block content -%}
-<div class="nv-404">
-  <p class="nv-404__line nv-404__line--err">
-    <span class="nv-404__prompt">$</span>
-    open
-    <span class="nv-404__path">{{ current_url | default(value=current_path | default(value="(unknown)")) }}</span>
-  </p>
-  <p class="nv-404__line nv-404__line--err">
-    <span class="nv-404__tag">err</span>
-    no such file or directory
-  </p>
-  <p class="nv-404__line nv-404__line--err">
-    <span class="nv-404__tag">code</span>
-    404
-  </p>
+  <link rel="icon" type="image/png" sizes="32x32"   href="{{ get_url(path='img/class-light-32.png') }}"  media="(prefers-color-scheme: light)">
+  <link rel="icon" type="image/png" sizes="32x32"   href="{{ get_url(path='img/class-dark-32.png') }}"   media="(prefers-color-scheme: dark)">
 
-  <hr class="nv-404__rule">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap">
 
-  <h1 class="nv-404__title">Page not found.</h1>
-  <p class="nv-404__lede">
-    The path you opened isn't part of the class site, or it was moved.
-    Use the file tree on the left, or jump straight to something below.
-  </p>
+  <link rel="stylesheet" href="{{ get_url(path='css/menu.css') }}">
+  <link rel="stylesheet" href="{{ get_url(path='css/class.css') }}">
 
-  <ul class="nv-404__links">
-    <li><a href="{{ get_url(path='') }}">{{ get_url(path='') }}<span class="nv-404__hint"> — home</span></a></li>
-    <li><a href="{{ get_url(path='cs101/') }}">{{ get_url(path='cs101/') }}<span class="nv-404__hint"> — CS 101</span></a></li>
-    <li><a href="{{ get_url(path='speeches/') }}">{{ get_url(path='speeches/') }}<span class="nv-404__hint"> — speeches and talks</span></a></li>
-  </ul>
+  <script src="{{ get_url(path='js/theme-toggle.js') }}"></script>
+  <script src="{{ get_url(path='js/menu.js') }}" defer></script>
+  <script src="{{ get_url(path='js/aurora.js') }}" defer></script>
 
-  <p class="nv-404__hint nv-404__keys">
-    Or press <kbd>:</kbd> then type <code>find &lt;query&gt;</code> for fuzzy file search.
-  </p>
-</div>
+  <style>
+    /* Strip the theme's main panel — we want a full-bleed editorial layout. */
+    body { display: block; }
+    main, .files, .prompt, .viewer { display: none !important; }
 
-<style>
-  .nv-404 {
-    max-width: 60ch;
-    margin: 1rem 0;
-    font-family: JetBrainsMono, "JetBrains Mono", ui-monospace, monospace;
-  }
-  .nv-404__line {
-    margin: 0.25rem 0;
-    font-size: 0.95rem;
-    color: var(--nv-fg-muted, currentColor);
-  }
-  .nv-404__prompt { color: var(--nv-accent); margin-right: 0.5em; }
-  .nv-404__tag {
-    display: inline-block;
-    min-width: 4ch;
-    padding: 0 0.4em;
-    margin-right: 0.6em;
-    font-size: 0.78rem;
-    color: var(--nv-accent-warm, currentColor);
-    border: 1px solid rgb(var(--nv-accent-rgb) / 0.30);
-    border-radius: 3px;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-  }
-  .nv-404__path {
-    color: var(--nv-fg);
-    background: rgb(var(--nv-accent-rgb) / 0.10);
-    padding: 0 0.4em;
-    border-radius: 3px;
-  }
-  .nv-404__rule {
-    border: 0;
-    border-top: 1px solid var(--nv-rule);
-    margin: 1.4rem 0;
-  }
-  .nv-404__title {
-    font-family: "Barlow", system-ui, sans-serif !important;
-    font-size: 2.4rem !important;
-    color: var(--nv-accent) !important;
-    margin: 0.6rem 0 0.8rem !important;
-  }
-  .nv-404__lede {
-    font-family: "Barlow", system-ui, sans-serif !important;
-    font-size: 1.05rem;
-    line-height: 1.6;
-    color: var(--nv-fg);
-    max-width: 60ch;
-  }
-  .nv-404__links {
-    list-style: none;
-    padding-left: 0;
-    margin: 1.3rem 0;
-  }
-  .nv-404__links li {
-    margin: 0.35rem 0;
-    font-size: 0.95rem;
-  }
-  .nv-404__links a {
-    color: var(--nv-accent) !important;
-    text-decoration: underline;
-    text-decoration-color: rgb(var(--nv-accent-rgb) / 0.4);
-    text-underline-offset: 3px;
-  }
-  .nv-404__links a::before { content: none !important; }
-  .nv-404__hint {
-    color: var(--nv-fg-muted);
-    font-size: 0.85rem;
-  }
-  .nv-404__keys {
-    margin-top: 2rem;
-    font-family: JetBrainsMono, "JetBrains Mono", ui-monospace, monospace;
-  }
-  .nv-404__keys kbd {
-    background: var(--nv-bg-panel);
-    border: 1px solid var(--nv-rule-strong);
-    border-radius: 3px;
-    padding: 1px 6px;
-    font-size: 0.85em;
-  }
-  .nv-404__keys code {
-    background: var(--nv-inline-code-bg) !important;
-    color: var(--nv-inline-code-fg) !important;
-    padding: 1px 6px;
-    border-radius: 3px;
-    font-size: 0.9em;
-  }
-</style>
-{%- endblock content -%}
+    .err {
+      position: relative;
+      z-index: 1;
+      min-height: 100dvh;
+      display: grid;
+      grid-template-rows: auto 1fr auto auto auto;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: clamp(2rem, 5vw, 4rem) clamp(1.25rem, 4vw, 2rem);
+      align-items: start;
+      gap: var(--sp-3, 0.5rem);
+    }
+
+    .err__http {
+      font-family: JetBrainsMono, "JetBrains Mono", monospace;
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--nv-fg-muted);
+      margin: 0;
+    }
+
+    .err__digits {
+      align-self: center;
+      margin: 0;
+      text-align: center;
+      font-family: "Newsreader", Charter, Georgia, serif;
+      font-variation-settings: "opsz" 72;
+      font-weight: 500;
+      font-size: clamp(7rem, 28vw, 20rem);
+      letter-spacing: -0.04em;
+      line-height: 0.85;
+      color: var(--nv-fg);
+      user-select: none;
+    }
+    .err__digits .err__d:nth-child(2) { color: var(--nv-accent); }
+
+    .err__d {
+      display: inline-block;
+      transform: translateY(-32px);
+      opacity: 0;
+      animation: err-settle 760ms cubic-bezier(0.34, 1.4, 0.64, 1) both;
+      animation-delay: calc(var(--i, 0) * 110ms);
+    }
+    @keyframes err-settle {
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .err__title {
+      font-family: "Barlow", system-ui, sans-serif;
+      font-size: clamp(1.5rem, 3vw, 2.1rem);
+      font-weight: 700;
+      color: var(--nv-fg);
+      margin: 0 0 0.5rem;
+      text-align: center;
+      letter-spacing: -0.015em;
+      animation: err-fade 520ms 380ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .err__asked {
+      font-family: JetBrainsMono, "JetBrains Mono", monospace;
+      font-size: 0.85rem;
+      color: var(--nv-fg-muted);
+      text-align: center;
+      margin: 0 0 2rem;
+      letter-spacing: 0.02em;
+      min-height: 1.2em;
+      animation: err-fade 520ms 480ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .err__path {
+      color: var(--nv-fg);
+      background: rgb(var(--nv-accent-rgb) / 0.10);
+      padding: 1px 8px;
+      border-radius: 3px;
+    }
+
+    .err__nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem 2rem;
+      justify-content: center;
+      padding: 1rem 0;
+      border-top: 1px solid var(--nv-rule);
+      border-bottom: 1px solid var(--nv-rule);
+      margin: 0 0 1.5rem;
+      animation: err-fade 520ms 580ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .err__nav a {
+      font-family: JetBrainsMono, "JetBrains Mono", monospace;
+      font-size: 0.78rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--nv-fg-muted);
+      text-decoration: none;
+      transition: color 180ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .err__nav a:hover, .err__nav a:focus-visible { color: var(--nv-accent); }
+
+    .err__hint {
+      font-family: JetBrainsMono, "JetBrains Mono", monospace;
+      font-size: 0.78rem;
+      color: var(--nv-fg-muted);
+      text-align: center;
+      margin: 0;
+      letter-spacing: 0.02em;
+      animation: err-fade 520ms 680ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .err__hint kbd {
+      background: var(--nv-bg-panel);
+      border: 1px solid var(--nv-rule-strong);
+      border-radius: 3px;
+      padding: 1px 6px;
+      font-size: inherit;
+      color: var(--nv-fg);
+    }
+
+    @keyframes err-fade {
+      from { opacity: 0; transform: translateY(4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .err__d, .err__title, .err__asked, .err__nav, .err__hint { animation: none; }
+      .err__d { transform: none; opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <main class="err">
+    <p class="err__http">HTTP/1.1 404</p>
+
+    <h1 class="err__digits" aria-label="404">
+      <span class="err__d" style="--i:0">4</span><span class="err__d" style="--i:1">0</span><span class="err__d" style="--i:2">4</span>
+    </h1>
+
+    <p class="err__title">Page not found.</p>
+
+    <p class="err__asked" id="err-asked"></p>
+
+    <nav class="err__nav" aria-label="Recover">
+      <a href="{{ get_url(path='') }}">Home</a>
+      <a href="{{ get_url(path='cs101/') }}">CS 101</a>
+      <a href="{{ get_url(path='speeches/') }}">Speeches</a>
+      <a href="{{ get_url(path='readme') }}">Keyboard</a>
+    </nav>
+
+    <p class="err__hint">
+      Press <kbd>:</kbd> for fuzzy file search · <kbd>Ctrl</kbd>+<kbd>/</kbd> for keyboard shortcuts.
+    </p>
+  </main>
+
+  <script>
+    (function () {
+      var el = document.getElementById('err-asked');
+      if (!el) return;
+      var path = decodeURIComponent(window.location.pathname || "/");
+      path = path.replace(/\/404(\.html)?\/?$/, "");
+      if (!path || path === "/") { el.textContent = ""; return; }
+      var safe = path.replace(/[<>&]/g, function (c) {
+        return { "<":"&lt;", ">":"&gt;", "&":"&amp;" }[c];
+      });
+      el.innerHTML = 'You asked for <span class="err__path">' + safe + '</span>.';
+    })();
+  </script>
+</body>
+</html>

@@ -555,10 +555,11 @@ main > .viewer .tab ul li {
   margin: -0.5rem 0 2rem;
 }
 
-/* Code blocks: trim from theme's huge size to readable parity with prose. */
+/* Code blocks: tuned for readable parity with prose; ~1px above the
+ * previous pass after user feedback that code felt too small. */
 .viewer .content pre {
-  font-size: 0.88rem;
-  line-height: 1.55;
+  font-size: 0.95rem;
+  line-height: 1.6;
 }
 .viewer .content pre > code {
   font-size: inherit !important;
@@ -579,11 +580,14 @@ main > .viewer .tab ul li {
 .viewer .content h3 {
   color: var(--nv-accent-mint) !important;
 }
+/* The vendored theme prepends Nerd Font numeric-in-box glyphs (󰲡 󰲣 󰲥)
+ * to every h1/h2/h3 via ::before. They render as "1/2/3" boxes that read
+ * as ugly counter chips and add no information. Remove. */
 .viewer .content h1::before,
 .viewer .content h2::before,
-.viewer .content h3::before {
-  /* Match each heading's ::before glyph color to its heading color. */
-  color: inherit !important;
+.viewer .content h3::before,
+.viewer .content .nv-page-title::before {
+  content: none !important;
 }
 
 /* ── Tabs: theme hardcodes white tab text — fix light mode ──────────── */
@@ -790,5 +794,252 @@ main > .files .selected {
 }
 .menu-wrap:active .hamburger {
   transform: scale(0.96);
+}
+
+/* ── Fuzzel-style command palette (palette.js) ──────────────────────────
+ * Triggered by `:` anywhere outside an input. Centered modal with input,
+ * filtered list of commands + pages, and a footer of key hints. */
+#nv-palette {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 12vh;
+}
+.nv-palette__backdrop {
+  position: absolute;
+  inset: 0;
+  background: oklch(15% 0.012 270 / 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  opacity: 0;
+  transition: opacity 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nv-palette__panel {
+  position: relative;
+  width: min(640px, calc(100vw - 32px));
+  background: var(--nv-bg-base);
+  border: 1px solid var(--nv-rule-strong);
+  border-radius: 10px;
+  box-shadow: 0 30px 70px -20px oklch(0% 0 0 / 0.55);
+  overflow: hidden;
+  font-family: JetBrainsMono, "JetBrains Mono", ui-monospace, monospace;
+  transform: translateY(-12px) scale(0.98);
+  opacity: 0;
+  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+#nv-palette.nv-palette--open .nv-palette__backdrop { opacity: 1; }
+#nv-palette.nv-palette--open .nv-palette__panel { transform: none; opacity: 1; }
+
+.nv-palette__inputrow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1rem 0.7rem;
+  border-bottom: 1px solid var(--nv-rule);
+}
+.nv-palette__sigil {
+  color: var(--nv-accent);
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+.nv-palette__input {
+  flex: 1;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  color: var(--nv-fg);
+  font: inherit;
+  font-size: 1rem;
+  padding: 0;
+}
+.nv-palette__input::placeholder { color: var(--nv-fg-muted); }
+
+.nv-palette__list {
+  margin: 0;
+  padding: 0.25rem 0;
+  list-style: none;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+.nv-palette__row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: baseline;
+  gap: 0.7rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  border-left: 2px solid transparent;
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+.nv-palette__row--sel {
+  background: var(--nv-selection-bg-strong);
+  border-left-color: var(--nv-accent);
+}
+.nv-palette__tag {
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--nv-fg-muted);
+  width: 3.2em;
+  text-align: right;
+}
+.nv-palette__row--cmd .nv-palette__tag  { color: var(--nv-accent-warm); }
+.nv-palette__row--page .nv-palette__tag { color: var(--nv-accent-mint); }
+.nv-palette__title {
+  color: var(--nv-fg);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.nv-palette__row--sel .nv-palette__title { color: var(--nv-accent); }
+.nv-palette__hint {
+  color: var(--nv-fg-muted);
+  font-size: 0.78rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 18em;
+}
+
+.nv-palette__footer {
+  display: flex;
+  gap: 1.2rem;
+  padding: 0.55rem 1rem;
+  border-top: 1px solid var(--nv-rule);
+  font-size: 0.72rem;
+  color: var(--nv-fg-muted);
+  background: var(--nv-bg-panel);
+}
+.nv-palette__footer kbd {
+  background: rgb(var(--nv-accent-rgb) / 0.10);
+  border: 1px solid var(--nv-rule);
+  border-radius: 2px;
+  padding: 0 5px;
+  font-family: inherit;
+  font-size: inherit;
+  color: var(--nv-fg);
+  margin-right: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nv-palette__backdrop, .nv-palette__panel { transition: none; }
+  .nv-palette__panel { transform: none; opacity: 1; }
+}
+
+/* ── Keyboard guide (Ctrl+/) ─────────────────────────────────────────── */
+#nv-guide {
+  position: fixed;
+  inset: 0;
+  z-index: 10001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.nv-guide__backdrop {
+  position: absolute;
+  inset: 0;
+  background: oklch(15% 0.012 270 / 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  opacity: 0;
+  transition: opacity 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nv-guide__panel {
+  position: relative;
+  width: min(820px, 100%);
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  background: var(--nv-bg-base);
+  border: 1px solid var(--nv-rule-strong);
+  border-radius: 10px;
+  box-shadow: 0 30px 70px -20px oklch(0% 0 0 / 0.55);
+  padding: 1.5rem 1.75rem 1.25rem;
+  font-family: JetBrainsMono, "JetBrains Mono", ui-monospace, monospace;
+  transform: translateY(-8px) scale(0.99);
+  opacity: 0;
+  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+#nv-guide.nv-guide--open .nv-guide__backdrop { opacity: 1; }
+#nv-guide.nv-guide--open .nv-guide__panel { transform: none; opacity: 1; }
+
+.nv-guide__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid var(--nv-rule);
+}
+.nv-guide__header h2 {
+  margin: 0 !important;
+  font-family: "Barlow", system-ui, sans-serif !important;
+  font-size: 1.3rem !important;
+  color: var(--nv-fg) !important;
+  font-weight: 600;
+}
+.nv-guide__close-hint {
+  font-size: 0.72rem;
+  color: var(--nv-fg-muted);
+  letter-spacing: 0.04em;
+}
+.nv-guide__cols {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.4rem 1.8rem;
+}
+.nv-guide__group h3 {
+  margin: 0 0 0.5rem !important;
+  font-family: JetBrainsMono, "JetBrains Mono", monospace !important;
+  font-size: 0.72rem !important;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--nv-fg-muted) !important;
+  font-weight: 500 !important;
+}
+.nv-guide__group dl { margin: 0; }
+.nv-guide__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.3rem 0;
+  border-bottom: 1px dashed var(--nv-rule);
+}
+.nv-guide__row:last-child { border-bottom: 0; }
+.nv-guide__row dt {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  flex: 0 0 auto;
+}
+.nv-guide__row dt kbd {
+  background: rgb(var(--nv-accent-rgb) / 0.10);
+  border: 1px solid var(--nv-rule);
+  border-radius: 3px;
+  padding: 1px 6px;
+  font-size: 0.78rem;
+  color: var(--nv-fg);
+}
+.nv-guide__row .nv-guide__sep {
+  color: var(--nv-fg-muted);
+  font-size: 0.78rem;
+}
+.nv-guide__row dd {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--nv-fg-muted);
+  text-align: right;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nv-guide__backdrop, .nv-guide__panel { transition: none; }
+  .nv-guide__panel { transform: none; opacity: 1; }
 }
 
