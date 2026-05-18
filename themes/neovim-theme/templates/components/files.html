@@ -9,7 +9,7 @@
   <li class="file">
     <span><a {% if page and p == page -%}class="selected"{%- endif -%}
       href='{{ p.permalink | safe }}'
-      tabindex="{{ tabindex }}">  {{ p.title }}</a></span>
+      tabindex="{{ tabindex }}">{{ p.title }}</a></span>
   </li>
   {%- endfor -%}
 
@@ -37,7 +37,7 @@
       {% set_global tabindex = tabindex - 1 %}
       <a {% if section and s == section -%}class="selected"{%- endif -%}
         href='{{s.permalink | safe }}'
-        tabindex="{{ tabindex }}">  {{ s.title }}
+        tabindex="{{ tabindex }}">{{ s.title }}
       </a>
     </span>
 
@@ -49,7 +49,7 @@
           {%- set_global tabindex = tabindex - 1 %}
           <a {% if page and p == page -%}class="selected"{%- endif -%}
             href='{{ p.permalink | safe }}'
-            tabindex="{{ tabindex }}">  {{ p.title }}</a>
+            tabindex="{{ tabindex }}">{{ p.title }}</a>
         </span>
       </li>
       {%- endfor -%}
@@ -73,7 +73,7 @@
   {% set_global tabindex = tabindex - 1 %}
   <a {% if section and root_section == section -%}class="selected"{%- endif -%}
     href='{{root_section.permalink | safe }}'
-    tabindex="{{ tabindex }}">  {{ root_section.title }}
+    tabindex="{{ tabindex }}">{{ root_section.title }}
   </a>
 </span>
 
@@ -87,7 +87,7 @@
       {%- set_global tabindex = tabindex - 1 %}
       <a {% if page and p == page -%}class="selected"{%- endif -%}
         href='{{ p.permalink | safe }}'
-        tabindex="{{ tabindex }}">  {{ p.title }}</a>
+        tabindex="{{ tabindex }}">{{ p.title }}</a>
     </span>
   </li>
   {%- endfor -%}
