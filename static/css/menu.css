@@ -87,7 +87,10 @@
   visibility: hidden;
   overflow: hidden;
   display: flex;
-  align-items: center;
+  /* stretch (not center) — gives the panel full viewport height like a
+   * real slide-in side panel. With center, the panel sized to its
+   * content and floated mid-screen as a box. */
+  align-items: stretch;
   justify-content: flex-end;
   z-index: 999;
 }
