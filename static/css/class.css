@@ -1167,11 +1167,10 @@ main > .files * {
   font-family: JetBrainsMono, "JetBrains Mono", ui-monospace, monospace;
 }
 
-/* Top-level courses (theme uses li.folder for these). Larger, serif,
- * with an italic flourish on the active one. JetBrainsMono is included
- * as a fallback in the family stack so the Nerd Font PUA glyph the
- * theme's files.html prepends (e.g. U+F4A5) still renders — Newsreader
- * has no glyph in the PUA range and would otherwise show tofu. */
+/* Top-level courses (theme uses li.folder for these). Larger serif,
+ * italic on the active one. The PUA glyphs the theme used to put inline
+ * are gone (template patched); we draw our own mask icons via ::before
+ * further down so they paint in currentColor per theme. */
 main > .files > ul > li.folder > span > a,
 main > .files > ul > li.folder > span > .nv-fold-toggle ~ a {
   font-family: "Newsreader", Charter, Georgia, serif;
@@ -1180,6 +1179,9 @@ main > .files > ul > li.folder > span > .nv-fold-toggle ~ a {
   font-size: 1rem;
   letter-spacing: -0.005em;
   color: var(--nv-fg) !important;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.55em;
 }
 main > .files > ul > li.folder > span > a.selected {
   font-style: italic;
@@ -1223,6 +1225,139 @@ main > .files li.file > span > a.selected {
   border-left-color: var(--nv-accent);
   background: transparent !important;     /* drop the heavy fill */
 }
+
+/* ── Sidebar icons (CSS mask, paint in currentColor) ────────────────────
+ * Three custom SVG line-art icons drawn at 14×14, masked from the link
+ * color via background-color. Theme-aware automatically: hover changes
+ * link color → icon retints. ::before is inline-block so margin gives a
+ * clean, non-overlapping gap to the title text. */
+.nv-tree-icon {
+  /* Shared base — referenced via composition by the three rules below. */
+}
+main > .files li.folder > span > a::before,
+main > .files li.subfolder > span > a::before,
+main > .files li.file > span > a::before {
+  content: "";
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  vertical-align: -0.16em;
+  background-color: currentColor;
+  -webkit-mask-position: center;
+          mask-position: center;
+  -webkit-mask-size: contain;
+          mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+          mask-repeat: no-repeat;
+  opacity: 0.78;
+  transition: opacity 180ms cubic-bezier(0.22, 1, 0.36, 1),
+              transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+main > .files li.folder > span > a:hover::before,
+main > .files li.subfolder > span > a:hover::before,
+main > .files li.file > span > a:hover::before {
+  opacity: 1;
+  transform: scale(1.08);
+}
+main > .files a.selected::before { opacity: 1; }
+
+/* Course = closed book (rectangle with spine). */
+main > .files > ul > li.folder > span > a::before {
+  -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'><rect x='2.5' y='2' width='11' height='12' rx='0.6'/><line x1='5' y1='2' x2='5' y2='14'/><line x1='7.2' y1='5' x2='11.5' y2='5'/><line x1='7.2' y1='8' x2='11.5' y2='8'/><line x1='7.2' y1='11' x2='10' y2='11'/></svg>");
+          mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'><rect x='2.5' y='2' width='11' height='12' rx='0.6'/><line x1='5' y1='2' x2='5' y2='14'/><line x1='7.2' y1='5' x2='11.5' y2='5'/><line x1='7.2' y1='8' x2='11.5' y2='8'/><line x1='7.2' y1='11' x2='10' y2='11'/></svg>");
+}
+
+/* Module = folder. Slightly smaller icon for the more compact module row. */
+main > .files li.subfolder > span > a::before {
+  width: 13px;
+  height: 13px;
+  -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'><path d='M2 5h4.5l1.2 1.4H14V13a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5z'/></svg>");
+          mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'><path d='M2 5h4.5l1.2 1.4H14V13a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5z'/></svg>");
+}
+
+/* Lecture = page with corner fold and a couple of text lines. */
+main > .files li.file > span > a::before {
+  width: 12px;
+  height: 12px;
+  -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'><path d='M4 2h6l3 3v9H4z'/><path d='M10 2v3h3'/><line x1='6' y1='8' x2='11' y2='8'/><line x1='6' y1='10.5' x2='11' y2='10.5'/><line x1='6' y1='13' x2='9' y2='13'/></svg>");
+          mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'><path d='M4 2h6l3 3v9H4z'/><path d='M10 2v3h3'/><line x1='6' y1='8' x2='11' y2='8'/><line x1='6' y1='10.5' x2='11' y2='10.5'/><line x1='6' y1='13' x2='9' y2='13'/></svg>");
+}
+
+/* Module + leaf rows use inline-flex on the anchor too, so the icon
+ * sits aligned with the text instead of inline-baseline drift. */
+main > .files li.subfolder > span > a,
+main > .files li.file > span > a {
+  display: inline-flex !important;
+  align-items: baseline;
+  gap: 0.45em;
+}
+
+/* ── Visited-page indicator (tree-visited.js) ───────────────────────────
+ * Lectures the reader has opened get a filled dot at the row end.
+ * Unvisited stay blank. Subtle, non-judgmental — just a quiet trail. */
+main > .files li.file > span > a[data-visited="true"]::after {
+  content: "";
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  margin-left: 0.5em;
+  border-radius: 50%;
+  background: rgb(var(--nv-accent-rgb) / 0.55);
+  vertical-align: 0.18em;
+  flex-shrink: 0;
+}
+
+/* Active page gets a slowly-pulsing accent dot — "you are here". */
+main > .files li.file > span > a.selected::after {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-left: 0.55em;
+  border-radius: 50%;
+  background: var(--nv-accent);
+  box-shadow: 0 0 0 0 var(--nv-accent);
+  vertical-align: 0.18em;
+  flex-shrink: 0;
+  animation: nv-here-pulse 2.6s ease-in-out infinite;
+}
+@keyframes nv-here-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgb(var(--nv-accent-rgb) / 0.45); }
+  50%      { box-shadow: 0 0 0 5px rgb(var(--nv-accent-rgb) / 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  main > .files li.file > span > a.selected::after { animation: none; }
+}
+
+/* ── Course progress rail (tree-visited.js sets --nv-progress: 0-100) ──
+ * A thin meter under each top-level course showing how much of the
+ * course the reader has visited. Only renders when --nv-progress is set
+ * AND > 0; the SHARP edge keeps it from looking decorative. */
+main > .files > ul > li.folder {
+  position: relative;
+}
+main > .files > ul > li.folder > .nv-progress {
+  display: block;
+  height: 2px;
+  margin: 4px 0 8px 6px;
+  background: rgb(var(--nv-accent-rgb) / 0.10);
+  border-radius: 1px;
+  overflow: hidden;
+  position: relative;
+}
+main > .files > ul > li.folder > .nv-progress::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--nv-progress, 0%);
+  background: linear-gradient(
+    90deg,
+    rgb(var(--nv-accent-rgb) / 0.7) 0%,
+    var(--nv-accent) 100%);
+  transition: width 600ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+main > .files > ul > li.folder[data-progress="0"] > .nv-progress { display: none; }
 
 /* ── Tree fold chevrons (tree-fold.js) ──────────────────────────────────
  * Sidebar starts with every folder collapsed (except the path to the
