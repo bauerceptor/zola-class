@@ -198,27 +198,26 @@ code, pre, kbd, samp,
   --nv-sidebar-w:           clamp(240px, 24vw, 320px);
 
   /* ── Dark palette (default + html.dark) ─────────────────────────────── */
-  --nv-bg-base:             oklch(0.16 0.025 270);
-  --nv-bg-panel:            oklch(0.22 0.020 270 / 0.78);
-  --nv-fg:                  oklch(0.92 0.018 260);
+  --nv-bg-base:             oklch(0.155 0.022 268);   /* page backdrop  */
+  --nv-bg-panel:            oklch(0.21 0.020 268);    /* main panel, opaque so the body grid doesn't leak through */
+  --nv-fg:                  oklch(0.93 0.018 260);
   --nv-fg-muted:            oklch(0.70 0.020 260);
-  --nv-rule:                oklch(0.92 0.018 260 / 0.18);
-  --nv-rule-strong:         oklch(0.92 0.018 260 / 0.30);
-  --nv-accent:              oklch(0.80 0.11 245);   /* ice blue, slightly less saturated */
+  --nv-rule:                oklch(0.93 0.018 260 / 0.16);
+  --nv-rule-strong:         oklch(0.93 0.018 260 / 0.30);
+  --nv-accent:              oklch(0.78 0.13 245);
   --nv-accent-rgb:          130 170 255;
-  --nv-accent-warm:         oklch(0.83 0.09 65);    /* warm amber, lower chroma */
-  --nv-accent-mint:         oklch(0.80 0.09 170);   /* soft teal, less green */
-  --nv-selection-bg:        oklch(0.78 0.13 268 / 0.16);
-  --nv-selection-bg-strong: oklch(0.78 0.13 268 / 0.28);
-  --nv-code-bg:             oklch(0.20 0.020 270);
-  --nv-inline-code-bg:      oklch(0.78 0.13 268 / 0.10);
-  --nv-inline-code-fg:      oklch(0.86 0.07 268);
+  --nv-accent-warm:         oklch(0.82 0.10 65);
+  --nv-accent-mint:         oklch(0.80 0.10 170);
+  --nv-selection-bg:        oklch(0.78 0.13 245 / 0.16);
+  --nv-selection-bg-strong: oklch(0.78 0.13 245 / 0.30);
+  --nv-code-bg:             oklch(0.19 0.020 268);
+  --nv-inline-code-bg:      oklch(0.78 0.13 245 / 0.12);
+  --nv-inline-code-fg:      oklch(0.88 0.09 245);
 
-  /* Aurora shader colors (read by aurora.js via getComputedStyle). */
+  /* Static gradient anchors used by body backdrop (legacy --aur names). */
   --nv-aur-a:               oklch(0.34 0.06 268);
   --nv-aur-b:               oklch(0.28 0.05 248);
   --nv-aur-c:               oklch(0.30 0.06 195);
-  --nv-aur-intensity:       1.0;
 }
 
 /* Explicit dark mode (same values as :root defaults — kept for clarity
@@ -227,34 +226,28 @@ html.dark {
   color-scheme: dark;
 }
 
-/* ── Light palette (tokyo-night-day inspired) ────────────────────────────
- * Warm paper-cream surface tinted toward navy, deep ink for text, the
- * same blue/yellow/green accent family but darkened for AA contrast. */
+/* ── Light palette (paper-white, cool, with deeper saturated accent) ──── */
 html.light {
   color-scheme: light;
-  --nv-bg-base:             oklch(0.97 0.012 80);
-  --nv-bg-panel:            oklch(0.99 0.008 80 / 0.85);
-  --nv-fg:                  oklch(0.30 0.025 270);
-  --nv-fg-muted:            oklch(0.50 0.025 270);
-  --nv-rule:                oklch(0.30 0.025 270 / 0.16);
-  --nv-rule-strong:         oklch(0.30 0.025 270 / 0.30);
-  --nv-accent:              oklch(0.48 0.16 255);
-  --nv-accent-rgb:          54 100 200;
-  --nv-accent-warm:         oklch(0.58 0.16 60);
-  --nv-accent-mint:         oklch(0.55 0.14 150);
-  --nv-selection-bg:        oklch(0.48 0.16 255 / 0.13);
-  --nv-selection-bg-strong: oklch(0.48 0.16 255 / 0.24);
-  --nv-code-bg:             oklch(0.94 0.012 80);
-  --nv-inline-code-bg:      oklch(0.48 0.16 255 / 0.10);
-  --nv-inline-code-fg:      oklch(0.36 0.14 255);
+  --nv-bg-base:             oklch(0.985 0.005 250);  /* almost white, barely cool */
+  --nv-bg-panel:            oklch(1.000 0 0);        /* pure paper for the content slab */
+  --nv-fg:                  oklch(0.22 0.020 265);   /* near-ink */
+  --nv-fg-muted:            oklch(0.48 0.020 265);
+  --nv-rule:                oklch(0.22 0.020 265 / 0.14);
+  --nv-rule-strong:         oklch(0.22 0.020 265 / 0.28);
+  --nv-accent:              oklch(0.46 0.18 258);    /* deep saturated indigo */
+  --nv-accent-rgb:          52 88 196;
+  --nv-accent-warm:         oklch(0.52 0.16 50);     /* burnt amber */
+  --nv-accent-mint:         oklch(0.50 0.13 175);    /* deep teal */
+  --nv-selection-bg:        oklch(0.46 0.18 258 / 0.10);
+  --nv-selection-bg-strong: oklch(0.46 0.18 258 / 0.18);
+  --nv-code-bg:             oklch(0.96 0.008 250);
+  --nv-inline-code-bg:      oklch(0.46 0.18 258 / 0.10);
+  --nv-inline-code-fg:      oklch(0.32 0.16 258);
 
-  /* Light-mode aurora uses MID-darkness colors so multiply blend reads
-     as soft shadows on the cream backdrop. Light colors would multiply
-     to ~1 and disappear. */
-  --nv-aur-a:               oklch(0.60 0.09 250);
-  --nv-aur-b:               oklch(0.68 0.07 70);
-  --nv-aur-c:               oklch(0.62 0.10 200);
-  --nv-aur-intensity:       0.55;
+  --nv-aur-a:               oklch(0.88 0.03 250);
+  --nv-aur-b:               oklch(0.92 0.02 80);
+  --nv-aur-c:               oklch(0.86 0.04 200);
 }
 
 /* Theme transition: a 220ms swap when the html.light/.dark class changes,
@@ -439,50 +432,34 @@ html.light .viewer .content .nv-page-title {
 
 /* ── Body backdrop ────────────────────────────────────────────────────────
  * Three layers, back to front:
- *   1. body bg-color: solid base tint that fills before anything paints.
- *   2. #nv-aurora canvas (z-index -2): living color field (WebGL shader).
- *   3. body::after grain (z-index -1): subtle SVG fractal-noise overlay
- *      that gives the smooth gradient an "image" texture without
- *      adding distracting color.
- * main and content sit above all three at default stacking. */
+ *   1. solid base color (--nv-bg-base).
+ *   2. one soft radial glow from top-left for warmth, no animation.
+ *   3. a 1px-line grid SVG at low opacity — terminal/notebook feel
+ *      without the mottled noise the old aurora produced.
+ * Aurora canvas is suppressed (kept in DOM as a no-op stub via #nv-aurora
+ * display: none) — the earlier WebGL noise read as bad on both themes. */
 body {
   min-height: 100vh;
   background-color: var(--nv-bg-base);
   background-image:
-    radial-gradient(ellipse 80% 60% at 25% 0%, var(--nv-aur-a) 0%, transparent 65%),
-    radial-gradient(ellipse 70% 50% at 80% 100%, var(--nv-aur-b) 0%, transparent 60%);
+    radial-gradient(ellipse 90% 70% at 18% -10%,
+      rgb(var(--nv-accent-rgb) / 0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 65% 55% at 85% 105%,
+      var(--nv-aur-c) 0%, transparent 65%),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'><path d='M40 0H0V40' fill='none' stroke='rgba(205,214,244,0.05)' stroke-width='0.5'/></svg>");
+  background-size: auto, auto, 40px 40px;
   background-attachment: fixed;
 }
 
-#nv-aurora {
-  position: fixed;
-  inset: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: -2;
-  pointer-events: none;
-  opacity: 0.85;
-}
+#nv-aurora { display: none !important; }  /* legacy, suppressed */
 
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.5  0 0 0 0 0.5  0 0 0 0 0.5  0 0 0 1 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.75'/></svg>");
-  background-size: 240px 240px;
-  opacity: 0.18;
-  mix-blend-mode: overlay;
-}
-
-html.light #nv-aurora {
-  opacity: 0.55;
-  mix-blend-mode: multiply;       /* darken cream bg into soft shadows */
-}
-html.light body::after {
-  opacity: 0.10;
-  mix-blend-mode: multiply;       /* grain reads as paper, not film */
+html.light body {
+  background-image:
+    radial-gradient(ellipse 90% 70% at 18% -10%,
+      rgb(var(--nv-accent-rgb) / 0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 85% 105%,
+      var(--nv-aur-a) 0%, transparent 65%),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'><path d='M40 0H0V40' fill='none' stroke='rgba(60,80,140,0.07)' stroke-width='0.5'/></svg>");
 }
 
 /* ── Tab strip ────────────────────────────────────────────────────────────
@@ -595,17 +572,38 @@ main > .viewer .tab ul li {
   content: none !important;
 }
 
-/* ── Tabs: theme hardcodes white tab text — fix light mode ──────────── */
-main > .viewer > .tab ul a,
-main > .viewer > .tab ul li {
+/* ── Tabs: theme hardcodes white-on-something colors that disappear in
+ * light mode. Force everything through tokens, with explicit !important
+ * overriding the theme's own !important rules. */
+main > .viewer > .tab ul li,
+main > .viewer > .tab ul li a {
+  color: var(--nv-fg-muted) !important;
+  opacity: 1 !important;
+}
+main > .viewer > .tab ul .selected,
+main > .viewer > .tab ul .selected a {
+  color: var(--nv-accent) !important;
+}
+main > .viewer > .tab ul li:hover a {
   color: var(--nv-fg) !important;
 }
-main > .viewer > .tab ul li:not(.selected) a {
-  color: var(--nv-fg-muted) !important;
+
+/* ── Layout breathing room: push content + tab strip off the sidebar edge
+ * so the viewer reads as its own surface, not pasted against the tree. */
+main > .viewer > .content {
+  padding-left: 40px !important;
+  padding-right: 32px !important;
+  padding-top: 14px !important;
 }
-main > .viewer > .tab ul .selected a,
-main > .viewer > .tab ul li:hover a {
-  color: var(--nv-accent) !important;
+main > .viewer > .tab {
+  padding-left: 28px;
+}
+/* Soft inset shadow on the left edge of the viewer to suggest depth
+ * between sidebar and content even though they share the panel. */
+@media only screen and (min-width: 768px) {
+  main > .viewer {
+    box-shadow: inset 1px 0 0 var(--nv-rule);
+  }
 }
 
 /* ── Inline code refinement ──────────────────────────────────────────────
@@ -952,8 +950,16 @@ main > .files .selected {
 #nv-guide[hidden] { display: none !important; }
 
 /* ── Homepage (templates/index.html) ────────────────────────────────────
- * Editorial hero, course cards walked from the section tree, recent
- * lectures strip. Sits inside .viewer .content (theme chrome unchanged). */
+ * Editorial layout. Personal kicker → big two-line title with a blinking
+ * terminal cursor → spotlight course (CS 101) with its module + lecture
+ * tree fully rendered → other tracks → principle quote → footer hint.
+ * Sections stagger-fade in with --i delay. Sits inside .viewer .content,
+ * the theme's panel + sidebar chrome stays. */
+.nv-home {
+  max-width: 72ch;
+  margin: 1rem 0 2rem;
+}
+.nv-home > * + * { margin-top: 3.2rem; }
 .nv-home-hero {
   margin: 1rem 0 3rem;
   max-width: 64ch;
@@ -1158,6 +1164,528 @@ main > .files .selected {
   padding: 0 5px;
   font-size: 0.78rem;
   color: var(--nv-fg);
+}
+
+/* ── Editorial homepage (current) ───────────────────────────────────────
+ * Sections fade-up in sequence; --i sets the delay step (110ms each). */
+@keyframes nv-fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+.nv-stagger {
+  opacity: 0;
+  animation: nv-fade-up 540ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--i, 0) * 110ms);
+}
+@media (prefers-reduced-motion: reduce) {
+  .nv-stagger { opacity: 1; animation: none; }
+}
+
+.nv-home__intro {
+  border-bottom: 1px solid var(--nv-rule);
+  padding-bottom: 1.6rem;
+  animation: nv-fade-up 540ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.nv-home__kicker {
+  font-family: JetBrainsMono, "JetBrains Mono", monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--nv-fg-muted);
+  margin: 0 0 1.2rem !important;
+}
+.nv-home__kicker .nv-home__sep { color: var(--nv-rule-strong); margin: 0 0.4em; }
+
+.nv-home__title {
+  font-family: "Newsreader", Charter, Georgia, serif !important;
+  font-variation-settings: "opsz" 72;
+  font-weight: 500 !important;
+  font-size: clamp(2.4rem, 5.5vw, 3.8rem) !important;
+  line-height: 1.05 !important;
+  letter-spacing: -0.025em;
+  color: var(--nv-fg) !important;
+  margin: 0 0 1.4rem !important;
+  text-shadow: none !important;
+  text-wrap: balance;
+}
+.nv-home__title-em {
+  font-style: italic;
+  color: var(--nv-accent) !important;
+  font-weight: 500;
+}
+.nv-home__cursor {
+  display: inline-block;
+  width: 0.5ch;
+  height: 1.05em;
+  margin-left: 0.18em;
+  background: var(--nv-accent);
+  vertical-align: -0.12em;
+  animation: nv-blink 1.05s steps(1) infinite;
+}
+@keyframes nv-blink { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .nv-home__cursor { animation: none; opacity: 0.6; }
+}
+
+.nv-home__lede {
+  font-family: "Barlow", system-ui, sans-serif !important;
+  font-size: 1.1rem !important;
+  line-height: 1.6 !important;
+  color: var(--nv-fg-muted) !important;
+  max-width: 56ch;
+  margin: 0 !important;
+}
+.nv-home__lede kbd, .nv-home__foot kbd {
+  font-family: JetBrainsMono, "JetBrains Mono", monospace;
+  background: rgb(var(--nv-accent-rgb) / 0.10);
+  border: 1px solid var(--nv-rule);
+  border-radius: 3px;
+  padding: 0 6px;
+  font-size: 0.78em;
+  color: var(--nv-fg);
+}
+
+.nv-home__sec-tag {
+  font-family: JetBrainsMono, "JetBrains Mono", monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--nv-fg-muted);
+  margin: 0 0 1rem !important;
+}
+
+/* Spotlight course card + module map */
+.nv-spot {
+  display: block;
+  padding: 1.4rem 1.6rem 1.2rem;
+  background: linear-gradient(
+    180deg,
+    rgb(var(--nv-accent-rgb) / 0.08) 0%,
+    rgb(var(--nv-accent-rgb) / 0.02) 100%);
+  border: 1px solid rgb(var(--nv-accent-rgb) / 0.30);
+  border-radius: 10px;
+  color: var(--nv-fg);
+  text-decoration: none !important;
+  transition: border-color 200ms cubic-bezier(0.22, 1, 0.36, 1),
+              transform 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nv-spot::before { content: none !important; }
+.nv-spot:hover {
+  border-color: rgb(var(--nv-accent-rgb) / 0.55);
+  transform: translateY(-2px);
+}
+.nv-spot__head { display: block; }
+.nv-spot__code {
+  display: block;
+  font-family: JetBrainsMono, "JetBrains Mono", monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: var(--nv-fg-muted);
+  margin-bottom: 0.35rem;
+}
+.nv-spot__title {
+  font-family: "Newsreader", Charter, Georgia, serif !important;
+  font-variation-settings: "opsz" 56;
+  font-size: 1.85rem !important;
+  font-weight: 500 !important;
+  line-height: 1.15 !important;
+  letter-spacing: -0.015em;
+  color: var(--nv-accent) !important;
+  margin: 0 !important;
+  text-shadow: none !important;
+}
+.nv-spot__tagline {
+  font-family: "Barlow", system-ui, sans-serif;
+  font-size: 1rem;
+  color: var(--nv-fg);
+  line-height: 1.5;
+  margin: 0.5rem 0 0 !important;
+  max-width: 52ch;
+}
+.nv-spot__meta {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 0.9rem;
+  font-family: JetBrainsMono, "JetBrains Mono", monospace;
+  font-size: 0.78rem;
+  color: var(--nv-fg-muted);
+}
+
+.nv-spot__modules {
+  list-style: none;
+  padding: 0;
+  margin: 1.6rem 0 0;
+  display: grid;
+  gap: 1.4rem;
+}
+.nv-spot__module > header { display: block; }
+.nv-spot__module-link {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  color: var(--nv-fg) !important;
+  text-decoration: none !important;
+  transition: color 150ms ease;
+}
+.nv-spot__module-link::before { content: none !important; }
+.nv-spot__module-link:hover { color: var(--nv-accent) !important; }
+.nv-spot__module-num {
+  font-family: JetBrainsMono, "JetBrains Mono", monospace;
+  font-size: 0.72rem;
+  color: var(--nv-accent-warm);
+  border: 1px solid rgb(var(--nv-accent-rgb) / 0.25);
+  padding: 1px 5px;
+  border-radius: 3px;
+  letter-spacing: 0.04em;
+}
+.nv-spot__module-title {
+  font-family: "Barlow", system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 1.05rem;
+  letter-spacing: -0.005em;
+}
+.nv-spot__lectures {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+  border-left: 1px solid var(--nv-rule);
+}
+.nv-spot__lec {
+  display: grid;
+  grid-template-columns: 3.5rem 1fr auto;
+  align-items: baseline;
+  gap: 0.9rem;
+  padding: 0.4rem 0.9rem;
+  color: var(--nv-fg) !important;
+  text-decoration: none !important;
+  transition: background-color 150ms ease, color 150ms ease;
+  border-radius: 0 4px 4px 0;
+}
+.nv-spot__lec::before { content: none !important; }
+.nv-spot__lec:hover {
+  background: rgb(var(--nv-accent-rgb) / 0.08);
+  color: var(--nv-accent) !important;
+}
+.nv-spot__lec-num {
+  font-family: JetBrainsMono, "JetBrains Mono", monospace;
+  font-size: 0.72rem;
+  color: var(--nv-fg-muted);
+  letter-spacing: 0.04em;
+}
+.nv-spot__lec-title {
+  font-family: "Barlow", system-ui, sans-serif;
+  font-size: 0.98rem;
+}
+.nv-spot__lec-date {
+  font-family: JetBrainsMono, "JetBrains Mono", monospace;
+  font-size: 0.72rem;
+  color: var(--nv-fg-muted);
+  letter-spacing: 0.02em;
+}
+
+/* Other tracks (talks etc.) */
+.nv-tracks {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+.nv-track {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: 0.8rem 1.4rem;
+  padding: 0.85rem 1.1rem;
+  color: var(--nv-fg) !important;
+  text-decoration: none !important;
+  border: 1px solid var(--nv-rule);
+  border-radius: 8px;
+  transition: border-color 180ms ease, background-color 180ms ease;
+}
+.nv-track::before { content: none !important; }
+.nv-track:hover {
+  border-color: rgb(var(--nv-accent-rgb) / 0.45);
+  background: rgb(var(--nv-accent-rgb) / 0.05);
+}
+.nv-track__title {
+  font-family: "Barlow", system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--nv-fg);
+}
+.nv-track__desc {
+  display: block;
+  grid-column: 1;
+  font-family: "Barlow", system-ui, sans-serif;
+  font-size: 0.92rem;
+  color: var(--nv-fg-muted);
+  line-height: 1.4;
+  margin-top: 0.2rem;
+}
+.nv-track__meta {
+  font-family: JetBrainsMono, "JetBrains Mono", monospace;
+  font-size: 0.78rem;
+  color: var(--nv-fg-muted);
+  align-self: start;
+}
+
+/* Principle / quote */
+.nv-home__principle {
+  border-top: 1px solid var(--nv-rule);
+  padding-top: 2rem;
+}
+.nv-home__principle blockquote {
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0 0 0 2.4rem !important;
+  margin: 0 !important;
+  position: relative;
+  font-family: "Newsreader", Charter, Georgia, serif !important;
+  font-variation-settings: "opsz" 56;
+  font-style: italic;
+  font-size: 1.45rem !important;
+  line-height: 1.5 !important;
+  color: var(--nv-fg) !important;
+  max-width: 56ch;
+  text-wrap: balance;
+  width: auto !important;
+}
+.nv-home__principle blockquote::before {
+  content: "\201C" !important;
+  position: absolute;
+  left: 0;
+  top: -0.4em;
+  font-family: "Newsreader", Charter, Georgia, serif;
+  font-size: 3.5em;
+  color: var(--nv-accent);
+  line-height: 1;
+  opacity: 0.7;
+  background: none !important;
+  width: auto !important;
+  height: auto !important;
+}
+.nv-home__principle cite {
+  display: block;
+  margin-top: 0.6rem;
+  font-style: normal;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--nv-fg-muted);
+  font-family: JetBrainsMono, "JetBrains Mono", monospace;
+}
+
+.nv-home__foot {
+  display: flex;
+  gap: 1.6rem;
+  align-items: baseline;
+  border-top: 1px solid var(--nv-rule);
+  padding-top: 1rem;
+  font-family: JetBrainsMono, "JetBrains Mono", monospace;
+  font-size: 0.78rem;
+  color: var(--nv-fg-muted);
+  flex-wrap: wrap;
+}
+.nv-home__foot a { color: var(--nv-fg-muted) !important; text-decoration: none !important; }
+.nv-home__foot a::before { content: none !important; }
+.nv-home__foot a:hover { color: var(--nv-accent) !important; }
+
+/* ── 404 page (templates/404.html) ────────────────────────────────────────
+ * Standalone layout — the 404 doesn't use the theme's main/viewer chrome,
+ * so it gets its own full-bleed canvas. Same kicker/serif/staggered
+ * personality as the homepage so they read as one designed site. */
+.nv-lost {
+  position: relative;
+  z-index: 1;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: clamp(2.5rem, 6vw, 5rem) clamp(1.5rem, 4vw, 2.5rem) 3rem;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  gap: 2.6rem;
+}
+.nv-lost__head { display: flex; flex-direction: column; gap: 1.1rem; }
+.nv-lost__kicker {
+  font-family: JetBrainsMono, "JetBrains Mono", monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--nv-fg-muted);
+  margin: 0;
+}
+.nv-lost__kicker .nv-lost__sep { color: var(--nv-rule-strong); margin: 0 0.4em; }
+
+.nv-lost__digits {
+  font-family: "Newsreader", Charter, Georgia, serif;
+  font-variation-settings: "opsz" 72;
+  font-weight: 500;
+  font-size: clamp(7rem, 22vw, 14rem);
+  line-height: 0.85;
+  letter-spacing: -0.05em;
+  color: var(--nv-fg);
+  margin: 0;
+  user-select: none;
+}
+.nv-lost__digits .nv-lost__d:nth-child(2) { color: var(--nv-accent); }
+.nv-lost__d {
+  display: inline-block;
+  transform: translateY(-26px);
+  opacity: 0;
+  animation: nv-lost-settle 760ms cubic-bezier(0.34, 1.4, 0.64, 1) both;
+  animation-delay: calc(var(--i, 0) * 110ms);
+}
+@keyframes nv-lost-settle { to { transform: none; opacity: 1; } }
+
+.nv-lost__title {
+  font-family: "Newsreader", Charter, Georgia, serif;
+  font-variation-settings: "opsz" 56;
+  font-weight: 500;
+  font-size: clamp(1.8rem, 3.6vw, 2.5rem);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--nv-fg);
+  margin: 0;
+  text-wrap: balance;
+  animation: nv-fade-up 540ms 380ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.nv-lost__title-em { font-style: italic; color: var(--nv-fg-muted); font-weight: 500; }
+
+.nv-lost__lede {
+  font-family: "Barlow", system-ui, sans-serif;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--nv-fg-muted);
+  max-width: 56ch;
+  margin: 0;
+  animation: nv-fade-up 540ms 460ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.nv-lost__lede kbd,
+.nv-lost__foot kbd {
+  font-family: JetBrainsMono, "JetBrains Mono", monospace;
+  background: rgb(var(--nv-accent-rgb) / 0.10);
+  border: 1px solid var(--nv-rule);
+  border-radius: 3px;
+  padding: 0 6px;
+  font-size: 0.82em;
+  color: var(--nv-fg);
+}
+.nv-lost__path {
+  font-family: JetBrainsMono, "JetBrains Mono", monospace;
+  font-size: 0.92em;
+  background: rgb(var(--nv-accent-rgb) / 0.10);
+  color: var(--nv-fg);
+  padding: 1px 6px;
+  border-radius: 3px;
+}
+
+.nv-lost__group { animation: nv-fade-up 540ms 600ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.nv-lost__group + .nv-lost__group { animation-delay: 720ms; }
+
+.nv-lost__tag {
+  font-family: JetBrainsMono, "JetBrains Mono", monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--nv-fg-muted);
+  margin: 0 0 0.8rem;
+}
+
+.nv-lost__routes { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.4rem; }
+.nv-lost__routes a {
+  display: grid;
+  grid-template-columns: 6rem 1fr auto;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0.7rem 1rem;
+  color: var(--nv-fg);
+  text-decoration: none;
+  border: 1px solid var(--nv-rule);
+  border-radius: 8px;
+  transition: border-color 180ms ease, background-color 180ms ease, transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nv-lost__routes a:hover {
+  border-color: rgb(var(--nv-accent-rgb) / 0.45);
+  background: rgb(var(--nv-accent-rgb) / 0.06);
+  transform: translateY(-1px);
+}
+.nv-lost__route-key {
+  font-family: JetBrainsMono, "JetBrains Mono", monospace;
+  font-size: 0.78rem;
+  color: var(--nv-accent-warm);
+  letter-spacing: 0.04em;
+}
+.nv-lost__route-label {
+  font-family: "Barlow", system-ui, sans-serif;
+  font-size: 0.98rem;
+}
+.nv-lost__route-cue {
+  font-family: JetBrainsMono, "JetBrains Mono", monospace;
+  color: var(--nv-fg-muted);
+  transition: color 180ms ease, transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nv-lost__routes a:hover .nv-lost__route-cue {
+  color: var(--nv-accent);
+  transform: translateX(3px);
+}
+
+.nv-lost__searchbar {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  padding: 0.85rem 1rem;
+  background: rgb(var(--nv-accent-rgb) / 0.06);
+  border: 1px solid rgb(var(--nv-accent-rgb) / 0.30);
+  border-radius: 8px;
+  color: var(--nv-fg);
+  font-family: JetBrainsMono, "JetBrains Mono", monospace;
+  font-size: 0.95rem;
+  cursor: text;
+  text-align: left;
+  transition: border-color 180ms ease, background-color 180ms ease;
+}
+.nv-lost__searchbar:hover, .nv-lost__searchbar:focus-visible {
+  border-color: rgb(var(--nv-accent-rgb) / 0.55);
+  background: rgb(var(--nv-accent-rgb) / 0.10);
+  outline: none;
+}
+.nv-lost__sigil { color: var(--nv-accent); font-weight: 600; }
+.nv-lost__searchbar-text { color: var(--nv-fg-muted); flex: 1; }
+.nv-lost__searchbar-key { color: var(--nv-fg-muted); font-size: 0.78rem; opacity: 0.8; }
+.nv-lost__cursor {
+  display: inline-block;
+  width: 0.4ch;
+  height: 1em;
+  margin-left: -0.2ch;
+  background: var(--nv-accent);
+  vertical-align: -0.15em;
+  animation: nv-blink 1.05s steps(1) infinite;
+}
+
+.nv-lost__foot {
+  display: flex;
+  gap: 1.5rem;
+  align-items: baseline;
+  flex-wrap: wrap;
+  border-top: 1px solid var(--nv-rule);
+  padding-top: 1.1rem;
+  font-family: JetBrainsMono, "JetBrains Mono", monospace;
+  font-size: 0.78rem;
+  color: var(--nv-fg-muted);
+  animation: nv-fade-up 540ms 840ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.nv-lost__foot a { color: var(--nv-fg-muted); text-decoration: none; }
+.nv-lost__foot a:hover { color: var(--nv-accent); }
+
+@media (prefers-reduced-motion: reduce) {
+  .nv-lost__d, .nv-lost__title, .nv-lost__lede, .nv-lost__group, .nv-lost__foot, .nv-lost__cursor {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .nv-lost__cursor { opacity: 0.6; }
 }
 .nv-guide__backdrop {
   position: absolute;

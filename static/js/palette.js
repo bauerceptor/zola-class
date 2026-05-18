@@ -184,6 +184,7 @@
     palette = buildPalette();
     input   = palette.querySelector(".nv-palette__input");
     listEl  = palette.querySelector(".nv-palette__list");
+    palette.style.display = "";       /* clear any inline display:none from close() */
     palette.hidden = false;
     requestAnimationFrame(function () { palette.classList.add("nv-palette--open"); });
     input.value = prefill || "";
@@ -194,23 +195,27 @@
     document.documentElement.style.overflow = "hidden";
   }
   function close() {
-    if (!palette || palette.hidden) return;
+    if (!palette) return;
     palette.classList.remove("nv-palette--open");
     palette.hidden = true;
+    palette.style.display = "none";   /* belt-and-suspenders: kill pointer events even if CSS misses */
+    if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
     document.documentElement.style.overflow = "";
   }
 
   function openGuide() {
     var g = buildGuide();
+    g.style.display = "";
     g.hidden = false;
     requestAnimationFrame(function () { g.classList.add("nv-guide--open"); });
     document.documentElement.style.overflow = "hidden";
   }
   function closeGuide() {
     var g = document.getElementById("nv-guide");
-    if (!g || g.hidden) return;
+    if (!g) return;
     g.classList.remove("nv-guide--open");
     g.hidden = true;
+    g.style.display = "none";
     document.documentElement.style.overflow = "";
   }
 

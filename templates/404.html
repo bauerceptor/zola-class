@@ -1,8 +1,10 @@
-{# 404 — standalone editorial page, no theme chrome.
-   Hosts its own <head> so we drop the file tree / tab strip / prompt and
-   give the error its own full-screen presence. Loads the same theme
-   tokens, aurora, hamburger, and theme switcher as the rest of the site
-   so it stays coherent. #}
+{# 404 — full-bleed editorial page, no theme chrome.
+   Designed as a peer to the homepage: same kicker / serif title /
+   stagger-fade rhythm, but with a "lost in the syllabus" voice and a
+   fake-palette `:` hint so users discover the fuzzy search instead of
+   bouncing. Loads class.css for tokens, theme-toggle for the palette
+   switcher, menu.js for the hamburger, palette.js so `:` and Ctrl+/
+   work right from this page. #}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,189 +12,105 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>404 · {{ config.title }}</title>
 
-  <link rel="icon" type="image/png" sizes="32x32"   href="{{ get_url(path='img/class-light-32.png') }}"  media="(prefers-color-scheme: light)">
-  <link rel="icon" type="image/png" sizes="32x32"   href="{{ get_url(path='img/class-dark-32.png') }}"   media="(prefers-color-scheme: dark)">
+  <link rel="icon" type="image/png" sizes="32x32" href="{{ get_url(path='img/class-light-32.png') }}" media="(prefers-color-scheme: light)">
+  <link rel="icon" type="image/png" sizes="32x32" href="{{ get_url(path='img/class-dark-32.png') }}"  media="(prefers-color-scheme: dark)">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,400;500&display=swap">
 
   <link rel="stylesheet" href="{{ get_url(path='css/menu.css') }}">
   <link rel="stylesheet" href="{{ get_url(path='css/class.css') }}">
 
   <script src="{{ get_url(path='js/theme-toggle.js') }}"></script>
   <script src="{{ get_url(path='js/menu.js') }}" defer></script>
-  <script src="{{ get_url(path='js/aurora.js') }}" defer></script>
+  <script src="{{ get_url(path='js/palette.js') }}" defer></script>
 
-  <style>
-    /* Strip the theme's main panel — we want a full-bleed editorial layout. */
-    body { display: block; }
-    main, .files, .prompt, .viewer { display: none !important; }
-
-    .err {
-      position: relative;
-      z-index: 1;
-      min-height: 100dvh;
-      display: grid;
-      grid-template-rows: auto 1fr auto auto auto;
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: clamp(2rem, 5vw, 4rem) clamp(1.25rem, 4vw, 2rem);
-      align-items: start;
-      gap: var(--sp-3, 0.5rem);
-    }
-
-    .err__http {
-      font-family: JetBrainsMono, "JetBrains Mono", monospace;
-      font-size: 0.78rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--nv-fg-muted);
-      margin: 0;
-    }
-
-    .err__digits {
-      align-self: center;
-      margin: 0;
-      text-align: center;
-      font-family: "Newsreader", Charter, Georgia, serif;
-      font-variation-settings: "opsz" 72;
-      font-weight: 500;
-      font-size: clamp(7rem, 28vw, 20rem);
-      letter-spacing: -0.04em;
-      line-height: 0.85;
-      color: var(--nv-fg);
-      user-select: none;
-    }
-    .err__digits .err__d:nth-child(2) { color: var(--nv-accent); }
-
-    .err__d {
-      display: inline-block;
-      transform: translateY(-32px);
-      opacity: 0;
-      animation: err-settle 760ms cubic-bezier(0.34, 1.4, 0.64, 1) both;
-      animation-delay: calc(var(--i, 0) * 110ms);
-    }
-    @keyframes err-settle {
-      to { transform: translateY(0); opacity: 1; }
-    }
-
-    .err__title {
-      font-family: "Barlow", system-ui, sans-serif;
-      font-size: clamp(1.5rem, 3vw, 2.1rem);
-      font-weight: 700;
-      color: var(--nv-fg);
-      margin: 0 0 0.5rem;
-      text-align: center;
-      letter-spacing: -0.015em;
-      animation: err-fade 520ms 380ms cubic-bezier(0.16, 1, 0.3, 1) both;
-    }
-
-    .err__asked {
-      font-family: JetBrainsMono, "JetBrains Mono", monospace;
-      font-size: 0.85rem;
-      color: var(--nv-fg-muted);
-      text-align: center;
-      margin: 0 0 2rem;
-      letter-spacing: 0.02em;
-      min-height: 1.2em;
-      animation: err-fade 520ms 480ms cubic-bezier(0.16, 1, 0.3, 1) both;
-    }
-    .err__path {
-      color: var(--nv-fg);
-      background: rgb(var(--nv-accent-rgb) / 0.10);
-      padding: 1px 8px;
-      border-radius: 3px;
-    }
-
-    .err__nav {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.7rem 2rem;
-      justify-content: center;
-      padding: 1rem 0;
-      border-top: 1px solid var(--nv-rule);
-      border-bottom: 1px solid var(--nv-rule);
-      margin: 0 0 1.5rem;
-      animation: err-fade 520ms 580ms cubic-bezier(0.16, 1, 0.3, 1) both;
-    }
-    .err__nav a {
-      font-family: JetBrainsMono, "JetBrains Mono", monospace;
-      font-size: 0.78rem;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--nv-fg-muted);
-      text-decoration: none;
-      transition: color 180ms cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .err__nav a:hover, .err__nav a:focus-visible { color: var(--nv-accent); }
-
-    .err__hint {
-      font-family: JetBrainsMono, "JetBrains Mono", monospace;
-      font-size: 0.78rem;
-      color: var(--nv-fg-muted);
-      text-align: center;
-      margin: 0;
-      letter-spacing: 0.02em;
-      animation: err-fade 520ms 680ms cubic-bezier(0.16, 1, 0.3, 1) both;
-    }
-    .err__hint kbd {
-      background: var(--nv-bg-panel);
-      border: 1px solid var(--nv-rule-strong);
-      border-radius: 3px;
-      padding: 1px 6px;
-      font-size: inherit;
-      color: var(--nv-fg);
-    }
-
-    @keyframes err-fade {
-      from { opacity: 0; transform: translateY(4px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .err__d, .err__title, .err__asked, .err__nav, .err__hint { animation: none; }
-      .err__d { transform: none; opacity: 1; }
-    }
-  </style>
+  <script>
+    /* Minimal page-pages list so the palette has something to search even
+       though the 404 doesn't go through _head_extend.html's full tree walk. */
+    window.HELP_URL  = "{{ get_url(path='readme') }}";
+    window.SITE_BASE = "{{ get_url(path='') }}";
+    window.SITE_PAGES = [
+      { title: "Home",              url: "{{ get_url(path='') }}" },
+      { title: "CS 101 — Course",   url: "{{ get_url(path='cs101/') }}" },
+      { title: "Speeches & Talks",  url: "{{ get_url(path='speeches/') }}" },
+      { title: "Keyboard reference", url: "{{ get_url(path='readme') }}" }
+    ];
+  </script>
 </head>
 <body>
 
-  <main class="err">
-    <p class="err__http">HTTP/1.1 404</p>
-
-    <h1 class="err__digits" aria-label="404">
-      <span class="err__d" style="--i:0">4</span><span class="err__d" style="--i:1">0</span><span class="err__d" style="--i:2">4</span>
-    </h1>
-
-    <p class="err__title">Page not found.</p>
-
-    <p class="err__asked" id="err-asked"></p>
-
-    <nav class="err__nav" aria-label="Recover">
-      <a href="{{ get_url(path='') }}">Home</a>
-      <a href="{{ get_url(path='cs101/') }}">CS 101</a>
-      <a href="{{ get_url(path='speeches/') }}">Speeches</a>
-      <a href="{{ get_url(path='readme') }}">Keyboard</a>
-    </nav>
-
-    <p class="err__hint">
-      Press <kbd>:</kbd> for fuzzy file search · <kbd>Ctrl</kbd>+<kbd>/</kbd> for keyboard shortcuts.
+<main class="nv-lost">
+  <header class="nv-lost__head">
+    <p class="nv-lost__kicker">
+      Class
+      <span class="nv-lost__sep">·</span>
+      HTTP/1.1 404
     </p>
-  </main>
+    <h1 class="nv-lost__digits" aria-label="404">
+      <span class="nv-lost__d" style="--i:0">4</span><span class="nv-lost__d" style="--i:1">0</span><span class="nv-lost__d" style="--i:2">4</span>
+    </h1>
+    <h2 class="nv-lost__title">
+      Lost in the syllabus.<br>
+      <span class="nv-lost__title-em">Not your fault.</span>
+    </h2>
+    <p class="nv-lost__lede" id="nv-lost-lede">
+      That URL isn&rsquo;t part of the class site, or it moved. Pick a starting point
+      below, or hit&nbsp;<kbd>:</kbd>&nbsp;and start typing.
+    </p>
+  </header>
 
-  <script>
-    (function () {
-      var el = document.getElementById('err-asked');
-      if (!el) return;
-      var path = decodeURIComponent(window.location.pathname || "/");
-      path = path.replace(/\/404(\.html)?\/?$/, "");
-      if (!path || path === "/") { el.textContent = ""; return; }
-      var safe = path.replace(/[<>&]/g, function (c) {
-        return { "<":"&lt;", ">":"&gt;", "&":"&amp;" }[c];
-      });
-      el.innerHTML = 'You asked for <span class="err__path">' + safe + '</span>.';
-    })();
-  </script>
+  <section class="nv-lost__group">
+    <p class="nv-lost__tag">Where to go</p>
+    <ul class="nv-lost__routes">
+      <li><a href="{{ get_url(path='') }}"><span class="nv-lost__route-key">/</span><span class="nv-lost__route-label">Home</span><span class="nv-lost__route-cue">→</span></a></li>
+      <li><a href="{{ get_url(path='cs101/') }}"><span class="nv-lost__route-key">cs101</span><span class="nv-lost__route-label">Introduction to Computer Science</span><span class="nv-lost__route-cue">→</span></a></li>
+      <li><a href="{{ get_url(path='speeches/') }}"><span class="nv-lost__route-key">speeches</span><span class="nv-lost__route-label">Selected talks &amp; speaker notes</span><span class="nv-lost__route-cue">→</span></a></li>
+      <li><a href="{{ get_url(path='readme') }}"><span class="nv-lost__route-key">readme</span><span class="nv-lost__route-label">Keyboard reference</span><span class="nv-lost__route-cue">→</span></a></li>
+    </ul>
+  </section>
+
+  <section class="nv-lost__group">
+    <p class="nv-lost__tag">Or search</p>
+    <button class="nv-lost__searchbar" type="button" id="nv-lost-search" aria-label="Open the command palette">
+      <span class="nv-lost__sigil">:</span>
+      <span class="nv-lost__searchbar-text">find anything on the site</span>
+      <span class="nv-lost__cursor" aria-hidden="true"></span>
+      <span class="nv-lost__searchbar-key">⏎</span>
+    </button>
+  </section>
+
+  <footer class="nv-lost__foot">
+    <span><kbd>:</kbd> open palette</span>
+    <span><kbd>Ctrl</kbd>+<kbd>/</kbd> keyboard guide</span>
+    <span>·</span>
+    <a href="{{ get_url(path='') }}">return to class site</a>
+  </footer>
+</main>
+
+<script>
+  /* Fill in the "you asked for X" line with the real requested path,
+     preserving the lede if the path was empty. */
+  (function () {
+    var lede = document.getElementById("nv-lost-lede");
+    if (!lede) return;
+    var raw = decodeURIComponent(window.location.pathname || "/");
+    raw = raw.replace(/\/404(\.html)?\/?$/, "");
+    if (!raw || raw === "/") return;
+    var safe = raw.replace(/[<>&]/g, function (c) {
+      return { "<":"&lt;", ">":"&gt;", "&":"&amp;" }[c];
+    });
+    lede.innerHTML = 'You asked for <code class="nv-lost__path">' + safe +
+      '</code>. That URL isn&rsquo;t part of the class site, or it moved. ' +
+      'Pick a starting point below, or hit&nbsp;<kbd>:</kbd>&nbsp;and start typing.';
+  })();
+
+  /* The fake search bar opens the real palette. */
+  document.getElementById("nv-lost-search").addEventListener("click", function () {
+    var ev = new KeyboardEvent("keydown", { key: ":", bubbles: true });
+    document.dispatchEvent(ev);
+  });
+</script>
 </body>
 </html>

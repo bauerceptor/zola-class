@@ -1,11 +1,13 @@
 +++
 title = "CS 101 — Introduction to Computer Science"
-description = "Syllabus and course overview."
+description = "Foundations of computing for first-year students: how programs run, how to think with types, and how control shapes a calculation."
 sort_by = "weight"
 
 [extra]
-lang     = "en"
-semester = "Spring 2025"
+lang      = "en"
+semester  = "Spring 2026"
+spotlight = true
+tagline   = "What computers really are, and how to make them do useful work."
 +++
 
 ## Course Overview
