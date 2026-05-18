@@ -617,17 +617,19 @@ html {
 }
 .menu-wrap .toggler:focus-visible + .hamburger { box-shadow: 0 0 0 2px var(--nv-accent); }
 
-/* Subtle hover lift on inline code (gentle, never on pre > code). */
+/* Subtle hover lift on inline code (gentle, never on pre > code). The
+ * vendored theme has `code { width: calc(100% - 50px) }` applied to ALL
+ * code, so inline `<code>` snippets balloon to a full-line bar. Force
+ * width: auto so they hug their text. */
 .viewer .content :not(pre) > code {
+  display: inline !important;
+  width: auto !important;
   transition: background-color 160ms cubic-bezier(0.22, 1, 0.36, 1),
-              color 160ms cubic-bezier(0.22, 1, 0.36, 1),
-              transform 160ms cubic-bezier(0.22, 1, 0.36, 1);
-  display: inline-block;
+              color 160ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 .viewer .content :not(pre) > code:hover {
-  background-color: rgb(var(--nv-accent-rgb) / 0.18) !important;
+  background-color: rgb(var(--nv-accent-rgb) / 0.20) !important;
   color: var(--nv-accent) !important;
-  transform: translateY(-1px);
 }
 
 /* Tab strip: a hairline accent under the SELECTED tab so the eye knows
@@ -765,20 +767,324 @@ main > .viewer > .tab ul .selected {
   color: var(--nv-fg);
 }
 
-/* ── Tabs: theme hardcodes white-on-something colors that disappear in
- * light mode. Force everything through tokens, with explicit !important
- * overriding the theme's own !important rules. */
-main > .viewer > .tab ul li,
-main > .viewer > .tab ul li a {
+/* ── Curated section page (templates/section.html) ──────────────────────
+ * Used for /cs101/, /cs101/module1/, etc. Same editorial vocabulary as
+ * the homepage (kicker, serif title, mono numbering). */
+.nv-sec {
+  max-width: 72ch;
+  display: flex;
+  flex-direction: column;
+  gap: 2.4rem;
+}
+.nv-sec > * {
+  opacity: 0;
+  animation: nv-fade-up 540ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.nv-sec > *:nth-child(1) { animation-delay: 0ms; }
+.nv-sec > *:nth-child(2) { animation-delay: 90ms; }
+.nv-sec > *:nth-child(3) { animation-delay: 180ms; }
+.nv-sec > *:nth-child(4) { animation-delay: 270ms; }
+.nv-sec > *:nth-child(5) { animation-delay: 360ms; }
+@media (prefers-reduced-motion: reduce) {
+  .nv-sec > * { opacity: 1; animation: none; }
+}
+
+.nv-sec__head {
+  border-bottom: 1px solid var(--nv-rule);
+  padding-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+.nv-sec__kicker {
+  font-family: JetBrainsMono, "JetBrains Mono", monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--nv-fg-muted);
+  margin: 0 !important;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.nv-sec__back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6em;
+  height: 1.6em;
+  color: var(--nv-fg-muted) !important;
+  border: 1px solid var(--nv-rule);
+  border-radius: 3px;
+  text-decoration: none !important;
+  font-size: 1em;
+  line-height: 1;
+  transition: border-color 180ms ease, color 180ms ease;
+}
+.nv-sec__back::before { content: none !important; }
+.nv-sec__back:hover { border-color: var(--nv-accent); color: var(--nv-accent) !important; }
+.nv-sec__path { color: var(--nv-fg); }
+.nv-sec__sep { color: var(--nv-rule-strong); }
+
+.nv-sec__head .nv-page-title {
+  font-family: "Newsreader", Charter, Georgia, serif !important;
+  font-variation-settings: "opsz" 72;
+  font-weight: 500 !important;
+  font-size: clamp(2.2rem, 4.6vw, 3rem) !important;
+  line-height: 1.05 !important;
+  letter-spacing: -0.02em;
+  color: var(--nv-fg) !important;
+  margin: 0 !important;
+  text-shadow: none !important;
+  text-wrap: balance;
+}
+.nv-sec__lede {
+  font-family: "Barlow", system-ui, sans-serif;
+  font-size: 1.15rem;
+  line-height: 1.55;
+  color: var(--nv-fg-muted);
+  max-width: 60ch;
+  margin: 0 !important;
+}
+.nv-sec__tagline {
+  font-family: "Newsreader", Charter, Georgia, serif !important;
+  font-style: italic;
+  font-size: 1.05rem !important;
+  color: var(--nv-accent) !important;
+  margin: 0 !important;
+}
+
+.nv-sec__body {
+  max-width: 72ch;
+}
+
+.nv-sec__block { margin: 0; }
+.nv-sec__h2 {
+  font-family: "Barlow", system-ui, sans-serif !important;
+  font-size: 0.78rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--nv-fg-muted) !important;
+  margin: 0 0 1rem !important;
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+}
+.nv-sec__h2-num {
+  font-family: JetBrainsMono, monospace;
+  font-size: 0.85rem;
+  color: var(--nv-accent);
+  background: rgb(var(--nv-accent-rgb) / 0.10);
+  border: 1px solid rgb(var(--nv-accent-rgb) / 0.25);
+  padding: 0 8px;
+  border-radius: 4px;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+/* Module cards (subsections) */
+.nv-sec__modules {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 1.2rem;
+}
+.nv-sec__module {
+  border: 1px solid var(--nv-rule);
+  border-radius: 10px;
+  overflow: hidden;
+  background: transparent;
+  transition: border-color 200ms cubic-bezier(0.22, 1, 0.36, 1),
+              background-color 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nv-sec__module:hover { border-color: rgb(var(--nv-accent-rgb) / 0.45); }
+.nv-sec__module-link {
+  display: block;
+  padding: 1rem 1.2rem 0.9rem;
+  color: var(--nv-fg) !important;
+  text-decoration: none !important;
+  background: linear-gradient(180deg, rgb(var(--nv-accent-rgb) / 0.06), transparent);
+  border-bottom: 1px solid var(--nv-rule);
+}
+.nv-sec__module-link::before { content: none !important; }
+.nv-sec__mod-num {
+  font-family: JetBrainsMono, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: var(--nv-accent-warm);
+  border: 1px solid rgb(var(--nv-accent-rgb) / 0.25);
+  padding: 1px 6px;
+  border-radius: 3px;
+  margin-right: 0.6rem;
+}
+.nv-sec__mod-title {
+  display: inline;
+  font-family: "Newsreader", Charter, Georgia, serif !important;
+  font-variation-settings: "opsz" 32;
+  font-weight: 500 !important;
+  font-size: 1.3rem !important;
+  letter-spacing: -0.01em;
+  color: var(--nv-fg) !important;
+  margin: 0 !important;
+  text-shadow: none !important;
+}
+.nv-sec__mod-desc {
+  font-family: "Barlow", system-ui, sans-serif !important;
+  font-size: 0.95rem !important;
+  line-height: 1.45;
+  color: var(--nv-fg-muted) !important;
+  margin: 0.45rem 0 0 !important;
+  max-width: 56ch;
+}
+.nv-sec__mod-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.7rem;
+  font-family: JetBrainsMono, monospace;
+  font-size: 0.78rem;
+  color: var(--nv-fg-muted);
+}
+.nv-sec__mod-cue {
+  transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1), color 180ms ease;
+}
+.nv-sec__module:hover .nv-sec__mod-cue {
+  color: var(--nv-accent);
+  transform: translateX(3px);
+}
+
+.nv-sec__sublectures {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+}
+.nv-sec__sublectures li + li {
+  border-top: 1px solid var(--nv-rule);
+}
+.nv-sec__sublectures a {
+  display: grid;
+  grid-template-columns: 3rem 1fr;
+  align-items: baseline;
+  gap: 0.8rem;
+  padding: 0.55rem 1.2rem;
+  color: var(--nv-fg) !important;
+  text-decoration: none !important;
+  font-family: "Barlow", system-ui, sans-serif;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+.nv-sec__sublectures a::before { content: none !important; }
+.nv-sec__sublectures a:hover {
+  background: rgb(var(--nv-accent-rgb) / 0.08);
+  color: var(--nv-accent) !important;
+}
+.nv-sec__sub-num {
+  font-family: JetBrainsMono, monospace;
+  font-size: 0.72rem;
+  color: var(--nv-fg-muted);
+  letter-spacing: 0.04em;
+}
+.nv-sec__sub-title { font-size: 0.96rem; }
+
+/* Direct lectures (when a section has pages, e.g. /speeches/) */
+.nv-sec__lectures {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+.nv-sec__lec-link {
+  display: grid;
+  grid-template-columns: 3.2rem 1fr auto auto;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0.7rem 1rem;
+  border: 1px solid var(--nv-rule);
+  border-radius: 8px;
+  color: var(--nv-fg) !important;
+  text-decoration: none !important;
+  transition: border-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
+              background-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
+              transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nv-sec__lec-link::before { content: none !important; }
+.nv-sec__lec-link:hover {
+  border-color: rgb(var(--nv-accent-rgb) / 0.45);
+  background: rgb(var(--nv-accent-rgb) / 0.06);
+  transform: translateX(2px);
+}
+.nv-sec__lec-num {
+  font-family: JetBrainsMono, monospace;
+  font-size: 0.78rem;
+  color: var(--nv-accent-warm);
+  letter-spacing: 0.04em;
+}
+.nv-sec__lec-num--bullet { color: var(--nv-fg-muted); }
+.nv-sec__lec-body { display: flex; flex-direction: column; gap: 0.15rem; }
+.nv-sec__lec-title {
+  font-family: "Barlow", system-ui, sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+}
+.nv-sec__lec-desc {
+  font-family: "Barlow", system-ui, sans-serif;
+  font-size: 0.85rem;
+  color: var(--nv-fg-muted);
+  line-height: 1.4;
+}
+.nv-sec__lec-date,
+.nv-sec__lec-time {
+  font-family: JetBrainsMono, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  color: var(--nv-fg-muted);
+  white-space: nowrap;
+}
+
+/* ── Tab strip: editorial typography (serif italics on the active tab),
+ * thin separator lines, accent rule on the live tab. The theme had loud
+ * fills and white-on-anything that broke in light mode; here we trade
+ * the highlight fill for a more refined accent line. */
+main > .viewer > .tab ul li {
+  font-family: "Newsreader", Charter, Georgia, serif !important;
+  font-variation-settings: "opsz" 28;
+  font-size: 0.92rem !important;
+  letter-spacing: -0.005em;
   color: var(--nv-fg-muted) !important;
   opacity: 1 !important;
+  box-shadow: -1px 0 0 0 var(--nv-rule) inset !important;  /* thin sep */
+  padding: 0 14px 0 16px !important;
+  transition: color 200ms cubic-bezier(0.22, 1, 0.36, 1),
+              background-color 200ms cubic-bezier(0.22, 1, 0.36, 1);
 }
+main > .viewer > .tab ul li:first-child {
+  box-shadow: none !important;
+}
+main > .viewer > .tab ul li a {
+  color: var(--nv-fg-muted) !important;
+  font-family: inherit;
+  font-size: inherit;
+  letter-spacing: inherit;
+  width: auto !important;
+  min-width: 11ch;
+  max-width: 24ch;
+  padding: 0 0.1em;
+}
+main > .viewer > .tab ul li:hover {
+  background: rgb(var(--nv-accent-rgb) / 0.06) !important;
+}
+main > .viewer > .tab ul li:hover a { color: var(--nv-fg) !important; }
 main > .viewer > .tab ul .selected,
 main > .viewer > .tab ul .selected a {
   color: var(--nv-accent) !important;
+  font-style: italic;
 }
-main > .viewer > .tab ul li:hover a {
-  color: var(--nv-fg) !important;
+main > .viewer > .tab ul .selected {
+  background: rgb(var(--nv-accent-rgb) / 0.10) !important;
 }
 
 /* ── Layout breathing room: push content + tab strip off the sidebar edge
@@ -849,15 +1155,70 @@ main > .viewer > .tab {
   }
 }
 
-/* ── Sidebar font (Nerd Font, not Barlow) ─────────────────────────────────
- * The theme's templates/components/files.html inlines Nerd Font PUA glyphs
- * (e.g. U+F4A5 ) directly in the link text. Those glyphs only exist in
- * JetBrainsMonoNL Nerd Font; with body set to Barlow they render as tofu.
- * Override the sidebar to JetBrainsMono so the icons appear. Side effect:
- * the file tree renders monospaced, which actually suits the neovim look. */
+/* ── Sidebar font + visual hierarchy ────────────────────────────────────
+ * The theme's files.html inlines Nerd Font PUA glyphs (e.g. U+F4A5)
+ * directly in the link text. We need JetBrainsMono on the sidebar so
+ * those render. Then we layer hierarchy on top of that: top-level
+ * sections (li.folder, the courses) read as serif titles; modules
+ * (li.subfolder) keep the mono terminal feel; leaf files stay mono but
+ * smaller and softer. */
 main > .files,
 main > .files * {
   font-family: JetBrainsMono, "JetBrains Mono", ui-monospace, monospace;
+}
+
+/* Top-level courses (theme uses li.folder for these). Larger, serif,
+ * with an italic flourish on the active one. */
+main > .files > ul > li.folder > span > a,
+main > .files > ul > li.folder > span > .nv-fold-toggle ~ a {
+  font-family: "Newsreader", Charter, Georgia, serif;
+  font-variation-settings: "opsz" 32;
+  font-weight: 500;
+  font-size: 1rem;
+  letter-spacing: -0.005em;
+  color: var(--nv-fg) !important;
+}
+main > .files > ul > li.folder > span > a.selected {
+  font-style: italic;
+  color: var(--nv-accent) !important;
+}
+
+/* Mid-level modules (li.subfolder). Mono caps for a "section header" feel. */
+main > .files li.subfolder > span > a {
+  font-family: JetBrainsMono, monospace;
+  font-size: 0.78rem !important;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--nv-fg-muted) !important;
+  font-weight: 500;
+}
+main > .files li.subfolder > span > a.selected {
+  color: var(--nv-accent-warm) !important;
+}
+
+/* Leaf lectures (li.file). Readable mono, plus a left accent rail when
+ * active to replace the heavy fill highlight. */
+main > .files li.file > span > a {
+  font-family: JetBrainsMono, monospace;
+  font-size: 0.86rem;
+  color: var(--nv-fg) !important;
+  font-weight: 400;
+  letter-spacing: -0.005em;
+  position: relative;
+  padding-left: 6px;
+  border-left: 2px solid transparent;
+  transition: border-left-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
+              color 180ms cubic-bezier(0.22, 1, 0.36, 1),
+              padding-left 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+main > .files li.file > span > a:hover {
+  color: var(--nv-accent) !important;
+  border-left-color: rgb(var(--nv-accent-rgb) / 0.4);
+}
+main > .files li.file > span > a.selected {
+  color: var(--nv-accent) !important;
+  border-left-color: var(--nv-accent);
+  background: transparent !important;     /* drop the heavy fill */
 }
 
 /* ── Tree fold chevrons (tree-fold.js) ──────────────────────────────────

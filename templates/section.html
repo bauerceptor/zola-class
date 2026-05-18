@@ -1,0 +1,95 @@
+{# Curated section page — overrides themes/.../section.html.
+   Renders: kicker → serif title → lede → (section's own markdown body,
+   if any) → a module grid (subsections) and/or a lecture list (direct
+   pages). Same editorial vocabulary as the homepage. #}
+{%- extends "base.html" -%}
+
+{%- block content -%}
+<article class="nv-sec">
+  <header class="nv-sec__head">
+    <p class="nv-sec__kicker">
+      <a class="nv-sec__back" href="../">←</a>
+      <span class="nv-sec__path">/ {{ section.path | trim_start_matches(pat="/") | trim_end_matches(pat="/") }}</span>
+      {%- if section.extra.semester %}<span class="nv-sec__sep">·</span><span>{{ section.extra.semester }}</span>{%- endif %}
+    </p>
+    <h1 class="nv-page-title">{{ section.title }}</h1>
+    {%- if section.description %}
+    <p class="nv-sec__lede">{{ section.description }}</p>
+    {%- endif %}
+    {%- if section.extra.tagline %}
+    <p class="nv-sec__tagline">{{ section.extra.tagline }}</p>
+    {%- endif %}
+  </header>
+
+  {%- if section.content and section.content | trim != "" %}
+  <div class="nv-sec__body">
+    {{ section.content | safe }}
+  </div>
+  {%- endif %}
+
+  {%- if section.subsections | length > 0 %}
+  <section class="nv-sec__block">
+    <h2 class="nv-sec__h2">
+      <span class="nv-sec__h2-num">{{ section.subsections | length }}</span>
+      Module{% if section.subsections | length != 1 %}s{% endif %}
+    </h2>
+    <ol class="nv-sec__modules">
+      {%- for sub_path in section.subsections -%}
+        {%- set sub = get_section(path=sub_path) -%}
+        {%- set sub_count = sub.pages | length %}
+      <li class="nv-sec__module" style="--mi: {{ loop.index }}">
+        <a class="nv-sec__module-link" href="{{ sub.permalink | safe }}">
+          <header>
+            <span class="nv-sec__mod-num">M{{ loop.index }}</span>
+            <h3 class="nv-sec__mod-title">{{ sub.title }}</h3>
+            {%- if sub.description %}<p class="nv-sec__mod-desc">{{ sub.description }}</p>{%- endif %}
+          </header>
+          <footer class="nv-sec__mod-meta">
+            <span>{{ sub_count }} lecture{% if sub_count != 1 %}s{% endif %}</span>
+            <span class="nv-sec__mod-cue" aria-hidden="true">→</span>
+          </footer>
+        </a>
+        {%- if sub.pages | length > 0 %}
+        <ul class="nv-sec__sublectures">
+          {%- for page in sub.pages -%}
+          <li>
+            <a href="{{ page.permalink | safe }}">
+              {%- if page.extra.lecture_num %}<span class="nv-sec__sub-num">L{{ page.extra.lecture_num }}</span>{%- endif %}
+              <span class="nv-sec__sub-title">{{ page.title }}</span>
+            </a>
+          </li>
+          {%- endfor %}
+        </ul>
+        {%- endif %}
+      </li>
+      {%- endfor -%}
+    </ol>
+  </section>
+  {%- endif %}
+
+  {%- if section.pages | length > 0 %}
+    {%- set page_count = section.pages | length %}
+  <section class="nv-sec__block">
+    <h2 class="nv-sec__h2">
+      <span class="nv-sec__h2-num">{{ page_count }}</span>
+      {% if section.subsections | length > 0 %}Direct entr{% if page_count != 1 %}ies{% else %}y{% endif %}{% else %}Lecture{% if page_count != 1 %}s{% endif %}{% endif %}
+    </h2>
+    <ol class="nv-sec__lectures">
+      {%- for page in section.pages %}
+      <li class="nv-sec__lec-row" style="--li: {{ loop.index }}">
+        <a class="nv-sec__lec-link" href="{{ page.permalink | safe }}">
+          {%- if page.extra.lecture_num %}<span class="nv-sec__lec-num">L{{ page.extra.lecture_num }}</span>{%- else %}<span class="nv-sec__lec-num nv-sec__lec-num--bullet">·</span>{%- endif %}
+          <span class="nv-sec__lec-body">
+            <span class="nv-sec__lec-title">{{ page.title }}</span>
+            {%- if page.description %}<span class="nv-sec__lec-desc">{{ page.description }}</span>{%- endif %}
+          </span>
+          {%- if page.date %}<time class="nv-sec__lec-date" datetime="{{ page.date }}">{{ page.date | date(format="%b %-d") }}</time>{%- endif %}
+          {%- if page.reading_time %}<span class="nv-sec__lec-time">{{ page.reading_time }} min</span>{%- endif %}
+        </a>
+      </li>
+      {%- endfor %}
+    </ol>
+  </section>
+  {%- endif %}
+</article>
+{%- endblock content -%}
