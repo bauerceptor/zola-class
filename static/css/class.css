@@ -813,6 +813,9 @@ main > .files .selected {
   justify-content: center;
   padding-top: 12vh;
 }
+/* Without this override the [hidden] attribute is overridden by display: flex
+ * above, so the closed overlay still captures every click on the page. */
+#nv-palette[hidden] { display: none !important; }
 .nv-palette__backdrop {
   position: absolute;
   inset: 0;
@@ -945,6 +948,216 @@ main > .files .selected {
   align-items: center;
   justify-content: center;
   padding: 24px;
+}
+#nv-guide[hidden] { display: none !important; }
+
+/* ── Homepage (templates/index.html) ────────────────────────────────────
+ * Editorial hero, course cards walked from the section tree, recent
+ * lectures strip. Sits inside .viewer .content (theme chrome unchanged). */
+.nv-home-hero {
+  margin: 1rem 0 3rem;
+  max-width: 64ch;
+}
+.nv-home-hero__kicker {
+  font-family: JetBrainsMono, "JetBrains Mono", monospace;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--nv-fg-muted);
+  margin: 0 0 1.25rem;
+}
+.nv-home-hero__title {
+  font-family: "Barlow", system-ui, sans-serif !important;
+  font-weight: 700;
+  font-size: clamp(2.4rem, 5vw, 3.4rem) !important;
+  line-height: 1.05 !important;
+  letter-spacing: -0.025em;
+  margin: 0 0 1.4rem !important;
+  color: var(--nv-fg) !important;
+  text-shadow: none !important;
+}
+.nv-home-hero__title-accent {
+  color: var(--nv-accent) !important;
+  font-weight: 600;
+}
+.nv-home-hero__lede {
+  font-family: "Barlow", system-ui, sans-serif;
+  font-size: 1.15rem;
+  line-height: 1.55;
+  color: var(--nv-fg-muted);
+  max-width: 58ch;
+  margin: 0 !important;
+}
+.nv-home-hero__lede kbd {
+  font-family: JetBrainsMono, "JetBrains Mono", monospace;
+  background: rgb(var(--nv-accent-rgb) / 0.10);
+  border: 1px solid var(--nv-rule);
+  border-radius: 3px;
+  padding: 0 6px;
+  font-size: 0.82rem;
+  color: var(--nv-fg);
+}
+
+.nv-home-section {
+  margin: 2.5rem 0 2rem;
+  max-width: 72ch;
+}
+.nv-home-section__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--nv-rule);
+  padding-bottom: 0.4rem;
+  margin-bottom: 1.2rem;
+}
+.nv-home-section__title {
+  font-family: "Barlow", system-ui, sans-serif !important;
+  font-size: 1.25rem !important;
+  font-weight: 600;
+  margin: 0 !important;
+  color: var(--nv-fg) !important;
+  letter-spacing: -0.005em;
+}
+.nv-home-section__count {
+  font-family: JetBrainsMono, "JetBrains Mono", monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--nv-fg-muted);
+  margin: 0 !important;
+}
+
+.nv-home-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+.nv-home-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.1rem 1.2rem 1rem;
+  background: rgb(var(--nv-accent-rgb) / 0.05);
+  border: 1px solid var(--nv-rule);
+  border-radius: 8px;
+  color: var(--nv-fg);
+  text-decoration: none !important;
+  transition: background-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
+              transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nv-home-card::before { content: none !important; }
+.nv-home-card:hover {
+  background: rgb(var(--nv-accent-rgb) / 0.10);
+  border-color: rgb(var(--nv-accent-rgb) / 0.40);
+  transform: translateY(-2px);
+}
+.nv-home-card__id {
+  font-family: JetBrainsMono, "JetBrains Mono", monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  color: var(--nv-fg-muted);
+}
+.nv-home-card__title {
+  font-family: "Barlow", system-ui, sans-serif !important;
+  font-size: 1.2rem !important;
+  font-weight: 700;
+  margin: 0 !important;
+  color: var(--nv-accent) !important;
+  letter-spacing: -0.01em;
+  line-height: 1.25 !important;
+  text-shadow: none !important;
+}
+.nv-home-card__desc {
+  font-family: "Barlow", system-ui, sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--nv-fg-muted);
+  margin: 0 !important;
+}
+.nv-home-card__meta {
+  font-family: JetBrainsMono, "JetBrains Mono", monospace;
+  font-size: 0.72rem;
+  color: var(--nv-fg-muted);
+  letter-spacing: 0.04em;
+  margin-top: auto;
+  padding-top: 0.4rem;
+}
+.nv-home-card__cue {
+  position: absolute;
+  top: 1.1rem;
+  right: 1.1rem;
+  font-family: JetBrainsMono, "JetBrains Mono", monospace;
+  color: var(--nv-fg-muted);
+  transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1),
+              color 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nv-home-card:hover .nv-home-card__cue {
+  color: var(--nv-accent);
+  transform: translate(2px, -2px);
+}
+
+.nv-home-recents {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.nv-home-recent {
+  display: grid;
+  grid-template-columns: 5rem 1fr auto;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px dashed var(--nv-rule);
+}
+.nv-home-recent:last-child { border-bottom: 0; }
+.nv-home-recent__date {
+  font-family: JetBrainsMono, "JetBrains Mono", monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: var(--nv-fg-muted);
+}
+.nv-home-recent__link {
+  font-family: "Barlow", system-ui, sans-serif;
+  font-size: 1rem;
+  color: var(--nv-fg) !important;
+  text-decoration: none !important;
+  transition: color 150ms ease;
+}
+.nv-home-recent__link::before { content: none !important; }
+.nv-home-recent__link:hover { color: var(--nv-accent) !important; }
+.nv-home-recent__tag {
+  font-family: JetBrainsMono, "JetBrains Mono", monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--nv-accent-warm);
+  border: 1px solid rgb(var(--nv-accent-rgb) / 0.25);
+  padding: 1px 6px;
+  border-radius: 3px;
+}
+
+.nv-home-keyhint {
+  margin: 3rem 0 1rem;
+  padding: 1rem 0 0;
+  border-top: 1px solid var(--nv-rule);
+  max-width: 72ch;
+}
+.nv-home-keyhint p {
+  font-family: JetBrainsMono, "JetBrains Mono", monospace !important;
+  font-size: 0.82rem !important;
+  color: var(--nv-fg-muted) !important;
+  line-height: 1.8 !important;
+  margin: 0 !important;
+}
+.nv-home-keyhint kbd {
+  background: rgb(var(--nv-accent-rgb) / 0.10);
+  border: 1px solid var(--nv-rule);
+  border-radius: 3px;
+  padding: 0 5px;
+  font-size: 0.78rem;
+  color: var(--nv-fg);
 }
 .nv-guide__backdrop {
   position: absolute;

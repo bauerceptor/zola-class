@@ -1,34 +1,38 @@
 +++
-title = "Class — Hassan Aziz"
+title = "Keyboard reference"
 +++
 
-# Class notes, lectures, slides
+The class site borrows its layout from Neovim, so it doubles as a
+keyboard playground. Everything here also works with the mouse.
 
-This is the class site for courses Hassan Aziz teaches and talks Hassan gives.
-Pick a course from the left, or jump straight to a lecture.
+## Move and read
 
-## Active
+`shift+h` and `shift+l` move focus between the file tree on the left
+and the content on the right. `j` and `k` scroll the content, or move
+the selection inside the tree. `enter` opens the highlighted file.
+`shift+t` opens a new tab, `shift+q` closes the current one, `tab`
+cycles through open tabs.
 
-- **CS 101, Introduction to Computer Science.** Foundations, data types,
-  control flow. Module 1 and Module 2 are live; more modules land each week.
-- **Speeches and Talks.** Selected talks with annotated notes and slides.
+## Command palette
 
-## How to read this site
+Hit `:` anywhere to open the fuzzy command palette.
 
-The layout borrows from Neovim, so the site doubles as a keyboard playground.
-Click anything if that is faster, the keys are optional.
+`:find <q>` ranks every page on the site by fuzzy match and shows
+results in a dropdown. `:edit <q>` jumps straight to the top match.
+`:ls` lists everything.
 
-`shift+h` and `shift+l` move focus between the file tree on the left and the
-content on the right. `j` and `k` scroll the content, or move the selection
-inside the tree. `enter` opens the highlighted file. `shift+t` opens a new
-tab, `shift+q` closes the current one, `tab` cycles through open tabs.
+You can also type `theme light`, `theme dark`, or `theme system` to
+swap palettes, and `set mouse=false` to hide the cursor for
+presentations.
 
-Hit `:` (escape, then start typing) for the command prompt. `:help` returns
-to this page. `:set mouse=false` hides the cursor for a presentation feel.
+## Help
 
-## Colophon
+`Ctrl+/` opens the full keyboard guide overlay. `esc` closes any
+overlay. The hamburger top-right has a theme switcher and a copy-button
+toggle.
 
-Built with [Zola](https://www.getzola.org/), themed on
-[neovim-theme by Super-Botman](https://github.com/Super-Botman/neovim-theme),
-with project-level overrides for typography, layout, and the hamburger menu.
-Source at [github.com/bauerceptor/zola-class](https://github.com/bauerceptor/zola-class).
+## Slides
+
+Lecture slides open in a new tab from the slide cards on each lecture
+page. Inside a deck: arrow keys or `j/k` to move, `f` for fullscreen,
+`s` for speaker notes, `?` for the deck's own shortcuts.

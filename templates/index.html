@@ -1,0 +1,97 @@
+{# Custom homepage — overrides themes/neovim-theme/templates/index.html.
+   Instead of rendering content/readme.md as the front page, this builds
+   a real landing: hero + course cards walked from the section tree +
+   recent-lectures strip + keyboard hint. /readme stays as the help page
+   for the :help command to target. #}
+{%- extends "base.html" -%}
+
+{%- block content -%}
+{%- set root = get_section(path="_index.md") -%}
+
+<section class="nv-home-hero">
+  <p class="nv-home-hero__kicker">{{ config.extra.author | default(value="Hassan Aziz") }} · Class</p>
+  <h1 class="nv-home-hero__title">
+    Notes, lectures, slides<br>
+    <span class="nv-home-hero__title-accent">for the courses I teach</span>
+  </h1>
+  <p class="nv-home-hero__lede">
+    {{ root.description | default(value=config.description) }}
+    Open any course on the left, or hit <kbd>:</kbd> for fuzzy file search,
+    <kbd>Ctrl</kbd>+<kbd>/</kbd> for the keyboard guide.
+  </p>
+</section>
+
+<section class="nv-home-section">
+  <header class="nv-home-section__head">
+    <h2 class="nv-home-section__title">Courses &amp; tracks</h2>
+    <p class="nv-home-section__count">
+      {{ root.subsections | length }} active
+    </p>
+  </header>
+
+  <div class="nv-home-grid">
+    {%- for sub_path in root.subsections -%}
+      {%- set sub = get_section(path=sub_path) -%}
+      {%- set inner_modules = sub.subsections | length -%}
+      {%- set inner_pages   = sub.pages | length -%}
+      <a class="nv-home-card" href="{{ sub.permalink | safe }}">
+        <span class="nv-home-card__id">/ {{ sub.path | trim_start_matches(pat="/") | trim_end_matches(pat="/") }}</span>
+        <h3 class="nv-home-card__title">{{ sub.title }}</h3>
+        {%- if sub.description %}
+        <p class="nv-home-card__desc">{{ sub.description }}</p>
+        {%- endif %}
+        {%- set_global card_pages = inner_pages -%}
+        {%- for inner_path in sub.subsections -%}
+          {%- set inner = get_section(path=inner_path) -%}
+          {%- set_global card_pages = card_pages + (inner.pages | length) -%}
+        {%- endfor -%}
+        <span class="nv-home-card__meta">
+          {%- if inner_modules > 0 %}{{ inner_modules }} module{% if inner_modules != 1 %}s{% endif %} · {% endif -%}
+          {{ card_pages }} page{% if card_pages != 1 %}s{% endif %}
+        </span>
+        <span class="nv-home-card__cue" aria-hidden="true">→</span>
+      </a>
+    {%- endfor -%}
+  </div>
+</section>
+
+{# Recent lectures strip — flatten 3 levels deep, take the latest 6 by date #}
+{%- set recents = [] -%}
+{%- for sub_path in root.subsections -%}
+  {%- set sub = get_section(path=sub_path) -%}
+  {%- for page in sub.pages -%}{%- set_global recents = recents | concat(with=page) -%}{%- endfor -%}
+  {%- for inner_path in sub.subsections -%}
+    {%- set inner = get_section(path=inner_path) -%}
+    {%- for page in inner.pages -%}{%- set_global recents = recents | concat(with=page) -%}{%- endfor -%}
+  {%- endfor -%}
+{%- endfor -%}
+{%- set recents = recents | sort(attribute="date") | reverse -%}
+{%- set recents = recents | slice(end=6) -%}
+
+{%- if recents | length > 0 %}
+<section class="nv-home-section">
+  <header class="nv-home-section__head">
+    <h2 class="nv-home-section__title">Latest</h2>
+  </header>
+
+  <ul class="nv-home-recents">
+    {%- for page in recents %}
+    <li class="nv-home-recent">
+      {%- if page.date %}<time class="nv-home-recent__date" datetime="{{ page.date }}">{{ page.date | date(format="%b %-d") }}</time>{%- endif %}
+      <a class="nv-home-recent__link" href="{{ page.permalink | safe }}">{{ page.title }}</a>
+      {%- if page.extra and page.extra.course %}<span class="nv-home-recent__tag">{{ page.extra.course }}</span>{%- endif %}
+    </li>
+    {%- endfor %}
+  </ul>
+</section>
+{%- endif %}
+
+<section class="nv-home-keyhint">
+  <p>
+    <kbd>shift</kbd>+<kbd>h</kbd> / <kbd>shift</kbd>+<kbd>l</kbd> move focus between
+    the tree and the viewer. <kbd>j</kbd> / <kbd>k</kbd> scroll or step.
+    <kbd>:</kbd> opens the command palette.
+    <kbd>Ctrl</kbd>+<kbd>/</kbd> opens the full key list.
+  </p>
+</section>
+{%- endblock content -%}
