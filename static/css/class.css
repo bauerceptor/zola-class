@@ -1168,10 +1168,13 @@ main > .files * {
 }
 
 /* Top-level courses (theme uses li.folder for these). Larger, serif,
- * with an italic flourish on the active one. */
+ * with an italic flourish on the active one. JetBrainsMono is included
+ * as a fallback in the family stack so the Nerd Font PUA glyph the
+ * theme's files.html prepends (e.g. U+F4A5) still renders — Newsreader
+ * has no glyph in the PUA range and would otherwise show tofu. */
 main > .files > ul > li.folder > span > a,
 main > .files > ul > li.folder > span > .nv-fold-toggle ~ a {
-  font-family: "Newsreader", Charter, Georgia, serif;
+  font-family: "Newsreader", Charter, Georgia, JetBrainsMono, serif;
   font-variation-settings: "opsz" 32;
   font-weight: 500;
   font-size: 1rem;
