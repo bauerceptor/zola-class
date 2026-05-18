@@ -50,7 +50,8 @@
     {%- set_global spot_total_pages = spot.pages | length %}
     {%- for mod_path in spot.subsections -%}
       {%- set mod = get_section(path=mod_path) -%}
-      {%- set_global spot_total_pages = spot_total_pages + (mod.pages | length) -%}
+      {%- set mod_count = mod.pages | length -%}
+      {%- set_global spot_total_pages = spot_total_pages + mod_count -%}
     {%- endfor %}
 
   <section class="nv-home__spotlight nv-stagger" style="--i: 1">
@@ -113,11 +114,12 @@
     <ul class="nv-tracks">
       {%- for sub_path in other -%}
         {%- set sub = get_section(path=sub_path) %}
+      {%- set sub_count = sub.pages | length %}
       <li>
         <a class="nv-track" href="{{ sub.permalink | safe }}">
           <span class="nv-track__title">{{ sub.title }}</span>
           {%- if sub.description %}<span class="nv-track__desc">{{ sub.description }}</span>{%- endif %}
-          <span class="nv-track__meta">{{ sub.pages | length }} entr{% if (sub.pages | length) == 1 %}y{% else %}ies{% endif %} →</span>
+          <span class="nv-track__meta">{{ sub_count }} entr{% if sub_count == 1 %}y{% else %}ies{% endif %} →</span>
         </a>
       </li>
       {%- endfor %}
