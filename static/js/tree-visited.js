@@ -60,31 +60,51 @@
   }
 
   function paintCourseProgress(set, root) {
+    /* Drop the older free-floating rail if a previous version left one. */
+    root.querySelectorAll(".nv-progress").forEach(function (el) { el.remove(); });
+
     root.querySelectorAll(":scope > ul > li.folder").forEach(function (folder) {
       var leaves = folder.querySelectorAll("li.file > span > a");
       var total = leaves.length;
-      if (total === 0) return;
       var done = 0;
       leaves.forEach(function (a) {
         if (a.getAttribute("data-visited") === "true") done += 1;
       });
-      var pct = Math.round((done / total) * 100);
 
-      var rail = folder.querySelector(":scope > .nv-progress");
-      if (!rail) {
-        rail = document.createElement("span");
-        rail.className = "nv-progress";
-        var title = folder.querySelector(":scope > span");
-        if (title && title.nextSibling) {
-          folder.insertBefore(rail, title.nextSibling);
-        } else {
-          folder.appendChild(rail);
-        }
+      /* Inline compact "n / m" chip next to the course title — no
+         risk of horizontal overflow into the viewer pane. */
+      var titleSpan = folder.querySelector(":scope > span");
+      if (!titleSpan) return;
+      var chip = titleSpan.querySelector(":scope > .nv-progress-chip");
+      if (total === 0) {
+        if (chip) chip.remove();
+        return;
       }
-      folder.style.setProperty("--nv-progress", pct + "%");
-      folder.setAttribute("data-progress", String(pct));
-      rail.title = done + " of " + total + " visited (" + pct + "%)";
+      if (!chip) {
+        chip = document.createElement("span");
+        chip.className = "nv-progress-chip";
+        titleSpan.appendChild(chip);
+      }
+      chip.textContent = done + "/" + total;
+      chip.dataset.done = String(done);
+      chip.dataset.total = String(total);
+      chip.title = done + " of " + total + " visited";
+      if (done === total) chip.classList.add("nv-progress-chip--full");
+      else                chip.classList.remove("nv-progress-chip--full");
     });
+  }
+
+  function markCurrentCourse(root) {
+    /* Mark the li.folder that contains the currently-selected lecture so
+       CSS can give the active course extra emphasis without confusing it
+       with "courses I've visited before". */
+    root.querySelectorAll(":scope > ul > li.folder").forEach(function (f) {
+      f.removeAttribute("data-current");
+    });
+    var selected = root.querySelector("a.selected");
+    if (!selected) return;
+    var folder = selected.closest("li.folder");
+    if (folder) folder.setAttribute("data-current", "true");
   }
 
   function init() {
@@ -94,6 +114,7 @@
     markCurrent(set);
     paintLeaves(set, root);
     paintCourseProgress(set, root);
+    markCurrentCourse(root);
   }
 
   if (document.readyState === "loading") {

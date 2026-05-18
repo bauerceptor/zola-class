@@ -1330,34 +1330,59 @@ main > .files li.file > span > a.selected::after {
   main > .files li.file > span > a.selected::after { animation: none; }
 }
 
-/* ── Course progress rail (tree-visited.js sets --nv-progress: 0-100) ──
- * A thin meter under each top-level course showing how much of the
- * course the reader has visited. Only renders when --nv-progress is set
- * AND > 0; the SHARP edge keeps it from looking decorative. */
-main > .files > ul > li.folder {
-  position: relative;
+/* ── Course progress chip (tree-visited.js builds it as `n/m`) ──────────
+ * Compact inline chip on the same line as the course title. Mono digits,
+ * accent border, brightens at 100%. Lives inside the title <span> so it
+ * can never overflow the sidebar width. */
+main > .files > ul > li.folder > span {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.55em;
+  flex-wrap: wrap;
 }
-main > .files > ul > li.folder > .nv-progress {
-  display: block;
-  height: 2px;
-  margin: 4px 0 8px 6px;
-  background: rgb(var(--nv-accent-rgb) / 0.10);
-  border-radius: 1px;
-  overflow: hidden;
-  position: relative;
+.nv-progress-chip {
+  font-family: JetBrainsMono, "JetBrains Mono", monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.03em;
+  line-height: 1;
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: var(--nv-fg-muted);
+  background: rgb(var(--nv-accent-rgb) / 0.06);
+  border: 1px solid var(--nv-rule);
+  white-space: nowrap;
+  user-select: none;
+  transition: color 200ms ease, background-color 200ms ease, border-color 200ms ease;
 }
-main > .files > ul > li.folder > .nv-progress::after {
+.nv-progress-chip--full {
+  color: var(--nv-accent);
+  background: rgb(var(--nv-accent-rgb) / 0.14);
+  border-color: rgb(var(--nv-accent-rgb) / 0.35);
+}
+
+/* Current course (folder containing the active lecture) gets a
+ * left accent rail on the title so users can spot "what I'm reading"
+ * at a glance, separately from "what I've visited". */
+main > .files > ul > li.folder[data-current="true"] > span {
+  position: relative;
+  padding-left: 6px;
+}
+main > .files > ul > li.folder[data-current="true"] > span::before {
   content: "";
   position: absolute;
-  inset: 0 auto 0 0;
-  width: var(--nv-progress, 0%);
-  background: linear-gradient(
-    90deg,
-    rgb(var(--nv-accent-rgb) / 0.7) 0%,
-    var(--nv-accent) 100%);
-  transition: width 600ms cubic-bezier(0.22, 1, 0.36, 1);
+  left: -2px;
+  top: 4px;
+  bottom: 4px;
+  width: 2px;
+  background: var(--nv-accent);
+  border-radius: 1px;
 }
-main > .files > ul > li.folder[data-progress="0"] > .nv-progress { display: none; }
+
+/* Belt-and-suspenders: nothing inside .files may visually escape the
+ * sidebar — kills the "lines cross over" complaint definitively. */
+main > .files {
+  overflow-x: clip !important;
+}
 
 /* ── Tree fold chevrons (tree-fold.js) ──────────────────────────────────
  * Sidebar starts with every folder collapsed (except the path to the
