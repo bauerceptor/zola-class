@@ -1180,12 +1180,18 @@ main > .files > ul > li.folder > span > .nv-fold-toggle ~ a {
   font-size: 1rem;
   letter-spacing: -0.005em;
   color: var(--nv-fg) !important;
+  /* ::first-letter only applies to block/inline-block boxes. The anchor
+   * is inline by default; promote it so the glyph spacing rule below
+   * actually activates. */
+  display: inline-block;
+  /* Preserve the two literal spaces the theme template puts between the
+   * Nerd Font glyph and {{ p.title }} — Newsreader collapses them to
+   * one narrow space otherwise. */
+  white-space: pre-wrap;
 }
-/* Push the leading Nerd Font glyph off the title text. ::first-letter
- * targets the glyph (rendered via JetBrainsMono fallback) and Newsreader's
- * narrow space character was letting them visually collide. */
+/* Push the leading Nerd Font glyph off the title text. */
 main > .files > ul > li.folder > span > a::first-letter {
-  margin-right: 0.4em;
+  margin-right: 0.45em;
 }
 main > .files > ul > li.folder > span > a.selected {
   font-style: italic;
