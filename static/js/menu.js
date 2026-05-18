@@ -47,7 +47,10 @@
         '<div class="menu-overlay">' +
           '<div class="menu-overlay__panel">' +
             '<div class="menu-overlay__inner">' +
-              '<a href="/" class="menu-overlay__site-name">' + SITE_NAME + "</a>" +
+              '<div class="menu-overlay__brand">' +
+                '<span class="menu-overlay__mark" aria-hidden="true">▌</span>' +
+                '<a href="/" class="menu-overlay__site-name">' + SITE_NAME + "</a>" +
+              "</div>" +
               '<nav class="menu-overlay__nav" aria-label="Main navigation">' +
                 navHtml +
               "</nav>" +
@@ -64,6 +67,9 @@
               '<div class="menu-overlay__social">' +
                 socialHtml +
               "</div>" +
+              '<p class="menu-overlay__keys">' +
+                "<kbd>:</kbd> palette &nbsp;·&nbsp; <kbd>Ctrl</kbd>+<kbd>/</kbd> guide" +
+              "</p>" +
             "</div>" +
           "</div>" +
         "</div>" +

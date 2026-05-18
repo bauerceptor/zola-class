@@ -1,13 +1,47 @@
 {%- extends "base.html" -%}
 
 {%- block content -%}
-{%- if page.title %}<h1 class="nv-page-title">{{ page.title }}</h1>{%- endif -%}
-{%- if page.extra.course or page.extra.lecture_num or page.date %}
-<p class="nv-page-kicker">
-  {%- if page.extra.course %}{{ page.extra.course }}{%- endif -%}
-  {%- if page.extra.lecture_num %}{% if page.extra.course %} · {% endif %}Lecture {{ page.extra.lecture_num }}{%- endif -%}
-  {%- if page.date %}{% if page.extra.course or page.extra.lecture_num %} · {% endif %}{{ page.date | date(format="%b %-d, %Y") }}{%- endif -%}
-</p>
-{%- endif %}
-{{ page.content | safe }}
+<article class="nv-lec">
+  {%- if page.title %}
+  <header class="nv-lec__head">
+    {%- if page.extra.course or page.extra.lecture_num or page.date or page.reading_time %}
+    <p class="nv-lec__kicker">
+      {%- if page.extra.course %}{{ page.extra.course }}{%- endif -%}
+      {%- if page.extra.lecture_num %}{% if page.extra.course %} <span class="nv-lec__sep">·</span> {% endif %}Lecture {{ page.extra.lecture_num }}{%- endif -%}
+      {%- if page.date %}{% if page.extra.course or page.extra.lecture_num %} <span class="nv-lec__sep">·</span> {% endif %}<time datetime="{{ page.date }}">{{ page.date | date(format="%b %-d, %Y") }}</time>{%- endif -%}
+      {%- if page.reading_time %} <span class="nv-lec__sep">·</span> <span class="nv-lec__read">{{ page.reading_time }} min read</span>{%- endif -%}
+    </p>
+    {%- endif %}
+    <h1 class="nv-page-title">{{ page.title }}</h1>
+    {%- if page.description %}
+    <p class="nv-lec__lede">{{ page.description }}</p>
+    {%- endif %}
+  </header>
+  {%- endif %}
+
+  <div class="nv-lec__body">
+    {{ page.content | safe }}
+  </div>
+
+  {%- if page.lower or page.higher %}
+  <nav class="nv-lec__nav" aria-label="Lecture navigation">
+    {%- if page.lower %}
+    <a class="nv-lec__nav-link nv-lec__nav-link--prev" href="{{ page.lower.permalink | safe }}">
+      <span class="nv-lec__nav-cue">← previous</span>
+      <span class="nv-lec__nav-title">{{ page.lower.title }}</span>
+    </a>
+    {%- else %}
+    <span class="nv-lec__nav-link nv-lec__nav-link--empty"></span>
+    {%- endif %}
+    {%- if page.higher %}
+    <a class="nv-lec__nav-link nv-lec__nav-link--next" href="{{ page.higher.permalink | safe }}">
+      <span class="nv-lec__nav-cue">next →</span>
+      <span class="nv-lec__nav-title">{{ page.higher.title }}</span>
+    </a>
+    {%- else %}
+    <span class="nv-lec__nav-link nv-lec__nav-link--empty"></span>
+    {%- endif %}
+  </nav>
+  {%- endif %}
+</article>
 {%- endblock content -%}
