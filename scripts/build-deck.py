@@ -531,7 +531,7 @@ sections.append([
      ])),
     ("fin",
      "What comes next",
-     '<p class="lede">In the next chapter we explore ownership: how Rust decides who is allowed to use each piece of memory, and for how long.</p>\n<p style="margin-top:1.6rem;color:var(--fg-3);font-family:var(--font-mono);font-size:0.85rem;">Press <code>?</code> for shortcuts, or <a href="../">return to the site</a>.</p>'),
+     '<p class="lede">In the next chapter we explore ownership: how Rust decides who is allowed to use each piece of memory, and for how long.</p>\n<p style="margin-top:1.6rem;color:var(--fg-3);font-family:var(--font-mono);font-size:0.85rem;">Press <code>?</code> for shortcuts, or <a href="../../rust-first-steps/module1/lec01-the-basics/">return to the chapter page</a>.</p>'),
 ])
 
 # ── Build slide HTML with nested sections ────────────────────────────────────
