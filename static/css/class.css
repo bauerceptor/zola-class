@@ -369,6 +369,14 @@ html.light .viewer .content blockquote { background-color: var(--nv-code-bg) !im
 html.light .viewer .content pre {
   background-color: var(--nv-code-bg) !important;
 }
+/* Zola 0.19.2 emits One Dark Pro inline syntax colours. In light mode
+   the rule above would paint pre backgrounds with the light --nv-code-bg,
+   which clashes with the dark-theme token colours. Re-bind --nv-code-bg
+   to the dark value inside code blocks so the inline highlighting stays
+   readable in both themes. */
+html.light .viewer .content pre {
+  --nv-code-bg: oklch(0.19 0.020 268);
+}
 /* Don't force a color on pre > code in either mode — let Zola's
    per-token syntax CSS paint keywords/strings/comments/etc. */
 

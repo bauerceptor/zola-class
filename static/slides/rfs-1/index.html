@@ -27,73 +27,89 @@
   <div class="reveal">
     <div class="slides">
 
-      <section data-id="title">
-        <span class="slide-id">01 · BASICS</span>
-        <h1>Rust: First Steps</h1>
-        <p class="kicker">Lecture 1 · The Basics</p>
+        <section data-id="title">
+          <span class="slide-id">title</span>
+          <h1>Rust: First Steps</h1>
+          <p class="kicker">Lecture 1 · The Basics</p>
 <p class="lede">A first look at the compiler, types, variables, printing, mutability, and shadowing.</p>
 <p style="margin-top:1.6rem;color:var(--fg-3);font-family:var(--font-mono);font-size:0.85rem;">Press <code>→</code> to begin. Press <code>?</code> for shortcuts.</p>
-      </section>
-
-      <section data-id="02">
-        <span class="slide-id">02 · BASICS</span>
-        <h2>What is Rust?</h2>
-        <ul>
+        </section>
+      <section>
+        <section data-id="intro-what">
+          <span class="slide-id">intro-what</span>
+          <h2>What is Rust?</h2>
+          <ul>
 <li>Released in 2015; by 2024 it powers Windows, Android, the Linux kernel, AWS, Discord, Cloudflare, and more.</li>
 <li>Speed and control close to C/C++, plus memory safety like newer languages.</li>
 <li>A rich type system catches bugs before the program runs.</li>
 <li>The compiler is famously strict <em>and</em> famously helpful.</li>
 <li>Some ideas are new, so you have to think before you code—you can’t just figure it out as you go.</li>
 </ul>
-      </section>
-
-      <section data-id="03">
-        <span class="slide-id">03 · BASICS</span>
-        <h2>The hangover first</h2>
-        <ul>
+        </section>
+        <section data-id="intro-hangover">
+          <span class="slide-id">intro-hangover</span>
+          <h2>The hangover first</h2>
+          <ul>
 <li>In many languages the party starts first: code compiles, looks great, then you debug at runtime.</li>
 <li>In Rust you get the hangover first: the compiler refuses to run code that might be wrong.</li>
 <li>You must satisfy the compiler about types, errors, missing values, and memory safety up front.</li>
 <li>The payoff: once it compiles, it usually works.</li>
 </ul>
-      </section>
-
-      <section data-id="04">
-        <span class="slide-id">04 · BASICS</span>
-        <h2>The compiler as a teacher</h2>
-        <ul>
+        </section>
+        <section data-id="intro-teacher">
+          <span class="slide-id">intro-teacher</span>
+          <h2>The compiler as a teacher</h2>
+          <ul>
 <li>Error messages often include the exact fix: add <code>mut</code>, use single quotes, insert a comma, etc.</li>
 <li>The compiler feels like a co-programmer or teacher rather than an adversary.</li>
 <li>Fixing errors teaches you how memory and types work.</li>
 <li>Rust is not just a tool for building software; it is a tool for understanding computers.</li>
 </ul>
-      </section>
-
-      <section data-id="05">
-        <span class="slide-id">05 · BASICS</span>
-        <h2>A first try</h2>
-        <p>This program looks reasonable, but Rust rejects it:</p>
+        </section>
+        <section data-id="intro-pep">
+          <span class="slide-id">intro-pep</span>
+          <h2>A pep talk</h2>
+          <ul>
+<li>Rust is complex, but the frustrating phase does not last forever.</li>
+<li>Once it clicks, the compiler starts doing a lot of the thinking for you.</li>
+<li>Junior developers can refactor existing code with confidence: if it compiles, it is usually safe.</li>
+<li>The cycle of “make changes → see compiler feedback → fix one by one” is fast and reliable.</li>
+</ul>
+        </section>
+        <section data-id="intro-spouse">
+          <span class="slide-id">intro-spouse</span>
+          <h2>Rust is like a critical spouse</h2>
+          <p>Rust will not let you out the door unprepared.</p>
+<ul>
+<li>It complains about the heavy suit, the mismatched socks, the windy hair, and the missing parking change.</li>
+<li>Each complaint feels annoying until you see your reflection—and realize you look great.</li>
+<li>Other languages smile and wave, then let you discover the problems at the interview.</li>
+<li>Rust is strict at compile time, where programmers live, so runtime surprises are rare.</li>
+</ul><blockquote style="margin-top:1.2rem;">“In Rust, you get the hangover first.”</blockquote>
+        </section>
+        <section data-id="try-broken">
+          <span class="slide-id">try-broken</span>
+          <h2>A first try</h2>
+          <p>This program looks reasonable, but Rust rejects it:</p>
 <pre><code class="language-rust" data-trim>fn main() {
     let my_name: String = &quot;Dave&quot;;
     my_name.push(&quot;!&quot;);
     println!(&quot;{}&quot; my_name);
 }</code></pre><p style="margin-top:0.6rem;color:var(--fg-3);font-size:1rem;">The compiler will walk us through three issues before we reach the next one.</p>
-      </section>
-
-      <section data-id="06">
-        <span class="slide-id">06 · BASICS</span>
-        <h2>Fix #1: a missing comma</h2>
-        <p>The first error is about the <code>println!</code> call:</p>
+        </section>
+        <section data-id="fix-1">
+          <span class="slide-id">fix-1</span>
+          <h2>Fix #1: a missing comma</h2>
+          <p>The first error is about the <code>println!</code> call:</p>
 <pre><code class="language-rust" data-trim>error: expected `,`, found `my_name`
   |
 4 |     println!(&quot;{}&quot; my_name);
   |               ^^^^^^^ expected `,`</code></pre><p>Format arguments in <code>println!</code> must be separated by commas.</p>
-      </section>
-
-      <section data-id="07">
-        <span class="slide-id">07 · BASICS</span>
-        <h2>Fix #2: &lt;code&gt;&amp;str&lt;/code&gt; vs &lt;code&gt;String&lt;/code&gt;</h2>
-        <p><code>"Dave"</code> is a string slice (<code>&str</code>), not an owned <code>String</code>:</p>
+        </section>
+        <section data-id="fix-2">
+          <span class="slide-id">fix-2</span>
+          <h2>Fix #2: <code>&str</code> vs <code>String</code></h2>
+          <p><code>"Dave"</code> is a string slice (<code>&str</code>), not an owned <code>String</code>:</p>
 <pre><code class="language-rust" data-trim>error[E0308]: mismatched types
  --&gt; src/main.rs:2:27
   |
@@ -104,12 +120,11 @@
   |                   expected due to this
   |
   = help: try using a conversion method: `.to_string()`</code></pre><p>Add <code>.to_string()</code> to create an owned <code>String</code>.</p>
-      </section>
-
-      <section data-id="08">
-        <span class="slide-id">08 · BASICS</span>
-        <h2>Fix #3: &lt;code&gt;char&lt;/code&gt; vs &lt;code&gt;&amp;str&lt;/code&gt;</h2>
-        <p><code>push</code> expects a single character, but <code>"!"</code> is a string slice:</p>
+        </section>
+        <section data-id="fix-3">
+          <span class="slide-id">fix-3</span>
+          <h2>Fix #3: <code>char</code> vs <code>&str</code></h2>
+          <p><code>push</code> expects a single character, but <code>"!"</code> is a string slice:</p>
 <pre><code class="language-rust" data-trim>error[E0308]: mismatched types
  --&gt; src/main.rs:3:18
   |
@@ -117,23 +132,21 @@
   |             ---- ^^^ expected `char`, found `&amp;str`
   |
   = help: if you meant to write a `char` literal, use single quotes</code></pre><p>Use single quotes for a <code>char</code>: <code>'!'</code>.</p>
-      </section>
-
-      <section data-id="09">
-        <span class="slide-id">09 · BASICS</span>
-        <h2>After the first three fixes</h2>
-        <p>The code now looks like this:</p>
+        </section>
+        <section data-id="fix-after3">
+          <span class="slide-id">fix-after3</span>
+          <h2>After the first three fixes</h2>
+          <p>The code now looks like this:</p>
 <pre><code class="language-rust" data-trim>fn main() {
     let my_name: String = &quot;Dave&quot;.to_string();
     my_name.push(&#x27;!&#x27;);
     println!(&quot;{}&quot;, my_name);
 }</code></pre><p>But Rust has one more lesson to teach.</p>
-      </section>
-
-      <section data-id="10">
-        <span class="slide-id">10 · BASICS</span>
-        <h2>Fix #4: mutability</h2>
-        <p><code>push</code> changes the string, so the variable must be mutable:</p>
+        </section>
+        <section data-id="fix-4">
+          <span class="slide-id">fix-4</span>
+          <h2>Fix #4: mutability</h2>
+          <p><code>push</code> changes the string, so the variable must be mutable:</p>
 <pre><code class="language-rust" data-trim>error[E0596]: cannot borrow `my_name` as mutable, as it is not declared as mutable
  --&gt; src/main.rs:3:5
   |
@@ -141,23 +154,21 @@
   |         ------- help: consider changing this to be mutable: `mut my_name`
 3 |     my_name.push(&#x27;!&#x27;);
   |     ^^^^^^^^^^^^^^^^^ cannot borrow as mutable</code></pre><p>Add <code>mut</code> after <code>let</code>.</p>
-      </section>
-
-      <section data-id="11">
-        <span class="slide-id">11 · BASICS</span>
-        <h2>A working program</h2>
-        <p>The final, compiling program:</p>
+        </section>
+        <section data-id="fix-working">
+          <span class="slide-id">fix-working</span>
+          <h2>A working program</h2>
+          <p>The final, compiling program:</p>
 <pre><code class="language-rust" data-trim>fn main() {
     let mut my_name: String = &quot;Dave&quot;.to_string();
     my_name.push(&#x27;!&#x27;);
     println!(&quot;{}&quot;, my_name);
 }</code></pre><p>Output: <code>Dave!</code></p>
-      </section>
-
-      <section data-id="12">
-        <span class="slide-id">12 · BASICS</span>
-        <h2>Unused variables</h2>
-        <p>Rust warns about variables you create but never use:</p>
+        </section>
+        <section data-id="fix-unused">
+          <span class="slide-id">fix-unused</span>
+          <h2>Unused variables</h2>
+          <p>Rust warns about variables you create but never use:</p>
 <pre><code class="language-rust" data-trim>fn main() {
     let my_number = 9;
 }</code></pre><pre><code class="language-rust" data-trim>warning: unused variable: `my_number`
@@ -165,46 +176,23 @@
   |
 2 |     let my_number = 9;
   |         ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_my_number`</code></pre><p>Prefix with <code>_</code> to silence the warning.</p>
+        </section>
       </section>
-
-      <section data-id="13">
-        <span class="slide-id">13 · BASICS</span>
-        <h2>A pep talk</h2>
-        <ul>
-<li>Rust is complex, but the frustrating phase does not last forever.</li>
-<li>Once it clicks, the compiler starts doing a lot of the thinking for you.</li>
-<li>Junior developers can refactor existing code with confidence: if it compiles, it is usually safe.</li>
-<li>The cycle of “make changes → see compiler feedback → fix one by one” is fast and reliable.</li>
-</ul>
-      </section>
-
-      <section data-id="14">
-        <span class="slide-id">14 · BASICS</span>
-        <h2>Rust is like a critical spouse</h2>
-        <p>Rust will not let you out the door unprepared.</p>
-<ul>
-<li>It complains about the heavy suit, the mismatched socks, the windy hair, and the missing parking change.</li>
-<li>Each complaint feels annoying until you see your reflection—and realize you look great.</li>
-<li>Other languages smile and wave, then let you discover the problems at the interview.</li>
-<li>Rust is strict at compile time, where programmers live, so runtime surprises are rare.</li>
-</ul><blockquote style="margin-top:1.2rem;">“In Rust, you get the hangover first.”</blockquote>
-      </section>
-
-      <section data-id="15">
-        <span class="slide-id">15 · BASICS</span>
-        <h2>Line comments</h2>
-        <p>Comments are for humans; the compiler ignores them.</p>
+      <section>
+        <section data-id="comments-line">
+          <span class="slide-id">comments-line</span>
+          <h2>Line comments</h2>
+          <p>Comments are for humans; the compiler ignores them.</p>
 <pre><code class="language-rust" data-trim>fn main() {
     // Rust programs start with fn main()
     // You put the code inside a block: { ... }
     let some_number = 100; // the rest of the line is ignored
 }</code></pre><p>Use <code>//</code> for everything to the right of the slashes.</p>
-      </section>
-
-      <section data-id="16">
-        <span class="slide-id">16 · BASICS</span>
-        <h2>Block comments</h2>
-        <p>Use <code>/*</code> and <code>*/</code> for multi-line comments or comments in the middle of a line:</p>
+        </section>
+        <section data-id="comments-block">
+          <span class="slide-id">comments-block</span>
+          <h2>Block comments</h2>
+          <p>Use <code>/*</code> and <code>*/</code> for multi-line comments or comments in the middle of a line:</p>
 <pre><code class="language-rust" data-trim>fn main() {
     let some_number/*: i16*/ = 100;
 
@@ -212,12 +200,11 @@
     a little about this number.
     It&#x27;s 100, which is my favorite number. */
 }</code></pre><p>To the compiler, both examples look like <code>let some_number = 100;</code>.</p>
-      </section>
-
-      <section data-id="17">
-        <span class="slide-id">17 · BASICS</span>
-        <h2>Doc comments</h2>
-        <p><code>///</code> creates documentation that tools can turn into web pages.</p>
+        </section>
+        <section data-id="comments-doc">
+          <span class="slide-id">comments-doc</span>
+          <h2>Doc comments</h2>
+          <p><code>///</code> creates documentation that tools can turn into web pages.</p>
 <pre><code class="language-rust" data-trim>/// Converts a string slice in a given base to an integer.
 /// Leading and trailing whitespace represent an error.
 fn parse(input: &amp;str) -&gt; Result&lt;i32, ()&gt; {
@@ -227,12 +214,13 @@ fn parse(input: &amp;str) -&gt; Result&lt;i32, ()&gt; {
 <li><code>///</code> = official documentation for readers of your API.</li>
 <li>Try <code>cargo doc --open</code> to see the generated docs.</li>
 </ul>
+        </section>
       </section>
-
-      <section data-id="18">
-        <span class="slide-id">18 · BASICS</span>
-        <h2>Primitive types</h2>
-        <p>The simplest built-in types are called <em>primitive</em> types.</p>
+      <section>
+        <section data-id="primitives">
+          <span class="slide-id">primitives</span>
+          <h2>Primitive types</h2>
+          <p>The simplest built-in types are called <em>primitive</em> types.</p>
 <ul>
 <li>Integers: <code>i8</code>, <code>i16</code>, <code>i32</code>, <code>i64</code>, <code>i128</code>, <code>isize</code> (signed) and <code>u8</code> … <code>usize</code> (unsigned).</li>
 <li>Floats: <code>f32</code> and <code>f64</code>.</li>
@@ -240,12 +228,11 @@ fn parse(input: &amp;str) -&gt; Result&lt;i32, ()&gt; {
 <li>Booleans: <code>bool</code>.</li>
 <li>Text slices and owned strings: <code>&str</code> and <code>String</code>.</li>
 </ul>
-      </section>
-
-      <section data-id="19">
-        <span class="slide-id">19 · BASICS</span>
-        <h2>Integers</h2>
-        <p>Signed integers can be negative; unsigned integers cannot.</p>
+        </section>
+        <section data-id="integers">
+          <span class="slide-id">integers</span>
+          <h2>Integers</h2>
+          <p>Signed integers can be negative; unsigned integers cannot.</p>
 <pre><code class="language-rust" data-trim>// signed:   i8, i16, i32, i64, i128, isize
 // unsigned: u8, u16, u32, u64, u128, usize
 
@@ -254,54 +241,62 @@ fn main() {
     let b: u32 = 8;    // unsigned
     let c = 8;         // Rust chooses i32 by default
 }</code></pre><p>The number in the name is the bit width: <code>u8</code> = 1 byte, <code>i64</code> = 8 bytes.</p>
-      </section>
-
-      <section data-id="20">
-        <span class="slide-id">20 · BASICS</span>
-        <h2>Binary in a byte</h2>
-        <p>Each bit is twice the previous one. An 8-bit number uses these places:</p>
+        </section>
+        <section data-id="binary">
+          <span class="slide-id">binary</span>
+          <h2>Binary in a byte</h2>
+          <p>Each bit is twice the previous one. An 8-bit number uses these places:</p>
 <pre><code class="language-text" data-trim>128 | 64 | 32 | 16 | 8 | 4 | 2 | 1</code></pre><p>Decimal 226 in binary is <code>11100010</code>:</p>
 <pre><code class="language-text" data-trim>128 + 64 + 32 + 0 + 0 + 0 + 2 + 0 = 226</code></pre><p>That is why a <code>u8</code> maxes out at 255: <code>11111111</code> = 1+2+4+8+16+32+64+128.</p>
-      </section>
-
-      <section data-id="21">
-        <span class="slide-id">21 · BASICS</span>
-        <h2>Signed vs unsigned ranges</h2>
-        <p>With the same number of bits, signed types sacrifice half the positive range for negatives.</p>
+        </section>
+        <section data-id="ranges">
+          <span class="slide-id">ranges</span>
+          <h2>Signed vs unsigned ranges</h2>
+          <p>With the same number of bits, signed types sacrifice half the positive range for negatives.</p>
 <pre><code class="language-rust" data-trim>fn main() {
     println!(&quot;u8 range:  {} to {}&quot;, u8::MIN, u8::MAX);   // 0 to 255
     println!(&quot;i8 range:  {} to {}&quot;, i8::MIN, i8::MAX);   // -128 to 127
     println!(&quot;u16 range: {} to {}&quot;, u16::MIN, u16::MAX); // 0 to 65535
 }</code></pre><p><code>isize</code>/<code>usize</code> match your computer’s architecture: 32 bits on 32-bit machines, 64 bits on 64-bit machines.</p>
+        </section>
+        <section data-id="minmax">
+          <span class="slide-id">minmax</span>
+          <h2>Smallest and largest numbers</h2>
+          <p>Every integer type has associated <code>MIN</code> and <code>MAX</code> constants.</p>
+<pre><code class="language-rust" data-trim>fn main() {
+    println!(&quot;i8:  {} to {}&quot;, i8::MIN, i8::MAX);
+    println!(&quot;u8:  {} to {}&quot;, u8::MIN, u8::MAX);
+    println!(&quot;i32: {} to {}&quot;, i32::MIN, i32::MAX);
+    println!(&quot;u32: {} to {}&quot;, u32::MIN, u32::MAX);
+}</code></pre><p>They are uppercase because they are <code>const</code>s attached to the type with <code>::</code>.</p>
+        </section>
       </section>
-
-      <section data-id="22">
-        <span class="slide-id">22 · BASICS</span>
-        <h2>Characters</h2>
-        <p>A <code>char</code> is a single Unicode scalar value and uses 4 bytes.</p>
+      <section>
+        <section data-id="chars">
+          <span class="slide-id">chars</span>
+          <h2>Characters</h2>
+          <p>A <code>char</code> is a single Unicode scalar value and uses 4 bytes.</p>
 <pre><code class="language-rust" data-trim>fn main() {
     let first_letter = &#x27;A&#x27;;        // ASCII
     let space = &#x27; &#x27;;               // even a space is a char
     let korean = &#x27;안&#x27;;              // 3 bytes as UTF-8
     let cat_face = &#x27;🐱&#x27;;            // 4 bytes as UTF-8
 }</code></pre><p>Single quotes <code>''</code> create a <code>char</code>; double quotes <code>""</code> create a string slice.</p>
-      </section>
-
-      <section data-id="23">
-        <span class="slide-id">23 · BASICS</span>
-        <h2>Casting with &lt;code&gt;as&lt;/code&gt;</h2>
-        <p><code>as</code> converts one numeric type to another. Only <code>u8</code> can become a <code>char</code>.</p>
+        </section>
+        <section data-id="casting">
+          <span class="slide-id">casting</span>
+          <h2>Casting with <code>as</code></h2>
+          <p><code>as</code> converts one numeric type to another. Only <code>u8</code> can become a <code>char</code>.</p>
 <pre><code class="language-rust" data-trim>fn main() {
     let my_number = 100;
     // println!(&quot;{}&quot;, my_number as char); // error: only u8 → char
     println!(&quot;{}&quot;, my_number as u8 as char); // prints &#x27;d&#x27;
 }</code></pre><p>Rust is strict: it will not silently convert <code>i32</code> to <code>u8</code> for you.</p>
-      </section>
-
-      <section data-id="24">
-        <span class="slide-id">24 · BASICS</span>
-        <h2>Casting can overflow</h2>
-        <p>Casting a large number into a smaller type wraps around:</p>
+        </section>
+        <section data-id="cast-overflow">
+          <span class="slide-id">cast-overflow</span>
+          <h2>Casting can overflow</h2>
+          <p>Casting a large number into a smaller type wraps around:</p>
 <pre><code class="language-rust" data-trim>fn main() {
     let a = 256;
     println!(&quot;{}&quot;, a as u8);  // 0
@@ -309,12 +304,11 @@ fn main() {
     let b = 600;
     println!(&quot;{}&quot;, b as u8);  // 88  (600 - 256 - 256 = 88)
 }</code></pre><p>Always make sure the original value fits in the target type.</p>
-      </section>
-
-      <section data-id="25">
-        <span class="slide-id">25 · BASICS</span>
-        <h2>String length: bytes vs characters</h2>
-        <p><code>.len()</code> returns the number of <em>bytes</em>, not the number of letters.</p>
+        </section>
+        <section data-id="string-len">
+          <span class="slide-id">string-len</span>
+          <h2>String length: bytes vs characters</h2>
+          <p><code>.len()</code> returns the number of <em>bytes</em>, not the number of letters.</p>
 <pre><code class="language-rust" data-trim>fn main() {
     let str1 = &quot;Hello!&quot;;
     let str2 = &quot;안녕!&quot;;
@@ -322,39 +316,38 @@ fn main() {
     println!(&quot;str2: {} bytes, {} chars&quot;, str2.len(), str2.chars().count());
 }</code></pre><pre><code class="language-text" data-trim>str1: 6 bytes, 6 chars
 str2: 7 bytes, 3 chars</code></pre>
-      </section>
-
-      <section data-id="26">
-        <span class="slide-id">26 · BASICS</span>
-        <h2>Seeing the bytes</h2>
-        <p><code>.as_bytes()</code> shows the raw UTF-8 encoding:</p>
+        </section>
+        <section data-id="bytes">
+          <span class="slide-id">bytes</span>
+          <h2>Seeing the bytes</h2>
+          <p><code>.as_bytes()</code> shows the raw UTF-8 encoding:</p>
 <pre><code class="language-rust" data-trim>fn main() {
     println!(&quot;{:?}&quot;, &quot;a&quot;.as_bytes());   // [97]
     println!(&quot;{:?}&quot;, &quot;ß&quot;.as_bytes());   // [195, 159]
     println!(&quot;{:?}&quot;, &quot;안&quot;.as_bytes());   // [236, 149, 132]
     println!(&quot;{:?}&quot;, &quot;🐱&quot;.as_bytes());   // [240, 159, 144, 177]
 }</code></pre><p>One byte for ASCII, two for many European letters, three for most CJK, four for emoji and ancient scripts.</p>
+        </section>
       </section>
-
-      <section data-id="27">
-        <span class="slide-id">27 · BASICS</span>
-        <h2>Type inference</h2>
-        <p>Rust can usually guess the type from the value.</p>
+      <section>
+        <section data-id="inference">
+          <span class="slide-id">inference</span>
+          <h2>Type inference</h2>
+          <p>Rust usually figures out the type from the value.</p>
 <pre><code class="language-rust" data-trim>fn main() {
-    let my_number = 8;      // i32
-    let my_float = 5.0;     // f64
-    let letter = &#x27;A&#x27;;       // char
+    let my_number = 8;        // i32
+    let my_float = 5.0;       // f64
+    let letter = &#x27;A&#x27;;         // char
 
-    let small: u8 = 10;     // explicit
-    let small_too = 10u8;   // suffix
+    let small: u8 = 10;       // explicit
+    let small_too = 10u8;     // suffix
     let readable = 1_000_000_i32; // underscores ignored
 }</code></pre><p>You only need to be explicit when the compiler cannot decide or you want a different type.</p>
-      </section>
-
-      <section data-id="28">
-        <span class="slide-id">28 · BASICS</span>
-        <h2>Floats</h2>
-        <p>Numbers with a decimal point are floats: <code>f32</code> or <code>f64</code>.</p>
+        </section>
+        <section data-id="floats">
+          <span class="slide-id">floats</span>
+          <h2>Floats</h2>
+          <p>Numbers with a decimal point are floats: <code>f32</code> or <code>f64</code>.</p>
 <pre><code class="language-rust" data-trim>fn main() {
     let a = 5.0;          // f64 (default)
     let b: f32 = 5.0;     // f32
@@ -363,12 +356,13 @@ str2: 7 bytes, 3 chars</code></pre>
     // let bad = a + b;   // error: cannot add f64 and f32
     let ok = a + b as f64; // cast, or remove the :f32 above
 }</code></pre><p>Like integers, floats of different widths do not mix automatically.</p>
+        </section>
       </section>
-
-      <section data-id="29">
-        <span class="slide-id">29 · BASICS</span>
-        <h2>Hello, world!</h2>
-        <p>Every Rust program starts in <code>fn main()</code>.</p>
+      <section>
+        <section data-id="hello">
+          <span class="slide-id">hello</span>
+          <h2>Hello, world!</h2>
+          <p>Every Rust program starts in <code>fn main()</code>.</p>
 <pre><code class="language-rust" data-trim>fn main() {
     println!(&quot;Hello, world!&quot;);
 }</code></pre><ul>
@@ -378,53 +372,48 @@ str2: 7 bytes, 3 chars</code></pre>
 <li><code>{}</code> is a code block: the body of the function.</li>
 <li><code>println!</code> is a macro—notice the <code>!</code>.</li>
 </ul>
-      </section>
-
-      <section data-id="30">
-        <span class="slide-id">30 · BASICS</span>
-        <h2>Code blocks and lifetimes</h2>
-        <p>A variable lives from where it is created until the end of the <code>{}</code> block that contains it.</p>
+        </section>
+        <section data-id="blocks">
+          <span class="slide-id">blocks</span>
+          <h2>Code blocks and lifetimes</h2>
+          <p>A pair of braces <code>{}</code> defines a block. Variables live until the end of the block that contains them.</p>
 <pre><code class="language-rust" data-trim>fn main() {
-    let my_float = 5.0;
+    let a = 5.0;
     {
-        let my_other_float = 8.5;
-    } // my_other_float&#x27;s lifetime ends here
+        let b = 8.5;
+    } // b is dropped here
 
-    // println!(&quot;{}&quot;, my_other_float); // error: not found
+    // println!(&quot;{}&quot;, b); // error: not found
 }</code></pre><p>This is the foundation of Rust’s ownership system.</p>
-      </section>
-
-      <section data-id="31">
-        <span class="slide-id">31 · BASICS</span>
-        <h2>Returning values from blocks</h2>
-        <p>If the last expression has no semicolon, the block returns it:</p>
+        </section>
+        <section data-id="block-return">
+          <span class="slide-id">block-return</span>
+          <h2>Returning values from blocks</h2>
+          <p>If the last expression has no semicolon, the block returns it:</p>
 <pre><code class="language-rust" data-trim>fn main() {
-    let my_number = {
-        let second_number = 8;
-        second_number + 9  // no semicolon -&gt; returns 17
+    let n = {
+        let x = 8;
+        x + 9 // returns 17
     };
-
-    println!(&quot;My number is: {}&quot;, my_number); // 17
+    println!(&quot;{}&quot;, n);
 }</code></pre><p>Add a semicolon and the block returns <code>()</code>, the unit type.</p>
-      </section>
-
-      <section data-id="32">
-        <span class="slide-id">32 · BASICS</span>
-        <h2>Printing with placeholders</h2>
-        <p><code>{}</code> inside <code>println!</code> is replaced by the matching argument.</p>
+        </section>
+        <section data-id="printing">
+          <span class="slide-id">printing</span>
+          <h2>Printing with placeholders</h2>
+          <p><code>{}</code> inside <code>println!</code> is replaced by the matching argument.</p>
 <pre><code class="language-rust" data-trim>fn main() {
     let x = 8;
     let y = 9;
     println!(&quot;Hello, world number {}!&quot;, x);
     println!(&quot;Hello, worlds number {} and {}!&quot;, x, y);
-    println!(&quot;Hello, world number {x}!&quot;); // named capture since Rust 2021
+    println!(&quot;Hello, world number {x}!&quot;); // named capture, Rust 2021+
 }</code></pre><p><code>print!</code> is the same but does not add a newline.</p>
-      </section>
-
-      <section data-id="33">
-        <span class="slide-id">33 · BASICS</span>
-        <h2>Functions</h2>
-        <p>Functions can take inputs and return values.</p>
+        </section>
+        <section data-id="functions">
+          <span class="slide-id">functions</span>
+          <h2>Functions</h2>
+          <p>Functions can take inputs and return values.</p>
 <pre><code class="language-rust" data-trim>fn multiply(number_one: i32, number_two: i32) -&gt; i32 {
     number_one * number_two
 }
@@ -433,12 +422,11 @@ fn main() {
     let result = multiply(8, 9);
     println!(&quot;The two numbers multiplied are: {}&quot;, result);
 }</code></pre><p>The return type comes after <code>-></code>. The last expression is returned.</p>
-      </section>
-
-      <section data-id="34">
-        <span class="slide-id">34 · BASICS</span>
-        <h2>The semicolon rule</h2>
-        <p>A semicolon turns an expression into a statement. Statements do not return a value.</p>
+        </section>
+        <section data-id="semicolon">
+          <span class="slide-id">semicolon</span>
+          <h2>The semicolon rule</h2>
+          <p>A semicolon turns an expression into a statement. Statements do not return a value.</p>
 <pre><code class="language-rust" data-trim>fn give_number() -&gt; i32 {
     8;  // statement, returns ()
 }
@@ -452,12 +440,11 @@ fn main() {
   |    -----------      ^^^ expected `i32`, found `()`
   |
   = help: remove this semicolon to return this value</code></pre><p>Remove the <code>;</code> to return <code>8</code>.</p>
-      </section>
-
-      <section data-id="35">
-        <span class="slide-id">35 · BASICS</span>
-        <h2>Early return</h2>
-        <p>You can use <code>return</code> to leave a function before the last line:</p>
+        </section>
+        <section data-id="return">
+          <span class="slide-id">return</span>
+          <h2>Early return</h2>
+          <p>You can use <code>return</code> to leave a function before the last line:</p>
 <pre><code class="language-rust" data-trim>fn give_number() -&gt; i32 {
     return 8;
     10; // unreachable
@@ -466,12 +453,13 @@ fn main() {
 fn main() {
     println!(&quot;{}&quot;, give_number()); // 8
 }</code></pre><p>Rust warns about unreachable code, but it still compiles.</p>
+        </section>
       </section>
-
-      <section data-id="36">
-        <span class="slide-id">36 · BASICS</span>
-        <h2>Display and Debug</h2>
-        <p>Not every type can print with <code>{}</code>.</p>
+      <section>
+        <section data-id="display-debug">
+          <span class="slide-id">display-debug</span>
+          <h2>Display and Debug</h2>
+          <p>Not every type can print with <code>{}</code>.</p>
 <pre><code class="language-rust" data-trim>fn main() {
     let unit = ();
     println!(&quot;{}&quot;, unit); // error: `()` doesn&#x27;t implement Display
@@ -481,36 +469,24 @@ fn main() {
     println!(&quot;{:?}&quot;, unit);   // ()
     println!(&quot;{:#?}&quot;, unit);  // ()  (pretty, when there is more to show)
 }</code></pre>
-      </section>
-
-      <section data-id="37">
-        <span class="slide-id">37 · BASICS</span>
-        <h2>Traits at a glance</h2>
-        <p>A <em>trait</em> is “what a type can do.”</p>
+        </section>
+        <section data-id="traits">
+          <span class="slide-id">traits</span>
+          <h2>Traits at a glance</h2>
+          <p>A <em>trait</em> is “what a type can do.”</p>
 <ul>
 <li><code>Display</code> ({}) is for user-facing output.</li>
 <li><code>Debug</code> ({:?}) is for programmer-facing output.</li>
 <li>If a type does not implement a trait, the compiler tells you and suggests alternatives.</li>
 <li>Traits are one of Rust’s most powerful ideas; we will return to them throughout the course.</li>
 </ul>
+        </section>
       </section>
-
-      <section data-id="38">
-        <span class="slide-id">38 · BASICS</span>
-        <h2>Smallest and largest numbers</h2>
-        <p>Every integer type has associated <code>MIN</code> and <code>MAX</code> constants.</p>
-<pre><code class="language-rust" data-trim>fn main() {
-    println!(&quot;i8:  {} to {}&quot;, i8::MIN, i8::MAX);
-    println!(&quot;u8:  {} to {}&quot;, u8::MIN, u8::MAX);
-    println!(&quot;i32: {} to {}&quot;, i32::MIN, i32::MAX);
-    println!(&quot;u32: {} to {}&quot;, u32::MIN, u32::MAX);
-}</code></pre><p>They are uppercase because they are <code>const</code>s attached to the type with <code>::</code>.</p>
-      </section>
-
-      <section data-id="39">
-        <span class="slide-id">39 · BASICS</span>
-        <h2>Mutability</h2>
-        <p>Variables are immutable by default.</p>
+      <section>
+        <section data-id="mutability">
+          <span class="slide-id">mutability</span>
+          <h2>Mutability</h2>
+          <p>Variables are immutable by default.</p>
 <pre><code class="language-rust" data-trim>fn main() {
     let my_number = 8;
     my_number = 10; // error: cannot assign twice to immutable variable
@@ -520,12 +496,11 @@ fn main() {
     x = 10;              // ok
     // x = &quot;hello&quot;;       // error: expected integer, found &amp;str
 }</code></pre>
-      </section>
-
-      <section data-id="40">
-        <span class="slide-id">40 · BASICS</span>
-        <h2>Shadowing</h2>
-        <p>Shadowing creates a new variable with the same name. It is <em>not</em> mutability.</p>
+        </section>
+        <section data-id="shadowing">
+          <span class="slide-id">shadowing</span>
+          <h2>Shadowing</h2>
+          <p>Shadowing creates a new variable with the same name. It is <em>not</em> mutability.</p>
 <pre><code class="language-rust" data-trim>fn main() {
     let my_number = 8;
     println!(&quot;{}&quot;, my_number); // 8
@@ -533,12 +508,11 @@ fn main() {
     let my_number = 9.2;       // shadows the first one
     println!(&quot;{}&quot;, my_number); // 9.2
 }</code></pre><p>The new binding can have a different type. The old value is blocked, not destroyed.</p>
-      </section>
-
-      <section data-id="41">
-        <span class="slide-id">41 · BASICS</span>
-        <h2>Shadowing and scope</h2>
-        <p>A shadow only lasts inside its own block:</p>
+        </section>
+        <section data-id="shadowing-scope">
+          <span class="slide-id">shadowing-scope</span>
+          <h2>Shadowing and scope</h2>
+          <p>A shadow only lasts inside its own block:</p>
 <pre><code class="language-rust" data-trim>fn main() {
     let my_number = 8;
     {
@@ -546,13 +520,14 @@ fn main() {
         println!(&quot;inside: {}&quot;, my_number); // 9.2
     }
     println!(&quot;outside: {}&quot;, my_number);    // 8
-}</code></pre><p>Useful when you do not care about intermediate values and want to reuse a clear name.</p>
+}</code></pre><p>Useful when you want to transform a value through several steps without inventing a new name for every step.</p>
+        </section>
       </section>
-
-      <section data-id="42">
-        <span class="slide-id">42 · BASICS</span>
-        <h2>Summary</h2>
-        <ul>
+      <section>
+        <section data-id="summary">
+          <span class="slide-id">summary</span>
+          <h2>Summary</h2>
+          <ul>
 <li>Comments: <code>//</code>, <code>/* */</code>, and doc comments <code>///</code>.</li>
 <li>You can annotate types, but Rust usually infers them; default integers are i32 and default floats are f64.</li>
 <li>Understanding binary helps you choose the right integer size.</li>
@@ -560,13 +535,13 @@ fn main() {
 <li>Use <code>mut</code> to change a value; shadowing with <code>let</code> creates a new binding instead.</li>
 <li>The compiler is strict at compile time so your program is safer at runtime.</li>
 </ul>
-      </section>
-
-      <section data-id="fin">
-        <span class="slide-id">43 · BASICS</span>
-        <h2>What comes next</h2>
-        <p class="lede">In the next chapter we explore ownership: how Rust decides who is allowed to use each piece of memory, and for how long.</p>
+        </section>
+        <section data-id="fin">
+          <span class="slide-id">fin</span>
+          <h2>What comes next</h2>
+          <p class="lede">In the next chapter we explore ownership: how Rust decides who is allowed to use each piece of memory, and for how long.</p>
 <p style="margin-top:1.6rem;color:var(--fg-3);font-family:var(--font-mono);font-size:0.85rem;">Press <code>?</code> for shortcuts, or <a href="../">return to the site</a>.</p>
+        </section>
       </section>
 
 
