@@ -132,6 +132,33 @@ To copy the demo deck from repo1 as a starting template:
 cp -r /path/to/repo1/static/slides/demo static/slides/<your-path>/
 ```
 
+### Generating a deck with `scripts/build-deck.py`
+
+For decks with many slides, edit `scripts/build-deck.py` and run it instead of
+hand-writing HTML. The script builds a reveal.js deck with horizontal sections
+(←/→) and vertical sub-sections (↑/↓):
+
+```bash
+python3 scripts/build-deck.py
+```
+
+How it works:
+
+- The `sections` list near the bottom of the file defines the deck.
+- Each top-level list is one **horizontal section** — a single key idea.
+- Each item inside that list is a **vertical sub-slide** — an incremental detail.
+- A slide item is `(data_id, title, body_html)`.
+  - `data_id` must be unique and becomes the slide’s `data-id` attribute.
+  - `title` may contain inline HTML such as `<code>`, `<em>`, `<strong>`.
+  - `body_html` is raw HTML; use `bullets([...])` and `code("rust", "...")` helpers.
+- Change `OUT` at the top of the file to write to a different deck path, e.g.
+  `static/slides/rfs-2/index.html`.
+- The generated deck links `static/slides/_themes/clean.css` and respects the
+  system light/dark preference.
+
+After running the script, wire the deck into the lecture page with the `slides`
+shortcode and run `zola build`.
+
 ### Slide themes
 
 Both repos ship the same three themes under `static/slides/_themes/`:
@@ -327,6 +354,7 @@ Record the new commit hash in `config.toml` under `[extra]`.
 | `static/js/tree-fold.js` | Adds chevron toggles to sidebar folders; persists state. |
 | `static/js/prompt-enhance.js` | Adds `:find`/`:edit`/`:ls` + history to the theme's command prompt. |
 | `static/js/copy-code.js` | Injects "Copy" buttons into code blocks. |
+| `scripts/build-deck.py` | Python generator for reveal.js slide decks with horizontal sections and vertical sub-sections. |
 | `themes/neovim-theme/` | Vendored upstream theme + the patches listed above. |
 
 ---
