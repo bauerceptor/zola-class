@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rust: First Steps - Lecture 2: Memory and Ownership · Hassan Aziz</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reset.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/white.css" id="reveal-theme">
+
+  <link rel="stylesheet" id="hljs-light" media="(prefers-color-scheme: light)"
+        href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github.min.css">
+  <link rel="stylesheet" id="hljs-dark"  media="(prefers-color-scheme: dark)"
+        href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github-dark.min.css">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../_themes/clean.css">
+</head>
+<body>
+
+  <a href="../" id="back-to-site"><- site</a>
+
+  <div class="reveal">
+    <div class="slides">
+
+        <section data-id="title">
+          <span class="slide-id">title</span>
+          <h1>Rust: First Steps</h1>
+          <p class="kicker">Lecture 2 - Memory and Ownership</p>
+<p class="lede">Stack, heap, references, strings, mutable borrows, Copy types, and the ownership rules that keep Rust safe.</p>
+<p style="margin-top:1.6rem;color:var(--fg-3);font-family:var(--font-mono);font-size:0.85rem;">Press <code>-></code> to begin. Press <code>?</code> for shortcuts.</p>
+        </section>
+      <section>
+        <section data-id="memory-intro">
+          <span class="slide-id">memory-intro</span>
+          <h2>Two places for data</h2>
+          <ul>
+<li>The <strong>stack</strong> is fast. Memory is added and removed like a pile of dishes: last in, first out.</li>
+<li>The <strong>heap</strong> is more flexible. It can hold data of any size, but finding and freeing it takes more work.</li>
+<li>Rust needs to know the size of a value at compile time to put it on the stack.</li>
+<li>Python hides this from you; Rust makes it part of the contract.</li>
+</ul>
+        </section>
+        <section data-id="stack">
+          <span class="slide-id">stack</span>
+          <h2>The stack</h2>
+          <ul>
+<li>Simple values with a known size live on the stack.</li>
+<li>An <code>i32</code> is always 4 bytes, so it can go on the stack.</li>
+<li>When a function returns, its stack space is reclaimed automatically.</li>
+</ul><pre><code class="language-rust" data-trim>fn main() {
+    let x = 8;      // i32 on the stack
+    let y = 100.5;  // f64 on the stack
+}</code></pre>
+        </section>
+        <section data-id="heap">
+          <span class="slide-id">heap</span>
+          <h2>The heap and pointers</h2>
+          <ul>
+<li>Data with an unknown size at compile time goes on the heap.</li>
+<li>The program asks the OS for a chunk of heap memory.</li>
+<li>A <strong>pointer</strong> goes on the stack; it stores the address of the heap data.</li>
+</ul><pre><code class="language-rust" data-trim>fn main() {
+    let s = String::from(&quot;I live on the heap&quot;);
+    // s is a pointer/length/capacity on the stack;
+    // the text itself lives on the heap.
+}</code></pre>
+        </section>
+        <section data-id="pointers">
+          <span class="slide-id">pointers</span>
+          <h2>Pointers are like a table of contents</h2>
+          <p>A table of contents tells you where each chapter lives. It does not own the chapter.</p>
+<ul>
+<li>A pointer stores an address. The data lives somewhere else.</li>
+<li>In Rust, the pointer you use most often is called a <strong>reference</strong>.</li>
+<li>A reference borrows memory; it does not own it.</li>
+</ul><pre><code class="language-rust" data-trim>fn main() {
+    let my_variable = 8;
+    let my_reference = &amp;my_variable;
+}</code></pre>
+        </section>
+        <section data-id="references">
+          <span class="slide-id">references</span>
+          <h2>Reading references</h2>
+          <ul>
+<li><code>let x = 8;</code> makes a regular variable.</li>
+<li><code>let r = &x;</code> makes a reference to that variable.</li>
+<li>Read it as 'r is a reference to x' or 'r borrows x'.</li>
+<li>The owner (<code>x</code>) keeps the data. The reference just looks at it.</li>
+</ul><pre><code class="language-rust" data-trim>fn main() {
+    let my_number = 15;
+    let single_reference = &amp;my_number;          // &amp;i32
+    let double_reference = &amp;single_reference;   // &amp;&amp;i32
+    let five_references = &amp;&amp;&amp;&amp;&amp;my_number;        // &amp;&amp;&amp;&amp;&amp;i32
+}</code></pre>
+        </section>
+      </section>
+      <section>
+        <section data-id="strings-intro">
+          <span class="slide-id">strings-intro</span>
+          <h2>String and &str</h2>
+          <ul>
+<li><code>&str</code> is a string slice: a pointer plus a length. It is a view into data owned by something else.</li>
+<li><code>String</code> is an owned, growable buffer on the heap.</li>
+<li>Both are UTF-8 encoded.</li>
+<li>Python strings feel like one thing; Rust separates borrowed views from owned buffers.</li>
+</ul>
+        </section>
+        <section data-id="str-sized">
+          <span class="slide-id">str-sized</span>
+          <h2>Why &str and not str?</h2>
+          <ul>
+<li>A <code>str</code> can be any length, so the compiler does not know its size.</li>
+<li>A reference has a fixed size, so <code>&str</code> can live on the stack.</li>
+<li>The reference points to the bytes and carries the length.</li>
+</ul><pre><code class="language-rust" data-trim>fn main() {
+    let size_of_string = std::mem::size_of::&lt;String&gt;();
+    let size_of_i8 = std::mem::size_of::&lt;i8&gt;();
+    let size_of_jaurim = std::mem::size_of_val(&quot;자우림&quot;);
+
+    println!(&quot;A String is always {size_of_string} bytes.&quot;);
+    println!(&quot;An i8 is always {size_of_i8} bytes.&quot;);
+    println!(&quot;But &#x27;&amp;str&#x27; can be {size_of_jaurim} bytes - it is not Sized.&quot;);
+}</code></pre><p>Trying to write <code>let my_name: str = "My name";</code> gives a compile error: the size for values of type <code>str</code> cannot be known at compilation time.</p>
+        </section>
+        <section data-id="utf8">
+          <span class="slide-id">utf8</span>
+          <h2>UTF-8 everywhere</h2>
+          <ul>
+<li>Both <code>&str</code> and <code>String</code> store UTF-8 bytes.</li>
+<li>ASCII uses one byte per character. Korean, emoji, and many other scripts use more.</li>
+<li>Rust is fine with any Unicode. Your terminal may not display it.</li>
+</ul><pre><code class="language-rust" data-trim>fn main() {
+    let name = &quot;안녕하세요&quot;;
+    let other_name = String::from(&quot;Adrian Fahrenheit Ţepeş&quot;);
+    println!(&quot;My name is {}&quot;, name);
+}</code></pre>
+        </section>
+        <section data-id="bytes-vs-chars">
+          <span class="slide-id">bytes-vs-chars</span>
+          <h2>Bytes vs characters</h2>
+          <ul>
+<li><code>.len()</code> returns the number of <em>bytes</em>, not characters.</li>
+<li>Use <code>.chars().count()</code> for the number of Unicode characters.</li>
+</ul><pre><code class="language-rust" data-trim>fn main() {
+    let s1 = &quot;Hello!&quot;;
+    let s2 = &quot;안녕!&quot;;
+    println!(&quot;{}: {} bytes, {} chars&quot;, s1, s1.len(), s1.chars().count());
+    println!(&quot;{}: {} bytes, {} chars&quot;, s2, s2.len(), s2.chars().count());
+}</code></pre><pre><code class="language-text" data-trim>Hello!: 6 bytes, 6 chars
+안녕!: 7 bytes, 3 chars</code></pre>
+        </section>
+        <section data-id="creating-strings">
+          <span class="slide-id">creating-strings</span>
+          <h2>Creating strings</h2>
+          <ul>
+<li><code>String::from("...")</code> builds an owned String from a slice.</li>
+<li><code>"...".to_string()</code> does the same thing.</li>
+<li><code>format!("...")</code> works like <code>println!</code> but returns a String.</li>
+<li><code>.into()</code> can convert a slice into a String, but you usually need a type hint.</li>
+</ul><pre><code class="language-rust" data-trim>fn main() {
+    let a = String::from(&quot;This is the string text&quot;);
+    let b = &quot;This is the string text&quot;.to_string();
+
+    let name = &quot;Billybrobby&quot;;
+    let country = &quot;USA&quot;;
+    let together = format!(&quot;I am {name} from {country}.&quot;);
+
+    let c: String = &quot;Try to make this a String&quot;.into();
+}</code></pre>
+        </section>
+      </section>
+        <section data-id="const-static">
+          <span class="slide-id">const-static</span>
+          <h2>const and static</h2>
+          <ul>
+<li><code>const</code> is a value that does not change and is created at compile time.</li>
+<li><code>static</code> is similar but has a fixed memory location.</li>
+<li>Both are written in ALL_CAPS and usually live outside <code>main</code>.</li>
+<li>They are available everywhere and do not get dropped.</li>
+</ul><pre><code class="language-rust" data-trim>const NUMBER_OF_MONTHS: u32 = 12;
+static SEASONS: [&amp;str; 4] = [&quot;Spring&quot;, &quot;Summer&quot;, &quot;Fall&quot;, &quot;Winter&quot;];
+
+fn print_months() {
+    println!(&quot;Number of months in the year: {NUMBER_OF_MONTHS}&quot;);
+}
+
+fn main() {
+    print_months();
+}</code></pre>
+        </section>
+      <section>
+        <section data-id="many-immutable">
+          <span class="slide-id">many-immutable</span>
+          <h2>Many immutable references</h2>
+          <ul>
+<li>You can have as many immutable references as you want.</li>
+<li>They are read-only views; nobody can change the data.</li>
+</ul><pre><code class="language-rust" data-trim>fn main() {
+    let country = String::from(&quot;Austria&quot;);
+    let ref_one = &amp;country;
+    let ref_two = &amp;country;
+    println!(&quot;{}&quot;, ref_one);
+    println!(&quot;{}&quot;, ref_two);
+}</code></pre>
+        </section>
+        <section data-id="return-local-ref">
+          <span class="slide-id">return-local-ref</span>
+          <h2>You cannot return a reference to a local</h2>
+          <ul>
+<li>A local variable dies when its function ends.</li>
+<li>A reference to that variable would point to freed memory.</li>
+<li>Rust refuses to let you return it.</li>
+</ul><pre><code class="language-rust" data-trim>fn return_str() -&gt; &amp;String {
+    let country = String::from(&quot;Austria&quot;);
+    let country_ref = &amp;country;
+    country_ref
+}
+
+fn main() {
+    let country = return_str();
+}</code></pre><pre><code class="language-rust" data-trim>error[E0515]: cannot return value referencing local variable `country`
+  |
+3 |     let country_ref = &amp;country;
+  |                       -------- `country` is borrowed here
+4 |     country_ref
+  |     ^^^^^^^^^^^ returns a value referencing data owned by the current function</code></pre>
+        </section>
+      </section>
+      <section>
+        <section data-id="mut-ref-intro">
+          <span class="slide-id">mut-ref-intro</span>
+          <h2>Mutable references</h2>
+          <ul>
+<li>Use <code>&mut</code> when you want to change data through a reference.</li>
+<li>The original variable must also be declared <code>mut</code>.</li>
+<li>Dereference with <code>*</code> to reach the value behind the reference.</li>
+</ul><pre><code class="language-rust" data-trim>fn main() {
+    let mut my_number = 8;
+    let num_ref = &amp;mut my_number;
+    *num_ref += 10;
+    println!(&quot;{}&quot;, my_number); // 18
+}</code></pre>
+        </section>
+        <section data-id="ref-rules">
+          <span class="slide-id">ref-rules</span>
+          <h2>The two reference rules</h2>
+          <ul>
+<li>Rule 1: You can have any number of immutable references.</li>
+<li>Rule 2: You can have only one mutable reference, and no immutable references at the same time.</li>
+<li>This prevents data races and surprises at compile time.</li>
+</ul><pre><code class="language-rust" data-trim>fn main() {
+    let mut number = 10;
+    let number_ref = &amp;number;
+    let number_change = &amp;mut number; // error
+    *number_change += 10;
+    println!(&quot;{}&quot;, number_ref);
+}</code></pre><pre><code class="language-rust" data-trim>error[E0502]: cannot borrow `number` as mutable because it is also borrowed as immutable
+  |
+3 |     let number_ref = &amp;number;
+  |                      ------- immutable borrow occurs here
+4 |     let number_change = &amp;mut number;
+  |                         ^^^^^^^^^^^ mutable borrow occurs here</code></pre>
+        </section>
+        <section data-id="non-overlap">
+          <span class="slide-id">non-overlap</span>
+          <h2>Borrows can end</h2>
+          <ul>
+<li>The compiler tracks <em>when</em> each borrow is used.</li>
+<li>A mutable borrow ends after its last use, so an immutable borrow can start later.</li>
+</ul><pre><code class="language-rust" data-trim>fn main() {
+    let mut number = 10;
+    let number_change = &amp;mut number;
+    *number_change += 10;
+
+    let number_ref = &amp;number; // fine now
+    println!(&quot;{}&quot;, number_ref); // 20
+}</code></pre>
+        </section>
+      </section>
+      <section>
+        <section data-id="shadow-memory">
+          <span class="slide-id">shadow-memory</span>
+          <h2>Shadowing does not destroy</h2>
+          <ul>
+<li>A new <code>let</code> with the same name hides the old binding.</li>
+<li>The old value is still alive in memory until its scope ends.</li>
+<li>A reference to the old value keeps working.</li>
+</ul><pre><code class="language-rust" data-trim>fn main() {
+    let country = String::from(&quot;Austria&quot;);
+    let country_ref = &amp;country;
+    let country = 8;
+    println!(&quot;{country_ref} {country}&quot;); // Austria 8
+}</code></pre>
+        </section>
+        <section data-id="shadow-functions">
+          <span class="slide-id">shadow-functions</span>
+          <h2>Shadowing and ownership</h2>
+          <p>Shadowing becomes even more useful once functions and references get involved. You can reuse a name when ownership has passed, or when a value has been transformed into a different type.</p>
+<pre><code class="language-rust" data-trim>fn main() {
+    let country = String::from(&quot;Austria&quot;);
+    let country = add_hungary(country);
+    println!(&quot;{}&quot;, country);
+}
+
+fn add_hungary(name: String) -&gt; String {
+    format!(&quot;{}-Hungary&quot;, name)
+}</code></pre>
+        </section>
+      </section>
+      <section>
+        <section data-id="fn-ownership">
+          <span class="slide-id">fn-ownership</span>
+          <h2>Functions take ownership by default</h2>
+          <ul>
+<li>A function parameter that takes <code>String</code> owns the value.</li>
+<li>If the function does not return it, the value is dropped when the function ends.</li>
+<li>This is why the first call to <code>print_country(country)</code> works, but the second fails.</li>
+</ul><pre><code class="language-rust" data-trim>fn print_country(country_name: String) {
+    println!(&quot;{}&quot;, country_name);
+}
+
+fn main() {
+    let country = String::from(&quot;Austria&quot;);
+    print_country(country);
+    print_country(country); // error: use of moved value
+}</code></pre>
+        </section>
+        <section data-id="fn-borrow">
+          <span class="slide-id">fn-borrow</span>
+          <h2>Borrowing with references</h2>
+          <ul>
+<li>Change the parameter to <code>&String</code> to borrow instead of own.</li>
+<li>Pass <code>&country</code> from the caller.</li>
+<li>The function can look at the data, but the caller keeps ownership.</li>
+</ul><pre><code class="language-rust" data-trim>fn print_country(country_name: &amp;String) {
+    println!(&quot;{}&quot;, country_name);
+}
+
+fn main() {
+    let country = String::from(&quot;Austria&quot;);
+    print_country(&amp;country);
+    print_country(&amp;country); // fine
+}</code></pre>
+        </section>
+        <section data-id="fn-mut-borrow">
+          <span class="slide-id">fn-mut-borrow</span>
+          <h2>Mutable references in functions</h2>
+          <ul>
+<li>Use <code>&mut String</code> when the function needs to change the string.</li>
+<li>The caller must also pass <code>&mut country</code>.</li>
+</ul><pre><code class="language-rust" data-trim>fn add_hungary(country_name: &amp;mut String) {
+    country_name.push_str(&quot;-Hungary&quot;);
+    println!(&quot;Now it says: {}&quot;, country_name);
+}
+
+fn main() {
+    let mut country = String::from(&quot;Austria&quot;);
+    add_hungary(&amp;mut country);
+}</code></pre>
+        </section>
+        <section data-id="fn-mut-param">
+          <span class="slide-id">fn-mut-param</span>
+          <h2>A mut parameter takes ownership</h2>
+          <ul>
+<li><code>mut string: String</code> is not a reference. It takes ownership and makes it mutable.</li>
+<li>The original variable is gone; the function owns the data now.</li>
+<li>This is different from a mutable reference.</li>
+</ul><pre><code class="language-rust" data-trim>fn main() {
+    let country = String::from(&quot;Austria&quot;);
+    adds_hungary(country);
+}
+
+fn adds_hungary(mut string_to_add_hungary_to: String) {
+    string_to_add_hungary_to.push_str(&quot;-Hungary&quot;);
+    println!(&quot;{}&quot;, string_to_add_hungary_to);
+}</code></pre><p>Notice the warning if you mark the original <code>country</code> as <code>mut</code>: the caller never mutates it, so the <code>mut</code> belongs on the parameter, not the caller.</p>
+        </section>
+      </section>
+      <section>
+        <section data-id="copy-intro">
+          <span class="slide-id">copy-intro</span>
+          <h2>Copy types</h2>
+          <ul>
+<li>Small, fixed-size types live on the stack and are cheap to copy.</li>
+<li>When you pass them to a function, Rust copies the value automatically.</li>
+<li>Copy types use <em>copy semantics</em>; everything else uses <em>move semantics</em>.</li>
+</ul><pre><code class="language-rust" data-trim>fn prints_number(number: i32) {
+    println!(&quot;{}&quot;, number);
+}
+
+fn main() {
+    let my_number = 8;
+    prints_number(my_number);
+    prints_number(my_number); // fine: i32 is Copy
+}</code></pre>
+        </section>
+        <section data-id="copy-vs-clone">
+          <span class="slide-id">copy-vs-clone</span>
+          <h2>Copy vs Clone</h2>
+          <ul>
+<li><code>Copy</code> happens automatically for small stack types.</li>
+<li><code>Clone</code> is explicit: you call <code>.clone()</code>.</li>
+<li><code>String</code> implements <code>Clone</code> but not <code>Copy</code>.</li>
+<li>Cloning a large string can use a lot of memory; borrowing is usually better.</li>
+</ul><pre><code class="language-rust" data-trim>fn prints_country(country_name: String) {
+    println!(&quot;{}&quot;, country_name);
+}
+
+fn main() {
+    let country = String::from(&quot;Kiribati&quot;);
+    prints_country(country.clone());
+    prints_country(country); // fine because we cloned
+}</code></pre>
+        </section>
+        <section data-id="references-are-cheap">
+          <span class="slide-id">references-are-cheap</span>
+          <h2>References are cheap</h2>
+          <ul>
+<li>If a function only needs to read, pass an immutable reference.</li>
+<li>This avoids both moves and clones.</li>
+</ul><pre><code class="language-rust" data-trim>fn get_length(input: &amp;String) {
+    println!(&quot;It is {} words long.&quot;, input.split_whitespace().count());
+}
+
+fn main() {
+    let mut s = String::new();
+    for _ in 0..50 {
+        s.push_str(&quot;Here are some more words &quot;);
+        get_length(&amp;s); // zero clones
+    }
+}</code></pre>
+        </section>
+      </section>
+        <section data-id="uninit">
+          <span class="slide-id">uninit</span>
+          <h2>Uninitialized variables</h2>
+          <ul>
+<li>You can declare a variable without giving it a value.</li>
+<li>You must initialize it before you use it.</li>
+<li>This is useful when a value comes from inside a block but needs to live outside it.</li>
+</ul><pre><code class="language-rust" data-trim>fn main() {
+    let my_number: i32;
+    {
+        my_number = 57;
+        println!(&quot;{my_number}&quot;);
+    }
+}</code></pre><p>The variable is not <code>mut</code>. It is simply not given a value until it is assigned.</p>
+        </section>
+      <section>
+        <section data-id="print-escapes">
+          <span class="slide-id">print-escapes</span>
+          <h2>Escapes and raw strings</h2>
+          <ul>
+<li><code>\n</code> is a newline, <code>\t</code> is a tab.</li>
+<li>To print a literal backslash, escape it with another backslash.</li>
+<li>Prefix a string with <code>r#</code> and end with <code>#</code> for a raw string.</li>
+</ul><pre><code class="language-rust" data-trim>fn main() {
+    println!(&quot;Line one\nLine two&quot;);
+    println!(&quot;Here are two escapes: \\n and \\t&quot;);
+    println!(r#&quot;This has &quot;quotes&quot; and \ backslashes as-is.&quot;#);
+}</code></pre>
+        </section>
+        <section data-id="print-bytes">
+          <span class="slide-id">print-bytes</span>
+          <h2>Byte strings</h2>
+          <ul>
+<li>Add <code>b</code> before a string to make a byte string literal.</li>
+<li>The result is an array of bytes, not text.</li>
+</ul><pre><code class="language-rust" data-trim>fn main() {
+    println!(&quot;{:?}&quot;, b&quot;This will look like numbers&quot;);
+}</code></pre><pre><code class="language-text" data-trim>[84, 104, 105, 115, 32, 119, 105, 108, 108, 32, 108, 111, 111, 107, 32, 108, 105, 107, 101, 32, 110, 117, 109, 98, 101, 114, 115]</code></pre>
+        </section>
+        <section data-id="print-pointers">
+          <span class="slide-id">print-pointers</span>
+          <h2>Pointer addresses</h2>
+          <ul>
+<li>Use <code>{:p}</code> to print the address a reference points to.</li>
+</ul><pre><code class="language-rust" data-trim>fn main() {
+    let number = 9;
+    let number_ref = &amp;number;
+    println!(&quot;{:p}&quot;, number_ref); // e.g. 0x7ffd4a2bfcfc
+}</code></pre>
+        </section>
+        <section data-id="print-bases">
+          <span class="slide-id">print-bases</span>
+          <h2>Number bases</h2>
+          <ul>
+<li><code>{:b}</code> prints binary.</li>
+<li><code>{:x}</code> prints hexadecimal.</li>
+<li><code>{:o}</code> prints octal.</li>
+</ul><pre><code class="language-rust" data-trim>fn main() {
+    let number = 555;
+    println!(&quot;Binary: {:b}, hex: {:x}, octal: {:o}&quot;, number, number, number);
+}</code></pre><pre><code class="language-text" data-trim>Binary: 1000101011, hex: 22b, octal: 1053</code></pre>
+        </section>
+        <section data-id="print-positional">
+          <span class="slide-id">print-positional</span>
+          <h2>Positional and named arguments</h2>
+          <ul>
+<li>Use an index like <code>{0}</code> or a name like <code>{city}</code> to control ordering.</li>
+</ul><pre><code class="language-rust" data-trim>fn main() {
+    let father = &quot;Vlad&quot;;
+    let son = &quot;Adrian Fahrenheit&quot;;
+    let family = &quot;Ţepeş&quot;;
+    println!(&quot;This is {1} {2}, son of {0} {2}.&quot;, father, son, family);
+
+    println!(
+        &quot;{city1} is in {country} and {city2} is also in {country}.&quot;,
+        city1 = &quot;Seoul&quot;,
+        city2 = &quot;Busan&quot;,
+        country = &quot;Korea&quot;
+    );
+}</code></pre>
+        </section>
+        <section data-id="print-padding">
+          <span class="slide-id">print-padding</span>
+          <h2>Padding and alignment</h2>
+          <ul>
+<li>Format: <code>{variable:pad alignment minimum.maximum}</code>.</li>
+<li><code>^</code> centers, <code>&lt;</code> left-aligns, <code>&gt;</code> right-aligns.</li>
+</ul><pre><code class="language-rust" data-trim>fn main() {
+    let title = &quot;TODAY&#x27;S NEWS&quot;;
+    println!(&quot;{:-^30}&quot;, title);
+
+    let bar = &quot;|&quot;;
+    println!(&quot;{: &lt;15}{: &gt;15}&quot;, bar, bar);
+
+    let a = &quot;SEOUL&quot;;
+    let b = &quot;TOKYO&quot;;
+    println!(&quot;{city1:-&lt;15}{city2:-&gt;15}&quot;, city1 = a, city2 = b);
+}</code></pre><pre><code class="language-text" data-trim>---------TODAY&#x27;S NEWS---------
+|                            |
+SEOUL--------------------TOKYO</code></pre>
+        </section>
+      </section>
+      <section>
+        <section data-id="python-gotchas">
+          <span class="slide-id">python-gotchas</span>
+          <h2>Python vs Rust gotchas</h2>
+          <p class="lede">Ownership and borrowing look unusual if you are coming from Python. Here are the main traps.</p>
+        </section>
+        <section data-id="gc-vs-ownership">
+          <span class="slide-id">gc-vs-ownership</span>
+          <h2>GC vs ownership</h2>
+          <ul>
+<li>Python uses garbage collection: objects live as long as any name points to them.</li>
+<li>Rust has no GC. Each value has exactly one owner, and the value is dropped when the owner goes out of scope.</li>
+<li>References let other code look at the data without taking ownership.</li>
+</ul><pre><code class="language-rust" data-trim>fn main() {
+    let s = String::from(&quot;owned&quot;);
+    let r = &amp;s;      // borrow
+    println!(&quot;{}&quot;, r);
+    println!(&quot;{}&quot;, s); // owner is still valid
+}</code></pre>
+        </section>
+        <section data-id="references-not-names">
+          <span class="slide-id">references-not-names</span>
+          <h2>References are explicit borrows</h2>
+          <ul>
+<li>In Python, every name is a reference to an object, and the GC manages lifetimes.</li>
+<li>In Rust, a reference is an explicit <code>&</code> or <code>&mut</code> with rules attached.</li>
+<li>You cannot keep a reference after the owner has been dropped.</li>
+</ul>
+        </section>
+        <section data-id="clone-vs-deepcopy">
+          <span class="slide-id">clone-vs-deepcopy</span>
+          <h2>.clone() vs deepcopy</h2>
+          <ul>
+<li>Python <code>copy.deepcopy</code> recursively copies an object.</li>
+<li>Rust <code>.clone()</code> calls the <code>Clone</code> trait. For a String, it copies the heap data.</li>
+<li>Cloning is explicit and can be expensive; prefer borrowing when you can.</li>
+</ul><pre><code class="language-rust" data-trim>fn main() {
+    let a = String::from(&quot;hello&quot;);
+    let b = a.clone();
+    println!(&quot;{} {}&quot;, a, b);
+}</code></pre>
+        </section>
+        <section data-id="mut-param-ownership">
+          <span class="slide-id">mut-param-ownership</span>
+          <h2>mut parameter takes ownership</h2>
+          <ul>
+<li>A parameter like <code>mut s: String</code> is not a reference.</li>
+<li>It takes full ownership and makes the value mutable inside the function.</li>
+<li>The caller's original variable is gone after the call.</li>
+</ul>
+        </section>
+        <section data-id="return-local">
+          <span class="slide-id">return-local</span>
+          <h2>Returning references from locals</h2>
+          <ul>
+<li>A function cannot return a reference to data it created.</li>
+<li>The local data is dropped at the end of the function, so the reference would dangle.</li>
+<li>Return owned data instead, or accept a reference as input and return a reference tied to it.</li>
+</ul>
+        </section>
+        <section data-id="slices-as-views">
+          <span class="slide-id">slices-as-views</span>
+          <h2>Slices are views</h2>
+          <ul>
+<li>A <code>&str</code> is a slice: a pointer and a length into existing data.</li>
+<li>It does not own the bytes. If the owner is dropped, the slice becomes invalid.</li>
+<li>This is similar to Python memory views or NumPy slices, but checked at compile time.</li>
+</ul>
+        </section>
+      </section>
+        <section data-id="summary">
+          <span class="slide-id">summary</span>
+          <h2>Summary</h2>
+          <ul>
+<li>The stack holds fixed-size data; the heap holds data whose size is not known at compile time.</li>
+<li>A reference borrows memory without owning it. A mutable reference can change the data.</li>
+<li>String is owned and growable; &str is a borrowed slice. Both are UTF-8.</li>
+<li>const and static create global values that last for the whole program.</li>
+<li>You can have many immutable references or one mutable reference, but not both at once.</li>
+<li>Copy types copy automatically; everything else moves unless you borrow or clone.</li>
+<li>Uninitialized variables are allowed, but you must assign before using them.</li>
+<li>println! supports escapes, raw strings, byte strings, pointer addresses, bases, positional/named arguments, and padding.</li>
+</ul>
+        </section>
+        <section data-id="fin">
+          <span class="slide-id">fin</span>
+          <h2>What comes next</h2>
+          <p class="lede">In the next chapter we look at Rust's collection types: tuples, arrays, and vectors.</p>
+<p style="margin-top:1.6rem;color:var(--fg-3);font-family:var(--font-mono);font-size:0.85rem;">Press <code>?</code> for shortcuts, or <a href="../../rust-first-steps/module1/lec02-memory-and-ownership/">return to the chapter page</a>.</p>
+        </section>
+
+
+    </div>
+  </div>
+
+  <!-- Live arrow-key indicator -->
+  <div id="nav-keys" aria-label="Navigation keys">
+    <button type="button" class="key up"    data-dir="up"    aria-label="Up: go to previous subsection">↑</button>
+    <button type="button" class="key left"  data-dir="left"  aria-label="Left: go to previous section">←</button>
+    <button type="button" class="key down"  data-dir="down"  aria-label="Down: go to next subsection">↓</button>
+    <button type="button" class="key right" data-dir="right" aria-label="Right: go to next section">→</button>
+  </div>
+
+  <div id="slide-counter" aria-hidden="true">1</div>
+
+  <!-- ? help overlay -->
+  <div id="help" role="dialog" aria-label="Keyboard shortcuts" aria-hidden="true">
+    <pre>Keyboard
+->  Next section
+<-  Previous section
+↓  Next subsection
+↑  Previous subsection
+F  Fullscreen
+S  Speaker view
+ESC Slide overview
+?  Toggle this panel</pre>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/highlight.js"></script>
+  <script>
+    Reveal.initialize({
+      hash: true,
+      controls: false,
+      progress: true,
+      slideNumber: 'c/t',
+      center: false,
+      transition: 'slide',
+      navigationMode: 'default',
+      keyboard: true,
+      highlight: {
+        beforeHighlight: function (hljs) { hljs.configure({ ignoreUnescapedHTML: true }); },
+      },
+      plugins: [ RevealHighlight ],
+    });
+
+    /* -- Copy-to-clipboard button on every <pre> ------------------------ */
+    function addCopyButtons() {
+      document.querySelectorAll('.reveal pre').forEach(function (pre) {
+        if (pre.querySelector('.copy-btn')) return;
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'copy-btn';
+        btn.textContent = 'Copy';
+        btn.setAttribute('aria-label', 'Copy code to clipboard');
+        btn.addEventListener('click', function () {
+          var code = pre.querySelector('code');
+          var text = code ? code.innerText : pre.innerText;
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(showCopied);
+          } else {
+            var ta = document.createElement('textarea');
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
+            try { document.execCommand('copy'); showCopied(); } catch (_) {}
+            document.body.removeChild(ta);
+          }
+        });
+        function showCopied() {
+          btn.textContent = 'Copied';
+          btn.classList.add('copied');
+          setTimeout(function () {
+            btn.textContent = 'Copy';
+            btn.classList.remove('copied');
+          }, 1400);
+        }
+        pre.appendChild(btn);
+      });
+    }
+    Reveal.on('ready', addCopyButtons);
+    Reveal.on('slidechanged', addCopyButtons);
+
+    var keys = {
+      up:    document.querySelector('#nav-keys .key.up'),
+      down:  document.querySelector('#nav-keys .key.down'),
+      left:  document.querySelector('#nav-keys .key.left'),
+      right: document.querySelector('#nav-keys .key.right'),
+    };
+
+    var counterEl = document.getElementById('slide-counter');
+
+    function updateKeys() {
+      var routes = Reveal.availableRoutes();
+      ['up','down','left','right'].forEach(function (dir) {
+        keys[dir].classList.toggle('active', !!routes[dir]);
+      });
+      var idx = Reveal.getIndices();
+      var n = (idx.h + 1).toString().padStart(2, '0');
+      if (idx.v && idx.v > 0) n += '.' + idx.v;
+      counterEl.textContent = n;
+    }
+
+    Reveal.on('ready', updateKeys);
+    Reveal.on('slidechanged', updateKeys);
+
+    Object.keys(keys).forEach(function (dir) {
+      keys[dir].addEventListener('click', function () {
+        if (!keys[dir].classList.contains('active')) return;
+        if (dir === 'left')  Reveal.left();
+        if (dir === 'right') Reveal.right();
+        if (dir === 'up')    Reveal.up();
+        if (dir === 'down')  Reveal.down();
+      });
+    });
+
+    var help = document.getElementById('help');
+    document.addEventListener('keydown', function (e) {
+      if (e.key === '?' && e.shiftKey) {
+        e.preventDefault();
+        help.classList.toggle('open');
+        help.setAttribute('aria-hidden', help.classList.contains('open') ? 'false' : 'true');
+      } else if (e.key === 'Escape' && help.classList.contains('open')) {
+        help.classList.remove('open');
+        help.setAttribute('aria-hidden', 'true');
+      }
+    });
+    help.addEventListener('click', function () {
+      help.classList.remove('open');
+      help.setAttribute('aria-hidden', 'true');
+    });
+  </script>
+</body>
+</html>

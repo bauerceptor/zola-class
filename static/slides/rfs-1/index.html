@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rust: First Steps — Lecture 1: The Basics · Hassan Aziz</title>
+  <title>Rust: First Steps - Lecture 1: The Basics · Hassan Aziz</title>
 
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reset.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
@@ -22,7 +22,7 @@
 </head>
 <body>
 
-  <a href="../" id="back-to-site">← site</a>
+  <a href="../" id="back-to-site"><- site</a>
 
   <div class="reveal">
     <div class="slides">
@@ -30,9 +30,9 @@
         <section data-id="title">
           <span class="slide-id">title</span>
           <h1>Rust: First Steps</h1>
-          <p class="kicker">Lecture 1 · The Basics</p>
+          <p class="kicker">Lecture 1 - The Basics</p>
 <p class="lede">A first look at the compiler, types, variables, printing, mutability, and shadowing.</p>
-<p style="margin-top:1.6rem;color:var(--fg-3);font-family:var(--font-mono);font-size:0.85rem;">Press <code>→</code> to begin. Press <code>?</code> for shortcuts.</p>
+<p style="margin-top:1.6rem;color:var(--fg-3);font-family:var(--font-mono);font-size:0.85rem;">Press <code>-></code> to begin. Press <code>?</code> for shortcuts.</p>
         </section>
       <section>
         <section data-id="intro-what">
@@ -43,7 +43,7 @@
 <li>Speed and control close to C/C++, plus memory safety like newer languages.</li>
 <li>A rich type system catches bugs before the program runs.</li>
 <li>The compiler is famously strict <em>and</em> famously helpful.</li>
-<li>Some ideas are new, so you have to think before you code—you can’t just figure it out as you go.</li>
+<li>Some ideas are new, so you have to think before you code. You cannot just figure it out as you go.</li>
 </ul>
         </section>
         <section data-id="intro-hangover">
@@ -73,7 +73,7 @@
 <li>Rust is complex, but the frustrating phase does not last forever.</li>
 <li>Once it clicks, the compiler starts doing a lot of the thinking for you.</li>
 <li>Junior developers can refactor existing code with confidence: if it compiles, it is usually safe.</li>
-<li>The cycle of “make changes → see compiler feedback → fix one by one” is fast and reliable.</li>
+<li>The cycle of 'make changes -> see compiler feedback -> fix one by one' is fast and reliable.</li>
 </ul>
         </section>
         <section data-id="intro-spouse">
@@ -82,10 +82,10 @@
           <p>Rust will not let you out the door unprepared.</p>
 <ul>
 <li>It complains about the heavy suit, the mismatched socks, the windy hair, and the missing parking change.</li>
-<li>Each complaint feels annoying until you see your reflection—and realize you look great.</li>
+<li>Each complaint feels annoying until you see your reflection, and then you realize you look great.</li>
 <li>Other languages smile and wave, then let you discover the problems at the interview.</li>
 <li>Rust is strict at compile time, where programmers live, so runtime surprises are rare.</li>
-</ul><blockquote style="margin-top:1.2rem;">“In Rust, you get the hangover first.”</blockquote>
+</ul><blockquote style="margin-top:1.2rem;">"In Rust, you get the hangover first."</blockquote>
         </section>
         <section data-id="try-broken">
           <span class="slide-id">try-broken</span>
@@ -222,7 +222,7 @@ fn parse(input: &amp;str) -&gt; Result&lt;i32, ()&gt; {
           <h2>Primitive types</h2>
           <p>The simplest built-in types are called <em>primitive</em> types.</p>
 <ul>
-<li>Integers: <code>i8</code>, <code>i16</code>, <code>i32</code>, <code>i64</code>, <code>i128</code>, <code>isize</code> (signed) and <code>u8</code> … <code>usize</code> (unsigned).</li>
+<li>Integers: <code>i8</code>, <code>i16</code>, <code>i32</code>, <code>i64</code>, <code>i128</code>, <code>isize</code> (signed) and <code>u8</code> ... <code>usize</code> (unsigned).</li>
 <li>Floats: <code>f32</code> and <code>f64</code>.</li>
 <li>Characters: <code>char</code>.</li>
 <li>Booleans: <code>bool</code>.</li>
@@ -257,7 +257,7 @@ fn main() {
     println!(&quot;u8 range:  {} to {}&quot;, u8::MIN, u8::MAX);   // 0 to 255
     println!(&quot;i8 range:  {} to {}&quot;, i8::MIN, i8::MAX);   // -128 to 127
     println!(&quot;u16 range: {} to {}&quot;, u16::MIN, u16::MAX); // 0 to 65535
-}</code></pre><p><code>isize</code>/<code>usize</code> match your computer’s architecture: 32 bits on 32-bit machines, 64 bits on 64-bit machines.</p>
+}</code></pre><p><code>isize</code>/<code>usize</code> match your computer's architecture: 32 bits on 32-bit machines, 64 bits on 64-bit machines.</p>
         </section>
         <section data-id="minmax">
           <span class="slide-id">minmax</span>
@@ -289,7 +289,7 @@ fn main() {
           <p><code>as</code> converts one numeric type to another. Only <code>u8</code> can become a <code>char</code>.</p>
 <pre><code class="language-rust" data-trim>fn main() {
     let my_number = 100;
-    // println!(&quot;{}&quot;, my_number as char); // error: only u8 → char
+    // println!(&quot;{}&quot;, my_number as char); // error: only u8 -&gt; char
     println!(&quot;{}&quot;, my_number as u8 as char); // prints &#x27;d&#x27;
 }</code></pre><p>Rust is strict: it will not silently convert <code>i32</code> to <code>u8</code> for you.</p>
         </section>
@@ -370,7 +370,7 @@ str2: 7 bytes, 3 chars</code></pre>
 <li><code>main()</code> is the entry point: where the program starts.</li>
 <li><code>()</code> means no arguments this time.</li>
 <li><code>{}</code> is a code block: the body of the function.</li>
-<li><code>println!</code> is a macro—notice the <code>!</code>.</li>
+<li><code>println!</code> is a macro. Notice the <code>!</code>.</li>
 </ul>
         </section>
         <section data-id="blocks">
@@ -384,7 +384,7 @@ str2: 7 bytes, 3 chars</code></pre>
     } // b is dropped here
 
     // println!(&quot;{}&quot;, b); // error: not found
-}</code></pre><p>This is the foundation of Rust’s ownership system.</p>
+}</code></pre><p>This is the foundation of Rust's ownership system.</p>
         </section>
         <section data-id="block-return">
           <span class="slide-id">block-return</span>
@@ -473,12 +473,12 @@ fn main() {
         <section data-id="traits">
           <span class="slide-id">traits</span>
           <h2>Traits at a glance</h2>
-          <p>A <em>trait</em> is “what a type can do.”</p>
+          <p>A <em>trait</em> is "what a type can do."</p>
 <ul>
 <li><code>Display</code> ({}) is for user-facing output.</li>
 <li><code>Debug</code> ({:?}) is for programmer-facing output.</li>
 <li>If a type does not implement a trait, the compiler tells you and suggests alternatives.</li>
-<li>Traits are one of Rust’s most powerful ideas; we will return to them throughout the course.</li>
+<li>Traits are one of Rust's most powerful ideas; we will return to them throughout the course.</li>
 </ul>
         </section>
       </section>
@@ -495,7 +495,11 @@ fn main() {
     let mut x = 8;
     x = 10;              // ok
     // x = &quot;hello&quot;;       // error: expected integer, found &amp;str
-}</code></pre>
+}</code></pre><ul>
+<li>In Python, <code>x = 8; x = 10</code> rebinds the name. In Rust, <code>let x = 8; x = 10</code> is an error unless you write <code>let mut x</code>.</li>
+<li><code>mut</code> goes on the binding: <code>let mut x</code>, not on the type.</li>
+<li>Even with <code>mut</code>, the type is fixed.</li>
+</ul>
         </section>
         <section data-id="shadowing">
           <span class="slide-id">shadowing</span>
@@ -508,6 +512,11 @@ fn main() {
     let my_number = 9.2;       // shadows the first one
     println!(&quot;{}&quot;, my_number); // 9.2
 }</code></pre><p>The new binding can have a different type. The old value is blocked, not destroyed.</p>
+<ul>
+<li>In Python, <code>x = 8; x = 9.2</code> makes the same name point somewhere else.</li>
+<li>In Rust, <code>let x = 8; let x = 9.2</code> creates a second binding that hides the first.</li>
+<li>The first binding is still alive in memory until its scope ends.</li>
+</ul>
         </section>
         <section data-id="shadowing-scope">
           <span class="slide-id">shadowing-scope</span>
@@ -524,6 +533,79 @@ fn main() {
         </section>
       </section>
       <section>
+        <section data-id="python-gotchas">
+          <span class="slide-id">python-gotchas</span>
+          <h2>Python vs Rust gotchas</h2>
+          <p class="lede">A few habits from Python that do not carry over.</p>
+        </section>
+        <section data-id="python-move">
+          <span class="slide-id">python-move</span>
+          <h2>Assignment moves, not copies</h2>
+          <ul>
+<li>Python: <code>a = [1, 2]; b = a</code> makes both names point to the same list.</li>
+<li>Rust: <code>let a = String::from("hi"); let b = a;</code> moves the String into <code>b</code>. <code>a</code> is no longer valid.</li>
+<li>This is why a function that takes <code>String</code> consumes it unless you pass <code>&String</code>.</li>
+</ul><pre><code class="language-rust" data-trim>fn main() {
+    let a = String::from(&quot;hello&quot;);
+    let b = a;
+    println!(&quot;{}&quot;, a); // error: borrow of moved value
+}</code></pre>
+        </section>
+        <section data-id="python-mut">
+          <span class="slide-id">python-mut</span>
+          <h2>Mutability lives on the binding</h2>
+          <ul>
+<li>In Python you can rebind a name to anything at any time.</li>
+<li>In Rust, <code>mut</code> controls whether the value behind the binding can change in place.</li>
+<li>Write <code>let mut x: i32</code>, not <code>let x: mut i32</code>.</li>
+</ul><pre><code class="language-rust" data-trim>fn main() {
+    let mut count = 0;
+    count += 1; // ok: the value changes in place
+    // count = &quot;one&quot;; // error: expected integer, found &amp;str
+}</code></pre>
+        </section>
+        <section data-id="python-shadow">
+          <span class="slide-id">python-shadow</span>
+          <h2>Shadowing is not rebinding</h2>
+          <ul>
+<li>Python <code>x = 8; x = "eight"</code> changes what the name refers to.</li>
+<li>Rust <code>let x = 8; let x = "eight"</code> creates a second binding with a different type.</li>
+<li>The first binding stays alive until its scope ends; it is just hidden.</li>
+</ul><pre><code class="language-rust" data-trim>fn main() {
+    let x = 8;
+    let x = &quot;eight&quot;;
+    println!(&quot;{}&quot;, x); // prints &quot;eight&quot;
+}</code></pre>
+        </section>
+        <section data-id="python-format">
+          <span class="slide-id">python-format</span>
+          <h2>Format strings are checked at compile time</h2>
+          <ul>
+<li>Python f-strings are evaluated at runtime.</li>
+<li>Rust checks <code>println!</code> placeholders at compile time.</li>
+<li>Missing or mismatched arguments are caught before the program runs.</li>
+</ul><pre><code class="language-rust" data-trim>fn main() {
+    let name = &quot;Dave&quot;;
+    // println!(&quot;{}&quot;, x); // error: cannot find value `x`
+    println!(&quot;Hello, {name}!&quot;); // ok
+}</code></pre>
+        </section>
+        <section data-id="python-unit">
+          <span class="slide-id">python-unit</span>
+          <h2>The unit type is not None</h2>
+          <ul>
+<li>Python <code>None</code> means 'no value'.</li>
+<li>Rust <code>()</code> is the unit type: a real value that carries no information.</li>
+<li>A function with no return expression returns <code>()</code>.</li>
+</ul><pre><code class="language-rust" data-trim>fn no_value() {}
+
+fn main() {
+    let x = no_value();
+    println!(&quot;{:?}&quot;, x); // ()
+}</code></pre>
+        </section>
+      </section>
+      <section>
         <section data-id="summary">
           <span class="slide-id">summary</span>
           <h2>Summary</h2>
@@ -534,6 +616,7 @@ fn main() {
 <li>Variables live inside <code>{}</code> blocks unless they are returned into a larger scope.</li>
 <li>Use <code>mut</code> to change a value; shadowing with <code>let</code> creates a new binding instead.</li>
 <li>The compiler is strict at compile time so your program is safer at runtime.</li>
+<li>From Python: remember moves, binding-level mutability, shadowing, compile-time format checks, and the unit type <code>()</code>.</li>
 </ul>
         </section>
         <section data-id="fin">
@@ -561,8 +644,8 @@ fn main() {
   <!-- ? help overlay -->
   <div id="help" role="dialog" aria-label="Keyboard shortcuts" aria-hidden="true">
     <pre>Keyboard
-→  Next section
-←  Previous section
+->  Next section
+<-  Previous section
 ↓  Next subsection
 ↑  Previous subsection
 F  Fullscreen
@@ -589,7 +672,7 @@ ESC Slide overview
       plugins: [ RevealHighlight ],
     });
 
-    /* ── Copy-to-clipboard button on every <pre> ───────────────────────── */
+    /* -- Copy-to-clipboard button on every <pre> ------------------------ */
     function addCopyButtons() {
       document.querySelectorAll('.reveal pre').forEach(function (pre) {
         if (pre.querySelector('.copy-btn')) return;

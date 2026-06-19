@@ -1,7 +1,7 @@
 +++
-title       = "Lecture 1 — The Basics"
+title       = "Lecture 1 - The Basics"
 date        = 2026-06-18
-description = "A comprehensive summary of Rust Chapter 1. Covers the compiler's teaching style, comments, integers and floats, chars and strings, type inference, printing, functions, code blocks, Display/Debug, mutability, and shadowing."
+description = "A comprehensive summary of Rust Chapter 1. Covers the compiler's teaching style, comments, integers and floats, chars and strings, type inference, printing, functions, code blocks, Display/Debug, mutability, shadowing, and Python-vs-Rust gotchas."
 weight      = 1
 
 [extra]
@@ -16,12 +16,12 @@ copy        = true
 
 ## Slides
 
-{{ slides(src="/slides/rfs-1/index.html", title="Lec 1 — The Basics", note="43 slides · ~50 min") }}
+{{ slides(src="/slides/rfs-1/index.html", title="Lec 1 - The Basics", note="49 slides · ~55 min") }}
 
 ## At a glance
 
 This lecture is the first step into Rust. The main goal is to get comfortable with the
-compiler’s personality and to learn the small building blocks that every Rust program
+compiler's personality and to learn the small building blocks that every Rust program
 uses: comments, scalar types, variables, printing, functions, mutability, and shadowing.
 
 ### The compiler as a teacher
@@ -57,7 +57,7 @@ fn main() {
 }
 ```
 
-Rust also warns about unused variables. Prefix with an underscore (`_my_number`) if the
+Rust also warns about unused variables. Prefix with `_` (as in `_my_number`) if the
 unused value is intentional.
 
 ### Comments
@@ -75,7 +75,7 @@ fn main() {
 
 ### Primitive types
 
-Rust’s scalar types include integers, floats, characters, and booleans.
+Rust's scalar types include integers, floats, characters, and booleans.
 
 **Integers:**
 
@@ -84,7 +84,7 @@ Rust’s scalar types include integers, floats, characters, and booleans.
 - The number is the bit width. `u8` is 1 byte; `i64` is 8 bytes.
 - Default integer type is `i32`. `isize`/`usize` match the machine word size.
 
-A `u8` stores values 0–255 because its 8 bits represent powers of two:
+A `u8` stores values 0 to 255 because its 8 bits represent powers of two:
 
 ```
 128 | 64 | 32 | 16 | 8 | 4 | 2 | 1
@@ -264,7 +264,7 @@ fn main() {
 - `{:#?}` pretty-prints with `Debug`.
 
 Not every type implements `Display`. The compiler will suggest `{:?}` when that
-happens. A trait is Rust’s way of describing what a type can do.
+happens. A trait is Rust's way of describing what a type can do.
 
 ### MIN and MAX
 
@@ -298,6 +298,8 @@ fn main() {
 }
 ```
 
+`mut` lives on the binding, not the type. Write `let mut x: i32`, never `let x: mut i32`.
+
 ### Shadowing
 
 Shadowing creates a new variable with the same name. It is different from mutability:
@@ -327,7 +329,30 @@ fn main() {
 ```
 
 Shadowing is useful when you want to transform a value through several steps without
-inventing a new name for every step.
+inventing a new name for every step. The old binding is still alive in memory; it is just
+hidden.
+
+### Python vs Rust gotchas
+
+A few Python habits that do not carry over:
+
+- **Assignment moves, not copies.** In Python, `a = [1, 2]; b = a` makes both names point to the same list. In Rust, `let a = String::from("hi"); let b = a;` moves the string into `b`, and `a` is no longer valid.
+- **Mutability lives on the binding.** Python lets you rebind a name to any type. Rust's `mut` controls in-place changes only, and the type stays fixed.
+- **Shadowing is not rebinding.** Python `x = 8; x = "eight"` changes what the name refers to. Rust `let x = 8; let x = "eight"` creates a second binding that hides the first.
+- **Format strings are checked at compile time.** Python f-strings are evaluated at runtime. Rust checks `println!` placeholders at compile time.
+- **`()` is not `None`.** Python's `None` means "no value." Rust's unit type `()` is a real value that carries no information; functions with no return expression return it.
+
+```rust
+fn main() {
+    let a = String::from("hello");
+    let b = a;
+    // println!("{}", a); // error: borrow of moved value
+
+    let x = 8;
+    let x = "eight";
+    println!("{}", x); // "eight"
+}
+```
 
 ## Takeaway
 
@@ -339,3 +364,5 @@ inventing a new name for every step.
 - Shadowing is a new binding, not a mutation.
 - If the last expression in a function or block has no semicolon, it becomes the return
   value.
+- From Python, watch out for moves, binding-level mutability, shadowing, compile-time
+  format checks, and the unit type `()`.

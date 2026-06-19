@@ -354,7 +354,8 @@ Record the new commit hash in `config.toml` under `[extra]`.
 | `static/js/tree-fold.js` | Adds chevron toggles to sidebar folders; persists state. |
 | `static/js/prompt-enhance.js` | Adds `:find`/`:edit`/`:ls` + history to the theme's command prompt. |
 | `static/js/copy-code.js` | Injects "Copy" buttons into code blocks. |
-| `scripts/build-deck.py` | Python generator for reveal.js slide decks with horizontal sections and vertical sub-sections. |
+| `scripts/build-deck.py` | Python generator for reveal.js slide decks with horizontal sections and vertical sub-sections (rfs-1 example). |
+| `scripts/build-deck-rfs2.py` | Python generator for the rfs-2 / Lecture 2 deck. |
 | `themes/neovim-theme/` | Vendored upstream theme + the patches listed above. |
 
 ---

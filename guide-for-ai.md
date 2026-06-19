@@ -274,8 +274,11 @@ that open in a new browser tab from a card on the lecture page.
 - Lecture: `content/cs350/module1/lec01-procs.md`
 - Deck:    `static/slides/cs350/module1/lec01/index.html`
 
-**Step 2.** Generate the deck from `scripts/build-deck.py` (preferred for
-new decks):
+**Step 2.** Generate the deck from one of the Python generators (preferred
+for new decks):
+
+- `scripts/build-deck.py` is the generator for Lecture 1 / rfs-1.
+- `scripts/build-deck-rfs2.py` is the generator for Lecture 2 / rfs-2.
 
 ```bash
 # 1. Copy the generator to a working deck path, or edit scripts/build-deck.py directly.

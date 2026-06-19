@@ -16,6 +16,12 @@ This course follows the *Rust: First Steps* track. Each chapter is built around 
 reveal.js slide deck that walks through the material in small, runnable steps,
 followed by a summary page you can skim after the lecture.
 
-Chapter 1 — **The Basics** — is already available. It covers the compiler's
-teaching style, comments, primitive types, type inference, floats, printing,
-functions, code blocks, Display/Debug, mutability, and shadowing.
+Chapter 1 - **The Basics** - covers the compiler's teaching style, comments,
+primitive types, type inference, floats, printing, functions, code blocks,
+Display/Debug, mutability, shadowing, and Python-vs-Rust gotchas.
+
+Chapter 2 - **Memory and Ownership** - covers the stack and heap, pointers and
+references, `String` and `&str`, UTF-8, `const` and `static`, mutable references
+and borrowing rules, shadowing with references, functions and ownership, Copy
+types, uninitialized variables, advanced printing, and more Python-vs-Rust
+gotchas.
