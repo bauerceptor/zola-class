@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rust: First Steps - Lecture 3: The Building Blocks · Hassan Aziz</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reset.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/white.css" id="reveal-theme">
+
+  <link rel="stylesheet" id="hljs-light" media="(prefers-color-scheme: light)"
+        href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github.min.css">
+  <link rel="stylesheet" id="hljs-dark"  media="(prefers-color-scheme: dark)"
+        href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github-dark.min.css">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../_themes/clean.css">
+</head>
+<body>
+
+  <a href="../" id="back-to-site"><- site</a>
+
+  <div class="reveal">
+    <div class="slides">
+
+        <section data-id="title">
+          <span class="slide-id">title</span>
+          <h1>Rust: First Steps</h1>
+          <p class="kicker">Lecture 3 - The Building Blocks</p>
+<p class="lede">Structs, implementations, methods, crates, and a small Pokemon team program that ties everything together.</p>
+<p style="margin-top:1.6rem;color:var(--fg-3);font-family:var(--font-mono);font-size:0.85rem;">Press <code>-></code> to begin. Press <code>?</code> for shortcuts.</p>
+        </section>
+      <section>
+        <section data-id="main">
+          <span class="slide-id">main</span>
+          <h2>Every program starts at main</h2>
+          <p>When a Rust program starts, it calls <code>main</code> automatically.</p>
+<pre><code class="language-rust" data-trim>fn main() {
+    println!(&quot;Hello, world!&quot;);
+}</code></pre><ul>
+<li><code>fn</code> declares a function.</li>
+<li><code>main</code> is the entry point.</li>
+<li><code>println!</code> is a macro. The <code>!</code> is your hint.</li>
+</ul>
+        </section>
+        <section data-id="strings-chars">
+          <span class="slide-id">strings-chars</span>
+          <h2>Strings and chars</h2>
+          <p>Double quotes make a string slice. Single quotes make a single character.</p>
+<pre><code class="language-rust" data-trim>fn main() {
+    let name = &quot;Pikachu&quot;;     // &amp;str
+    let initial = &#x27;P&#x27;;        // char
+
+    // let bad = &#x27;Pikachu&#x27;;   // error: char must be one character
+}</code></pre><p>Coming from Python, think of <code>&str</code> as an immutable text slice and <code>String</code> as the owned, growable version.</p>
+        </section>
+      </section>
+      <section>
+        <section data-id="structs-why">
+          <span class="slide-id">structs-why</span>
+          <h2>Grouping data with a struct</h2>
+          <p>A struct is like a lightweight class. It groups related data together and lets us attach behavior to it.</p>
+<p>For this lecture we will build a <code>Team</code> that holds a list of Pokemon.</p>
+        </section>
+        <section data-id="team-struct">
+          <span class="slide-id">team-struct</span>
+          <h2>Defining Team</h2>
+          <pre><code class="language-rust" data-trim>struct Team {
+    members: Vec&lt;String&gt;,
+}</code></pre><ul>
+<li><code>struct</code> introduces a new type.</li>
+<li>The name starts with a capital letter by convention.</li>
+<li>Inside the curly braces we list fields and their types.</li>
+<li><code>Vec&lt;String&gt;</code> is a growable list of owned strings.</li>
+</ul>
+        </section>
+        <section data-id="team-instance">
+          <span class="slide-id">team-instance</span>
+          <h2>Creating an instance</h2>
+          <pre><code class="language-rust" data-trim>fn main() {
+    let team = Team {
+        members: vec![],
+    };
+
+    println!(&quot;{:?}&quot;, team);
+}</code></pre><ul>
+<li>A struct literal creates an instance.</li>
+<li><code>vec![]</code> is the macro for an empty vector.</li>
+<li>Your editor may show a gray <code>: Team</code> hint. That is Rust Analyzer telling you the inferred type.</li>
+</ul>
+        </section>
+        <section data-id="derive-debug">
+          <span class="slide-id">derive-debug</span>
+          <h2>Making Team printable</h2>
+          <p>If you try to print the team with <code>{}</code>, the compiler complains. It does not know how to turn a custom struct into text.</p>
+<pre><code class="language-rust" data-trim>#[derive(Debug)]
+struct Team {
+    members: Vec&lt;String&gt;,
+}
+
+fn main() {
+    let team = Team { members: vec![] };
+    println!(&quot;{:#?}&quot;, team);
+}</code></pre><ul>
+<li><code>#[derive(Debug)]</code> asks the compiler to write a debug formatter for us.</li>
+<li><code>{:?}</code> prints compact debug output.</li>
+<li><code>{:#?}</code> pretty-prints it across several lines.</li>
+<li>In Python, <code>print(obj)</code> calls <code>__str__</code>. In Rust, printing is opt-in through traits.</li>
+</ul>
+        </section>
+      </section>
+      <section>
+        <section data-id="vec-array">
+          <span class="slide-id">vec-array</span>
+          <h2>Vec or array?</h2>
+          <ul>
+<li>A <code>Vec</code> can grow and shrink. Use it when the number of items changes.</li>
+<li>An <code>array</code> has a fixed length. Use it when the size never changes.</li>
+<li>Arrays are very slightly faster, but the real reason to use them is communication: this list is fixed.</li>
+</ul><pre><code class="language-rust" data-trim>fn main() {
+    let mut team = vec![&quot;Pikachu&quot;];   // vector
+    team.push(&quot;Charmander&quot;);          // allowed
+
+    let types = [&quot;Fire&quot;, &quot;Water&quot;];     // array of 2 items
+    // types.push(&quot;Grass&quot;);            // error: no push on arrays
+}</code></pre>
+        </section>
+        <section data-id="generate-team">
+          <span class="slide-id">generate-team</span>
+          <h2>Building the roster</h2>
+          <p>Instead of typing every name, we generate the team from two fixed arrays.</p>
+<pre><code class="language-rust" data-trim>fn main() {
+    let types = [&quot;Fire&quot;, &quot;Water&quot;, &quot;Grass&quot;, &quot;Electric&quot;];
+    let species = [&quot;Charmander&quot;, &quot;Squirtle&quot;, &quot;Bulbasaur&quot;, &quot;Pikachu&quot;];
+
+    let mut members = vec![];
+    for t in types {
+        for s in species {
+            let name = format!(&quot;{} {}&quot;, t, s);
+            members.push(name);
+        }
+    }
+
+    let team = Team { members };
+    println!(&quot;{:#?}&quot;, team);
+}</code></pre><p><code>format!</code> works like <code>println!</code> but returns a <code>String</code> instead of printing it.</p>
+        </section>
+        <section data-id="mutability-reminder">
+          <span class="slide-id">mutability-reminder</span>
+          <h2>Why mut matters here</h2>
+          <p>We need <code>mut</code> because we keep adding members to the vector.</p>
+<pre><code class="language-rust" data-trim>fn main() {
+    let members = vec![];
+    members.push(&quot;Pikachu&quot;);   // error: cannot borrow as mutable
+}</code></pre><p>Without <code>mut</code>, Rust refuses to let us change the value or reassign the binding. This applies to anything nested inside the value too.</p>
+        </section>
+      </section>
+      <section>
+        <section data-id="impl-why">
+          <span class="slide-id">impl-why</span>
+          <h2>Adding behavior to Team</h2>
+          <p>Right now the creation logic lives in <code>main</code>. We want a function tied to <code>Team</code> that builds a default roster.</p>
+<p>In Rust we use an <code>impl</code> block to attach functions to a struct.</p>
+        </section>
+        <section data-id="impl-new">
+          <span class="slide-id">impl-new</span>
+          <h2>An associated function: Team::new</h2>
+          <pre><code class="language-rust" data-trim>impl Team {
+    fn new() -&gt; Self {
+        let types = [&quot;Fire&quot;, &quot;Water&quot;, &quot;Grass&quot;, &quot;Electric&quot;];
+        let species = [&quot;Charmander&quot;, &quot;Squirtle&quot;, &quot;Bulbasaur&quot;, &quot;Pikachu&quot;];
+
+        let mut members = vec![];
+        for t in types {
+            for s in species {
+                members.push(format!(&quot;{} {}&quot;, t, s));
+            }
+        }
+
+        Self { members }
+    }
+}
+
+fn main() {
+    let team = Team::new();
+    println!(&quot;{:#?}&quot;, team);
+}</code></pre><ul>
+<li><code>impl Team</code> is an inherent implementation.</li>
+<li><code>Self</code> is shorthand for the type in the surrounding <code>impl</code> block. Here it means <code>Team</code>.</li>
+<li><code>Team::new()</code> calls an associated function. It does not take <code>self</code>.</li>
+<li>The last expression is returned automatically because there is no semicolon.</li>
+</ul>
+        </section>
+        <section data-id="implicit-return">
+          <span class="slide-id">implicit-return</span>
+          <h2>Implicit return</h2>
+          <p>Rust returns the last expression of a function if you leave off the semicolon.</p>
+<pre><code class="language-rust" data-trim>fn is_even(n: i32) -&gt; bool {
+    n % 2 == 0   // returned
+}
+
+fn is_even_longer(n: i32) -&gt; bool {
+    if n % 2 == 0 {
+        true      // returned from the if branch
+    } else {
+        false     // returned from the else branch
+    }
+}</code></pre><p>Python always needs <code>return</code>. Rust treats the tail expression as the return value.</p>
+        </section>
+        <section data-id="methods-vs-associated">
+          <span class="slide-id">methods-vs-associated</span>
+          <h2>Methods vs associated functions</h2>
+          <ul>
+<li>An associated function has no <code>self</code> argument. Use it for constructors or factories.</li>
+<li>A method takes <code>&self</code> or <code>&mut self</code> as its first argument. Use it to operate on one instance.</li>
+<li>This is close to static methods and instance methods in other languages, but Rust makes the borrowing explicit.</li>
+</ul>
+        </section>
+      </section>
+      <section>
+        <section data-id="shuffle-goal">
+          <span class="slide-id">shuffle-goal</span>
+          <h2>Randomizing the team</h2>
+          <p>Every time we run the program, the team prints in the same order. We want a <code>shuffle</code> method that randomizes it.</p>
+<p>Rust does not put randomness in the standard library, so we pull in the <code>rand</code> crate.</p>
+        </section>
+        <section data-id="crates">
+          <span class="slide-id">crates</span>
+          <h2>Crates are packages</h2>
+          <ul>
+<li>A <strong>crate</strong> is Rust's word for a package or library.</li>
+<li>The standard library crate is included automatically.</li>
+<li>External crates are added with <code>cargo add rand</code> and listed in <code>Cargo.toml</code>.</li>
+<li>You can browse crates at <code>crates.io</code> and read docs at <code>docs.rs</code>.</li>
+</ul><p style="margin-top:0.8rem;">In Python you might <code>pip install</code> a package and then <code>import</code> it. In Rust you add a crate and bring items into scope with <code>use</code>.</p>
+        </section>
+        <section data-id="use-keyword">
+          <span class="slide-id">use-keyword</span>
+          <h2>Bringing items into scope</h2>
+          <p>We need two things from <code>rand</code>: a random number generator and the ability to shuffle a slice.</p>
+<pre><code class="language-rust" data-trim>use rand::{thread_rng, seq::SliceRandom};
+
+impl Team {
+    fn shuffle(&amp;mut self) {
+        let mut rng = thread_rng();
+        self.members.shuffle(&amp;mut rng);
+    }
+}</code></pre><ul>
+<li><code>use</code> creates a shortcut so we do not have to type <code>rand::thread_rng</code> every time.</li>
+<li><code>thread_rng()</code> gives us a random number generator.</li>
+<li><code>SliceRandom</code> is a trait that adds <code>shuffle</code> to vectors.</li>
+<li>External crates do not need a <code>mod</code> statement; internal modules do.</li>
+</ul>
+        </section>
+        <section data-id="mut-self">
+          <span class="slide-id">mut-self</span>
+          <h2>Why &mut self?</h2>
+          <p><code>shuffle</code> changes the team, so it needs a mutable reference.</p>
+<pre><code class="language-rust" data-trim>fn main() {
+    let mut team = Team::new();
+    team.shuffle();
+    println!(&quot;{:#?}&quot;, team);
+}</code></pre><ul>
+<li>The caller must declare <code>team</code> as <code>mut</code>.</li>
+<li>The method signature must take <code>&mut self</code>.</li>
+<li>Both ends of the call have to agree that the data may change.</li>
+<li>In Python, if you pass a list to a function, it can mutate the list. Rust makes that contract explicit.</li>
+</ul>
+        </section>
+      </section>
+      <section>
+        <section data-id="release-goal">
+          <span class="slide-id">release-goal</span>
+          <h2>Sending members to a gym</h2>
+          <p>We want a method that removes some members from the team and returns them in a new vector. We will call it <code>release</code>.</p>
+<p>It takes the number of members to remove and returns a <code>Vec&lt;String&gt;</code>.</p>
+        </section>
+        <section data-id="usize">
+          <span class="slide-id">usize</span>
+          <h2>usize: sizes and counts</h2>
+          <p>Counts, lengths, and indices usually use <code>usize</code>. It is large enough to index any collection on the current machine.</p>
+<pre><code class="language-rust" data-trim>impl Team {
+    fn release(&amp;mut self, num: usize) -&gt; Vec&lt;String&gt; {
+        // TODO: handle asking for too many members
+        self.members.split_off(self.members.len() - num)
+    }
+}</code></pre><ul>
+<li><code>usize</code> is an unsigned integer the same size as a memory address.</li>
+<li><code>i32</code> or <code>u32</code> would also work here, but <code>usize</code> is the convention for counts.</li>
+<li><code>split_off(at)</code> removes everything from index <code>at</code> onward and returns it as a new vector.</li>
+</ul>
+        </section>
+        <section data-id="release-call">
+          <span class="slide-id">release-call</span>
+          <h2>Calling release</h2>
+          <pre><code class="language-rust" data-trim>fn main() {
+    let mut team = Team::new();
+    team.shuffle();
+
+    let gym_team = team.release(3);
+    println!(&quot;Gym team: {:#?}&quot;, gym_team);
+    println!(&quot;Remaining: {:#?}&quot;, team);
+}</code></pre><p>After the call, <code>gym_team</code> owns the removed strings and the original team owns whatever is left.</p>
+        </section>
+        <section data-id="error-deferred">
+          <span class="slide-id">error-deferred</span>
+          <h2>A missing safety check</h2>
+          <p>If we ask for more members than the team has, <code>split_off</code> panics. We are skipping proper error handling here so we can focus on the building blocks.</p>
+<p>We will come back to error handling in a future lecture. For now, treat it as a known hole.</p>
+        </section>
+      </section>
+      <section>
+        <section data-id="integers">
+          <span class="slide-id">integers</span>
+          <h2>The integer family</h2>
+          <ul>
+<li>Signed integers can be negative: <code>i8</code>, <code>i16</code>, <code>i32</code>, <code>i64</code>, <code>i128</code>, <code>isize</code>.</li>
+<li>Unsigned integers start at zero: <code>u8</code>, <code>u16</code>, <code>u32</code>, <code>u64</code>, <code>u128</code>, <code>usize</code>.</li>
+<li>Floats: <code>f32</code> and <code>f64</code>.</li>
+<li>Pick the smallest type that fits your data safely.</li>
+</ul>
+        </section>
+        <section data-id="integer-example">
+          <span class="slide-id">integer-example</span>
+          <h2>Picking a type</h2>
+          <pre><code class="language-rust" data-trim>fn main() {
+    let level: u8 = 42;        // plenty for a Pokemon level
+    let hp: i32 = -25;         // damage can be negative in a calculation
+    let count: usize = 1000;   // counts and indexes
+    let health: f64 = 95.5;    // decimal stats
+}</code></pre><p>The number in the name is the bit width. A <code>u8</code> fits 0 to 255. A <code>u128</code> fits an astronomically large range.</p>
+        </section>
+      </section>
+      <section>
+        <section data-id="py-classes">
+          <span class="slide-id">py-classes</span>
+          <h2>Structs are not Python classes</h2>
+          <ul>
+<li>A struct's fields are fixed at compile time. You cannot add new fields later like you can with Python object attributes.</li>
+<li>Methods are added in <code>impl</code> blocks, not inside the struct definition.</li>
+<li>All types must be declared. There is no dynamic typing.</li>
+</ul><p>If you need flexible key-value data, Rust has other tools. A struct is for shaped, predictable data.</p>
+        </section>
+        <section data-id="py-imports">
+          <span class="slide-id">py-imports</span>
+          <h2>Crates, modules, and use</h2>
+          <ul>
+<li>External crates are used directly with <code>crate_name::item</code>. You do not write <code>mod</code> for them.</li>
+<li>Internal modules need a <code>mod</code> declaration before you use them.</li>
+<li><code>use</code> is a shortcut, not exactly an import. You can still access items through their full path.</li>
+<li>This trips up a lot of Python newcomers because Python treats every file as an importable module automatically.</li>
+</ul>
+        </section>
+        <section data-id="py-mutation">
+          <span class="slide-id">py-mutation</span>
+          <h2>Mutation needs permission everywhere</h2>
+          <p>In Python, passing a list into a function lets that function change the list. Rust makes both sides opt in.</p>
+<pre><code class="language-rust" data-trim>fn add_member(team: &amp;mut Team, name: String) {
+    team.members.push(name);
+}
+
+fn main() {
+    let mut team = Team::new();
+    add_member(&amp;mut team, String::from(&quot;Mewtwo&quot;));
+}</code></pre><p>The caller says <code>&mut team</code>, the parameter says <code>&mut Team</code>, and the method says <code>&mut self</code>. All three have to agree.</p>
+        </section>
+        <section data-id="py-printing">
+          <span class="slide-id">py-printing</span>
+          <h2>Printing is not automatic</h2>
+          <p>Python calls <code>__str__</code> or <code>__repr__</code> for you. Rust only prints what it knows how to format.</p>
+<ul>
+<li>Use <code>#[derive(Debug)]</code> for debug output during development.</li>
+<li>Use <code>{}</code> for Display when you want user-facing output.</li>
+<li>You can implement Display manually for full control over the output.</li>
+</ul>
+        </section>
+      </section>
+      <section>
+        <section data-id="review">
+          <span class="slide-id">review</span>
+          <h2>What we built</h2>
+          <ul>
+<li>A <code>Team</code> struct that owns a <code>Vec&lt;String&gt;</code>.</li>
+<li>Fixed arrays for types and species, and a nested loop to generate names.</li>
+<li><code>#[derive(Debug)]</code> so we can print the struct.</li>
+<li>An <code>impl</code> block with an associated function <code>new</code> and methods <code>shuffle</code> and <code>release</code>.</li>
+<li>The <code>rand</code> crate brought in through <code>cargo add</code> and brought into scope with <code>use</code>.</li>
+<li>Mutable references <code>&mut self</code> whenever a method changes data.</li>
+</ul>
+        </section>
+        <section data-id="fin">
+          <span class="slide-id">fin</span>
+          <h2>What comes next</h2>
+          <p class="lede">Next we look at error handling: how to write functions that can fail without crashing the program.</p>
+<p style="margin-top:1.6rem;color:var(--fg-3);font-family:var(--font-mono);font-size:0.85rem;">Press <code>?</code> for shortcuts, or <a href="../../rust-first-steps/module1/lec03-the-building-blocks/">return to the chapter page</a>.</p>
+        </section>
+      </section>
+
+
+    </div>
+  </div>
+
+  <!-- Live arrow-key indicator -->
+  <div id="nav-keys" aria-label="Navigation keys">
+    <button type="button" class="key up"    data-dir="up"    aria-label="Up: go to previous subsection">↑</button>
+    <button type="button" class="key left"  data-dir="left"  aria-label="Left: go to previous section">←</button>
+    <button type="button" class="key down"  data-dir="down"  aria-label="Down: go to next subsection">↓</button>
+    <button type="button" class="key right" data-dir="right" aria-label="Right: go to next section">→</button>
+  </div>
+
+  <div id="slide-counter" aria-hidden="true">1</div>
+
+  <!-- ? help overlay -->
+  <div id="help" role="dialog" aria-label="Keyboard shortcuts" aria-hidden="true">
+    <pre>Keyboard
+->  Next section
+<-  Previous section
+↓  Next subsection
+↑  Previous subsection
+F  Fullscreen
+S  Speaker view
+ESC Slide overview
+?  Toggle this panel</pre>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/highlight.js"></script>
+  <script>
+    Reveal.initialize({
+      hash: true,
+      controls: false,
+      progress: true,
+      slideNumber: 'c/t',
+      center: false,
+      transition: 'slide',
+      navigationMode: 'default',
+      keyboard: true,
+      highlight: {
+        beforeHighlight: function (hljs) { hljs.configure({ ignoreUnescapedHTML: true }); },
+      },
+      plugins: [ RevealHighlight ],
+    });
+
+    /* -- Copy-to-clipboard button on every <pre> -- */
+    function addCopyButtons() {
+      document.querySelectorAll('.reveal pre').forEach(function (pre) {
+        if (pre.querySelector('.copy-btn')) return;
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'copy-btn';
+        btn.textContent = 'Copy';
+        btn.setAttribute('aria-label', 'Copy code to clipboard');
+        btn.addEventListener('click', function () {
+          var code = pre.querySelector('code');
+          var text = code ? code.innerText : pre.innerText;
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(showCopied);
+          } else {
+            var ta = document.createElement('textarea');
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
+            try { document.execCommand('copy'); showCopied(); } catch (_) {}
+            document.body.removeChild(ta);
+          }
+        });
+        function showCopied() {
+          btn.textContent = 'Copied';
+          btn.classList.add('copied');
+          setTimeout(function () {
+            btn.textContent = 'Copy';
+            btn.classList.remove('copied');
+          }, 1400);
+        }
+        pre.appendChild(btn);
+      });
+    }
+    Reveal.on('ready', addCopyButtons);
+    Reveal.on('slidechanged', addCopyButtons);
+
+    var keys = {
+      up:    document.querySelector('#nav-keys .key.up'),
+      down:  document.querySelector('#nav-keys .key.down'),
+      left:  document.querySelector('#nav-keys .key.left'),
+      right: document.querySelector('#nav-keys .key.right'),
+    };
+
+    var counterEl = document.getElementById('slide-counter');
+
+    function updateKeys() {
+      var routes = Reveal.availableRoutes();
+      ['up','down','left','right'].forEach(function (dir) {
+        keys[dir].classList.toggle('active', !!routes[dir]);
+      });
+      var idx = Reveal.getIndices();
+      var n = (idx.h + 1).toString().padStart(2, '0');
+      if (idx.v && idx.v > 0) n += '.' + idx.v;
+      counterEl.textContent = n;
+    }
+
+    Reveal.on('ready', updateKeys);
+    Reveal.on('slidechanged', updateKeys);
+
+    Object.keys(keys).forEach(function (dir) {
+      keys[dir].addEventListener('click', function () {
+        if (!keys[dir].classList.contains('active')) return;
+        if (dir === 'left')  Reveal.left();
+        if (dir === 'right') Reveal.right();
+        if (dir === 'up')    Reveal.up();
+        if (dir === 'down')  Reveal.down();
+      });
+    });
+
+    var help = document.getElementById('help');
+    document.addEventListener('keydown', function (e) {
+      if (e.key === '?' && e.shiftKey) {
+        e.preventDefault();
+        help.classList.toggle('open');
+        help.setAttribute('aria-hidden', help.classList.contains('open') ? 'false' : 'true');
+      } else if (e.key === 'Escape' && help.classList.contains('open')) {
+        help.classList.remove('open');
+        help.setAttribute('aria-hidden', 'true');
+      }
+    });
+    help.addEventListener('click', function () {
+      help.classList.remove('open');
+      help.setAttribute('aria-hidden', 'true');
+    });
+  </script>
+</body>
+</html>

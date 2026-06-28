@@ -25,3 +25,8 @@ references, `String` and `&str`, UTF-8, `const` and `static`, mutable references
 and borrowing rules, shadowing with references, functions and ownership, Copy
 types, uninitialized variables, advanced printing, and more Python-vs-Rust
 gotchas.
+
+Chapter 3 - **The Building Blocks** - builds a small Pokemon team program to
+introduce structs, implementations, associated functions, methods, `Vec` vs
+arrays, `#[derive(Debug)]`, external crates with `cargo add`, the `use` keyword,
+`usize`, and mutable references.

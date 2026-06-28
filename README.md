@@ -356,6 +356,7 @@ Record the new commit hash in `config.toml` under `[extra]`.
 | `static/js/copy-code.js` | Injects "Copy" buttons into code blocks. |
 | `scripts/build-deck.py` | Python generator for reveal.js slide decks with horizontal sections and vertical sub-sections (rfs-1 example). |
 | `scripts/build-deck-rfs2.py` | Python generator for the rfs-2 / Lecture 2 deck. |
+| `scripts/build-deck-rfs3.py` | Python generator for the rfs-3 / Lecture 3 deck. |
 | `themes/neovim-theme/` | Vendored upstream theme + the patches listed above. |
 
 ---
