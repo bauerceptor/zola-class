@@ -14,6 +14,10 @@ copy        = true
 
 <!-- Chapter codename: rfs-3 -->
 
+## Code files
+
+You can find all the relevant [code files for this lecture here](https://github.com/bauerceptor/rust-first-steps/blob/main/03%20-%20The%20Building%20Blocks/src/main.rs).
+
 ## Slides
 
 {{ slides(src="/slides/rfs-3/index.html", title="Lec 3 - The Building Blocks", note="30 slides · ~40 min") }}
