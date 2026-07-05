@@ -219,6 +219,38 @@ impl Team {
 
 This is one of the common Python gotchas. In Python, every file is an importable module automatically. In Rust, internal modules must be declared with `mod` before you use them.
 
+#### A note on rand 0.10.0
+
+The `thread_rng` approach above is valid for `rand` versions up to and including 0.9. Starting with `rand` 0.10.0, the initialization API changes.
+
+Option 1: use `rng()` instead of `thread_rng()`. Everything else stays the same.
+
+```rust
+use rand::{rng, seq::SliceRandom};
+
+impl Team {
+    fn shuffle(&mut self) {
+        let mut rng = rng();
+        self.members.shuffle(&mut rng);
+    }
+}
+```
+
+Option 2: use `make_rng` with an explicit type such as `SmallRng`.
+
+```rust
+use rand::{make_rng, rngs::SmallRng, seq::SliceRandom};
+
+impl Team {
+    fn shuffle(&mut self) {
+        let mut rng: SmallRng = make_rng();
+        self.members.shuffle(&mut rng);
+    }
+}
+```
+
+Both options give you a random number generator. Use whichever matches the `rand` version in your `Cargo.toml`.
+
 ### usize
 
 `usize` is an unsigned integer the same size as a memory address. Use it for counts, lengths, and indices.

@@ -264,6 +264,28 @@ impl Team {
          "Both ends of the call have to agree that the data may change.",
          "In Python, if you pass a list to a function, it can mutate the list. Rust makes that contract explicit.",
      ])),
+    ("rand-010",
+     "A note on rand 0.10",
+     '<p>The code above uses <code>thread_rng</code>, which works up to <code>rand</code> 0.9. Starting with <code>rand</code> 0.10.0, the API changes slightly.</p>\n' +
+     '<p>Option 1: use <code>rng()</code> instead of <code>thread_rng()</code>. Everything else stays the same.</p>\n' +
+     code("rust", '''use rand::{rng, seq::SliceRandom};
+
+impl Team {
+    fn shuffle(&mut self) {
+        let mut rng = rng();
+        self.members.shuffle(&mut rng);
+    }
+}''') +
+     '<p>Option 2: use <code>make_rng</code> with an explicit type such as <code>SmallRng</code>.</p>\n' +
+     code("rust", '''use rand::{make_rng, rngs::SmallRng, seq::SliceRandom};
+
+impl Team {
+    fn shuffle(&mut self) {
+        let mut rng: SmallRng = make_rng();
+        self.members.shuffle(&mut rng);
+    }
+}''') +
+     '<p>Both versions give you a random number generator. Pick whichever your project already uses.</p>'),
 ])
 
 # Section 7: Removing members
