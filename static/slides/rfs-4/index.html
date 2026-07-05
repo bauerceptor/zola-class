@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rust: First Steps - Lecture 4: Complex Types · Hassan Aziz</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reset.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/white.css" id="reveal-theme">
+
+  <link rel="stylesheet" id="hljs-light" media="(prefers-color-scheme: light)"
+        href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github.min.css">
+  <link rel="stylesheet" id="hljs-dark"  media="(prefers-color-scheme: dark)"
+        href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github-dark.min.css">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../_themes/clean.css">
+</head>
+<body>
+
+  <a href="../" id="back-to-site"><- site</a>
+
+  <div class="reveal">
+    <div class="slides">
+
+        <section data-id="title">
+          <span class="slide-id">title</span>
+          <h1>Rust: First Steps</h1>
+          <p class="kicker">Lecture 4 - Complex Types</p>
+<p class="lede">Arrays, vectors, tuples, and control flow. We will use a simplified Pokemon battle helper as the running example.</p>
+<p style="margin-top:1.6rem;color:var(--fg-3);font-family:var(--font-mono);font-size:0.85rem;">Press <code>-></code> to begin. Press <code>?</code> for shortcuts.</p>
+        </section>
+      <section>
+        <section data-id="project-problem">
+          <span class="slide-id">project-problem</span>
+          <h2>The problem</h2>
+          <p>Imagine you are building a small assistant for a Pokemon tournament. Trainers want to know two things quickly:</p>
+<ul>
+<li>Which type has the advantage in a matchup?</li>
+<li>Who wins a simple one-on-one battle?</li>
+</ul><p>Real Pokemon games have speed, accuracy, status effects, held items, and dozens of types. We are intentionally building a simplified model so we can focus on Rust arrays, vectors, tuples, and control flow.</p>
+        </section>
+        <section data-id="project-constructs">
+          <span class="slide-id">project-constructs</span>
+          <h2>Why these constructs?</h2>
+          <ul>
+<li>An <strong>array</strong> holds the fixed list of matchups we care about.</li>
+<li>A <strong>vector</strong> holds a trainer's team, because teams can grow or shrink.</li>
+<li>A <strong>tuple</strong> holds each Pokemon's name, type, and hit points together.</li>
+<li><strong>Match</strong> and loops let us look up type advantages and run battle rounds.</li>
+</ul>
+        </section>
+      </section>
+      <section>
+        <section data-id="arrays-basics">
+          <span class="slide-id">arrays-basics</span>
+          <h2>Arrays: fixed size, single type</h2>
+          <p>An array is the simplest collection. Every element has the same type, and the size never changes.</p>
+<pre><code class="language-rust" data-trim>fn main() {
+    let types = [&quot;Fire&quot;, &quot;Water&quot;, &quot;Grass&quot;, &quot;Electric&quot;];
+    println!(&quot;{:?}&quot;, types);
+}</code></pre><ul>
+<li>Square brackets create an array.</li>
+<li>All items must be the same type.</li>
+<li>The length is fixed when the array is created.</li>
+</ul>
+        </section>
+        <section data-id="array-type">
+          <span class="slide-id">array-type</span>
+          <h2>The type includes the length</h2>
+          <p>This is a subtle but important detail. <code>[&amp;str; 2]</code> and <code>[&amp;str; 3]</code> are different types.</p>
+<pre><code class="language-rust" data-trim>fn main() {
+    let pair = [&quot;Fire&quot;, &quot;Water&quot;];      // type is [&amp;str; 2]
+    let trio = [&quot;Fire&quot;, &quot;Water&quot;, &quot;Grass&quot;]; // type is [&amp;str; 3]
+
+    // They cannot be assigned to the same variable without conversion.
+}</code></pre><p>If you ever want to know the type of an array, the compiler will tell you in error messages. It prints something like <code>[&amp;str; 4]</code>.</p>
+        </section>
+        <section data-id="array-repeat">
+          <span class="slide-id">array-repeat</span>
+          <h2>Creating an array from one value</h2>
+          <p>Use a semicolon to repeat a value a fixed number of times.</p>
+<pre><code class="language-rust" data-trim>fn main() {
+    let buffer = [0u8; 640];
+    println!(&quot;Length: {}&quot;, buffer.len()); // 640
+}</code></pre><p>This is common for byte buffers. A <code>u8</code> is one byte, so <code>[0u8; 640]</code> gives you 640 bytes of zeroes. Real networking and file code use this pattern.</p>
+        </section>
+        <section data-id="array-bytes">
+          <span class="slide-id">array-bytes</span>
+          <h2>Byte strings are arrays</h2>
+          <p>The <code>b"..."</code> prefix turns a string literal into an array of bytes.</p>
+<pre><code class="language-rust" data-trim>fn main() {
+    let greeting = b&quot;Hello&quot;;
+    println!(&quot;{:?}&quot;, greeting); // [72, 101, 108, 108, 111]
+}</code></pre><p>The type of <code>greeting</code> is <code>[u8; 5]</code>, not <code>&amp;str</code>. This matters when you work with raw binary data.</p>
+        </section>
+        <section data-id="array-slice">
+          <span class="slide-id">array-slice</span>
+          <h2>Slicing an array</h2>
+          <p>A slice is a view into part of an array. Slices are written with <code>&amp;</code> and a range.</p>
+<pre><code class="language-rust" data-trim>fn main() {
+    let numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+    let middle = &amp;numbers[2..5];  // 2, 3, 4 (index 5 is not included)
+    let tail   = &amp;numbers[6..];   // 6, 7, 8, 9
+    let head   = &amp;numbers[..3];   // 0, 1, 2
+    let all    = &amp;numbers[..];    // the whole array
+
+    println!(&quot;middle: {:?}&quot;, middle);
+}</code></pre><p><code>2..5</code> is exclusive on the right. <code>2..=5</code> is inclusive and would include index 5.</p>
+        </section>
+        <section data-id="dot-vs-bracket">
+          <span class="slide-id">dot-vs-bracket</span>
+          <h2>Why tuples use dot and arrays use brackets</h2>
+          <p>Arrays are homogeneous. Every element has the same type, so <code>arr[i]</code> has a type the compiler already knows even if <code>i</code> is only known at runtime.</p>
+<p>Tuples are heterogeneous. A tuple like <code>(String, i32, char)</code> has a different type in every slot. If Rust let you write <code>tuple[i]</code>, the result type would depend on a runtime value. The compiler cannot allow that.</p>
+<p>So tuple access is fixed at compile time: <code>.0</code> always means the first slot, <code>.1</code> always means the second slot, and each has a specific type. Tuples act more like anonymous structs, so they use dot notation like structs do.</p>
+        </section>
+      </section>
+      <section>
+        <section data-id="vectors-basics">
+          <span class="slide-id">vectors-basics</span>
+          <h2>Vectors: growable collections</h2>
+          <p>A vector is like a heap-allocated array that can grow and shrink.</p>
+<pre><code class="language-rust" data-trim>fn main() {
+    let mut team = Vec::new();
+    team.push(&quot;Charmander&quot;);
+    team.push(&quot;Squirtle&quot;);
+
+    println!(&quot;{:?}&quot;, team);
+}</code></pre><ul>
+<li><code>Vec::new()</code> creates an empty vector.</li>
+<li><code>push</code> adds an item to the end.</li>
+<li>The vector must be mutable to grow.</li>
+<li>The compiler usually infers the element type from the first <code>push</code>.</li>
+</ul>
+        </section>
+        <section data-id="vectors-macro">
+          <span class="slide-id">vectors-macro</span>
+          <h2>The vec! macro</h2>
+          <p>Most people create vectors with the <code>vec!</code> macro because it is shorter.</p>
+<pre><code class="language-rust" data-trim>fn main() {
+    let team = vec![&quot;Charmander&quot;, &quot;Squirtle&quot;, &quot;Bulbasaur&quot;];
+    println!(&quot;{:?}&quot;, team);
+}</code></pre><p>You can also give an explicit type if the compiler cannot infer it:</p>
+<pre><code class="language-rust" data-trim>fn main() {
+    let team: Vec&lt;String&gt; = Vec::new();
+}</code></pre>
+        </section>
+        <section data-id="vector-slice">
+          <span class="slide-id">vector-slice</span>
+          <h2>Slicing a vector</h2>
+          <p>Vectors can be sliced just like arrays.</p>
+<pre><code class="language-rust" data-trim>fn main() {
+    let team = vec![&quot;Charmander&quot;, &quot;Squirtle&quot;, &quot;Bulbasaur&quot;, &quot;Pikachu&quot;];
+
+    let lead = &amp;team[..1];     // first member
+    let bench = &amp;team[1..];    // everyone else
+
+    println!(&quot;lead: {:?}, bench: {:?}&quot;, lead, bench);
+}</code></pre>
+        </section>
+        <section data-id="vector-capacity">
+          <span class="slide-id">vector-capacity</span>
+          <h2>Vector capacity and reallocation</h2>
+          <p>Vectors allocate memory in chunks. When they fill up, they request a larger chunk and copy everything over. This is called reallocation.</p>
+<pre><code class="language-rust" data-trim>fn main() {
+    let mut v = Vec::new();
+    println!(&quot;{}&quot;, v.capacity()); // 0
+
+    v.push(&#x27;a&#x27;);
+    println!(&quot;{}&quot;, v.capacity()); // 4
+
+    for _ in 0..4 {
+        v.push(&#x27;a&#x27;);
+    }
+    println!(&quot;{}&quot;, v.capacity()); // 8
+}</code></pre><p>If you know how many items you need, you can avoid extra reallocations.</p>
+        </section>
+        <section data-id="vector-with-capacity">
+          <span class="slide-id">vector-with-capacity</span>
+          <h2>Reserving space with with_capacity</h2>
+          <p><code>Vec::with_capacity</code> allocates once instead of growing in small steps.</p>
+<pre><code class="language-rust" data-trim>fn main() {
+    let mut v = Vec::with_capacity(8);
+    for _ in 0..5 {
+        v.push(&#x27;a&#x27;);
+    }
+    println!(&quot;{}&quot;, v.capacity()); // still 8
+}</code></pre><p>This is useful when you are reading a known number of items from a file or an API and want to avoid repeated memory copies.</p>
+        </section>
+        <section data-id="vector-from-array">
+          <span class="slide-id">vector-from-array</span>
+          <h2>Turning an array into a vector</h2>
+          <p>The <code>.into()</code> method can convert an array into a <code>Vec</code>. You can even let Rust infer the element type with <code>Vec&lt;_&gt;</code>.</p>
+<pre><code class="language-rust" data-trim>fn main() {
+    let numbers: Vec&lt;u8&gt; = [1, 2, 3].into();
+    let inferred: Vec&lt;_&gt; = [9, 0, 10].into();
+
+    println!(&quot;{:?} {:?}&quot;, numbers, inferred);
+}</code></pre>
+        </section>
+      </section>
+      <section>
+        <section data-id="tuples-basics">
+          <span class="slide-id">tuples-basics</span>
+          <h2>Tuples hold mixed types</h2>
+          <p>A tuple groups values of different types together. Use a dot and a number to access each slot.</p>
+<pre><code class="language-rust" data-trim>fn main() {
+    let charmander = (&quot;Charmander&quot;, &quot;Fire&quot;, 100_u16);
+
+    println!(&quot;Name: {}&quot;, charmander.0);
+    println!(&quot;Type: {}&quot;, charmander.1);
+    println!(&quot;HP:   {}&quot;, charmander.2);
+}</code></pre><p>The type of <code>charmander</code> is <code>(&amp;str, &amp;str, u16)</code>.</p>
+        </section>
+        <section data-id="unit-type">
+          <span class="slide-id">unit-type</span>
+          <h2>The unit type</h2>
+          <p>An empty tuple <code>()</code> is called the unit type. It is the default return type when a function returns nothing.</p>
+<pre><code class="language-rust" data-trim>fn do_nothing() {}      // same as fn do_nothing() -&gt; () {}
+
+fn main() {
+    do_nothing();       // returns ()
+}</code></pre><p>A semicolon at the end of an expression turns it into a statement, and statements return <code>()</code>. That is why adding a semicolon to the last line of a function changes its return type.</p>
+        </section>
+        <section data-id="tuple-destructure">
+          <span class="slide-id">tuple-destructure</span>
+          <h2>Destructuring a tuple</h2>
+          <p>You can pull a tuple apart into separate variables in one line.</p>
+<pre><code class="language-rust" data-trim>fn main() {
+    let charmander = (&quot;Charmander&quot;, &quot;Fire&quot;, 100_u16);
+    let (name, pokemon_type, hp) = charmander;
+
+    println!(&quot;{name} is a {pokemon_type} type with {hp} HP&quot;);
+}</code></pre><p>Each variable gets the type of its corresponding slot. Here <code>name</code> is <code>&amp;str</code>, <code>pokemon_type</code> is <code>&amp;str</code>, and <code>hp</code> is <code>u16</code>.</p>
+        </section>
+        <section data-id="tuple-pattern">
+          <span class="slide-id">tuple-pattern</span>
+          <h2>Patterns must match</h2>
+          <p>Destructuring only works when the shape on both sides matches.</p>
+<pre><code class="language-rust" data-trim>fn main() {
+    let charmander = (&quot;Charmander&quot;, &quot;Fire&quot;, 100_u16);
+
+    // let (name, t) = charmander; // error: expected 3 items, found 2
+
+    let (_, pokemon_type, _) = charmander; // ok: three slots, we ignore two
+    println!(&quot;Type: {pokemon_type}&quot;);
+}</code></pre><p>Use <code>_</code> when you do not care about a slot. Use <code>_name</code> when you might use it later and want to silence the unused-variable warning.</p>
+        </section>
+        <section data-id="tuple-move">
+          <span class="slide-id">tuple-move</span>
+          <h2>Tuples move non-Copy values</h2>
+          <p>If a tuple contains a non-Copy type like <code>String</code>, destructuring moves the values out.</p>
+<pre><code class="language-rust" data-trim>fn main() {
+    let entry = (&quot;error&quot;.to_string(), 404);
+    let (message, code) = entry;
+
+    // println!(&quot;{:?}&quot;, entry); // error: entry has been moved
+    println!(&quot;{message}: {code}&quot;);
+}</code></pre><p>When every element is Copy, such as <code>(&amp;str, &amp;str, u16)</code>, the whole tuple is Copy and the original stays usable.</p>
+        </section>
+      </section>
+      <section>
+        <section data-id="if">
+          <span class="slide-id">if</span>
+          <h2>if, else if, else</h2>
+          <p>Rust checks a condition and runs the matching block. Conditions do not need parentheses.</p>
+<pre><code class="language-rust" data-trim>fn main() {
+    let hp = 30;
+
+    if hp == 0 {
+        println!(&quot;fainted&quot;);
+    } else if hp &lt; 50 {
+        println!(&quot;critical&quot;);
+    } else {
+        println!(&quot;healthy&quot;);
+    }
+}</code></pre><p>Use <code>==</code> to compare, <code>=</code> to assign. Use <code>&amp;&amp;</code> for and and <code>||</code> for or.</p>
+        </section>
+        <section data-id="match">
+          <span class="slide-id">match</span>
+          <h2>match statements</h2>
+          <p><code>match</code> checks a value against several patterns and runs the first one that fits.</p>
+<pre><code class="language-rust" data-trim>fn main() {
+    let status = &quot;degraded&quot;;
+
+    match status {
+        &quot;healthy&quot;   =&gt; println!(&quot;all good&quot;),
+        &quot;degraded&quot;  =&gt; println!(&quot;watch closely&quot;),
+        &quot;down&quot;      =&gt; println!(&quot;alert!&quot;),
+        _           =&gt; println!(&quot;unknown&quot;),
+    }
+}</code></pre><ul>
+<li>Each line is called an arm.</li>
+<li>Arms are separated by commas.</li>
+<li>The <code>_</code> arm catches everything else.</li>
+<li>Rust requires the match to cover every possible value. It checks exhaustiveness at compile time.</li>
+</ul>
+        </section>
+        <section data-id="match-value">
+          <span class="slide-id">match-value</span>
+          <h2>Match returns a value</h2>
+          <p>You can use a match expression to assign a value to a variable.</p>
+<pre><code class="language-rust" data-trim>fn main() {
+    let status = &quot;degraded&quot;;
+
+    let priority = match status {
+        &quot;down&quot;      =&gt; 1,
+        &quot;degraded&quot;  =&gt; 2,
+        &quot;healthy&quot;   =&gt; 3,
+        _           =&gt; 4,
+    };
+
+    println!(&quot;priority: {priority}&quot;);
+}</code></pre><p>Every arm must return the same type. You cannot return an <code>i32</code> in one arm and a <code>&amp;str</code> in another.</p>
+        </section>
+        <section data-id="match-tuple">
+          <span class="slide-id">match-tuple</span>
+          <h2>Matching tuples</h2>
+          <p>Match is especially useful with tuples because you can check several values at once.</p>
+<pre><code class="language-rust" data-trim>fn multiplier(attacker: &amp;str, defender: &amp;str) -&gt; f64 {
+    match (attacker, defender) {
+        (&quot;Fire&quot;, &quot;Grass&quot;)   =&gt; 2.0,
+        (&quot;Water&quot;, &quot;Fire&quot;)   =&gt; 2.0,
+        (&quot;Grass&quot;, &quot;Water&quot;)  =&gt; 2.0,
+        (&quot;Fire&quot;, &quot;Water&quot;)   =&gt; 0.5,
+        (&quot;Water&quot;, &quot;Grass&quot;)  =&gt; 0.5,
+        (&quot;Grass&quot;, &quot;Fire&quot;)   =&gt; 0.5,
+        _                   =&gt; 1.0,
+    }
+}</code></pre><p>This is the heart of our Pokemon project. It maps attacker and defender types to a damage multiplier.</p>
+        </section>
+        <section data-id="match-guard">
+          <span class="slide-id">match-guard</span>
+          <h2>Match guards</h2>
+          <p>You can add an <code>if</code> condition to a match arm for extra filtering.</p>
+<pre><code class="language-rust" data-trim>fn describe(hp: u16) -&gt; &amp;&#x27;static str {
+    match hp {
+        0          =&gt; &quot;fainted&quot;,
+        n if n &lt; 50 =&gt; &quot;critical&quot;,
+        _          =&gt; &quot;healthy&quot;,
+    }
+}</code></pre><p>The variable <code>n</code> binds the matched value so we can use it in the guard. Guards are useful when a simple pattern is not enough.</p>
+        </section>
+        <section data-id="match-at">
+          <span class="slide-id">match-at</span>
+          <h2>Binding values with @</h2>
+          <p>The <code>@</code> symbol lets you match a pattern and also give the matched value a name.</p>
+<pre><code class="language-rust" data-trim>fn lucky_number(n: i32) {
+    match n {
+        value @ 4 | value @ 13 =&gt; println!(&quot;{value} is special&quot;),
+        value @ 10..=19       =&gt; println!(&quot;{value} is a teen&quot;),
+        _                     =&gt; println!(&quot;nothing special&quot;),
+    }
+}</code></pre><p>Without <code>@</code>, you would match the range but would not have a variable holding the actual number.</p>
+        </section>
+        <section data-id="loops">
+          <span class="slide-id">loops</span>
+          <h2>Loops</h2>
+          <p>Rust has three loop keywords.</p>
+<pre><code class="language-rust" data-trim>fn main() {
+    // loop runs forever until you break
+    let mut n = 0;
+    loop {
+        n += 1;
+        if n == 3 { break; }
+    }
+
+    // while checks a condition each time
+    while n &gt; 0 {
+        n -= 1;
+    }
+
+    // for iterates over a range or collection
+    for i in 0..3 {
+        println!(&quot;{i}&quot;);
+    }
+}</code></pre><p><code>0..3</code> gives 0, 1, 2. <code>0..=3</code> gives 0, 1, 2, 3.</p>
+        </section>
+        <section data-id="labeled-loops">
+          <span class="slide-id">labeled-loops</span>
+          <h2>Labeled loops</h2>
+          <p>You can name a loop so a <code>break</code> inside a nested loop exits the outer one.</p>
+<pre><code class="language-rust" data-trim>fn main() {
+    &#x27;outer: loop {
+        println!(&quot;outer&quot;);
+
+        loop {
+            println!(&quot;inner&quot;);
+            break &#x27;outer;
+        }
+    }
+}</code></pre><p>The tick mark <code>'</code> before the name is part of the label syntax. Without the label, <code>break</code> would only exit the inner loop.</p>
+        </section>
+        <section data-id="break-value">
+          <span class="slide-id">break-value</span>
+          <h2>Returning a value from a loop</h2>
+          <p>A <code>loop</code> can return a value when it breaks.</p>
+<pre><code class="language-rust" data-trim>fn main() {
+    let mut counter = 0;
+    let answer = loop {
+        counter += 1;
+        if counter * counter == 64 {
+            break counter;
+        }
+    };
+
+    println!(&quot;{answer}&quot;); // 8
+}</code></pre><p>This is a neat way to compute a value when the number of iterations is not known in advance.</p>
+        </section>
+      </section>
+      <section>
+        <section data-id="project-type-chart">
+          <span class="slide-id">project-type-chart</span>
+          <h2>Step 1: the type chart</h2>
+          <p>We start with a function that looks up type advantage. It returns a damage multiplier.</p>
+<pre><code class="language-rust" data-trim>fn multiplier(attacker: &amp;str, defender: &amp;str) -&gt; f64 {
+    match (attacker, defender) {
+        (&quot;Fire&quot;, &quot;Grass&quot;)   |
+        (&quot;Water&quot;, &quot;Fire&quot;)   |
+        (&quot;Grass&quot;, &quot;Water&quot;)  |
+        (&quot;Electric&quot;, &quot;Water&quot;) =&gt; 2.0,
+
+        (&quot;Fire&quot;, &quot;Water&quot;)   |
+        (&quot;Water&quot;, &quot;Grass&quot;)  |
+        (&quot;Grass&quot;, &quot;Fire&quot;)   =&gt; 0.5,
+
+        _ =&gt; 1.0,
+    }
+}</code></pre><p>This is intentionally small. A real type chart would have more types and matchups, but the Rust syntax stays the same.</p>
+        </section>
+        <section data-id="project-pokemon">
+          <span class="slide-id">project-pokemon</span>
+          <h2>Step 2: represent a Pokemon</h2>
+          <p>Each Pokemon is a tuple of name, type, and hit points.</p>
+<pre><code class="language-rust" data-trim>fn main() {
+    let charmander = (&quot;Charmander&quot;, &quot;Fire&quot;, 100_u16);
+    let squirtle = (&quot;Squirtle&quot;, &quot;Water&quot;, 110_u16);
+
+    println!(&quot;{} has {} HP&quot;, charmander.0, charmander.2);
+}</code></pre><p>We use <code>&amp;str</code> and <code>u16</code> so the tuple is Copy. That keeps the early examples simple.</p>
+        </section>
+        <section data-id="project-team">
+          <span class="slide-id">project-team</span>
+          <h2>Step 3: build a team</h2>
+          <p>A trainer has a team. Teams can change, so we use a vector.</p>
+<pre><code class="language-rust" data-trim>fn main() {
+    let red_team = vec![
+        (&quot;Charmander&quot;, &quot;Fire&quot;, 100_u16),
+        (&quot;Pidgey&quot;, &quot;Normal&quot;, 80_u16),
+    ];
+
+    println!(&quot;{:#?}&quot;, red_team);
+}</code></pre><p>The vector holds tuples. Every tuple has the same shape, so the vector is homogeneous.</p>
+        </section>
+        <section data-id="project-attack">
+          <span class="slide-id">project-attack</span>
+          <h2>Step 4: simulate an attack</h2>
+          <p>An attack function reduces the defender's hit points by a base amount times the type multiplier.</p>
+<pre><code class="language-rust" data-trim>fn attack(attacker: &amp;(&amp;str, &amp;str, u16), defender: &amp;mut (&amp;str, &amp;str, u16)) {
+    let base_power = 20;
+    let mult = multiplier(attacker.1, defender.1);
+    let damage = (base_power as f64 * mult) as u16;
+    defender.2 = defender.2.saturating_sub(damage);
+}</code></pre><ul>
+<li><code>attacker</code> is an immutable reference because we only read from it.</li>
+<li><code>defender</code> is a mutable reference because we change its HP.</li>
+<li><code>saturating_sub</code> prevents HP from going below zero.</li>
+</ul>
+        </section>
+        <section data-id="project-battle">
+          <span class="slide-id">project-battle</span>
+          <h2>Step 5: run a battle</h2>
+          <p>We keep attacking until one Pokemon faints. The loop returns the winner's name.</p>
+<pre><code class="language-rust" data-trim>fn battle(mut first: (&amp;str, &amp;str, u16), mut second: (&amp;str, &amp;str, u16)) -&gt; &amp;str {
+    loop {
+        attack(&amp;first, &amp;mut second);
+        if second.2 == 0 {
+            break first.0;
+        }
+
+        attack(&amp;second, &amp;mut first);
+        if first.2 == 0 {
+            break second.0;
+        }
+    }
+}
+
+fn main() {
+    let winner = battle(
+        (&quot;Charmander&quot;, &quot;Fire&quot;, 100),
+        (&quot;Squirtle&quot;, &quot;Water&quot;, 110),
+    );
+    println!(&quot;{winner} wins!&quot;);
+}</code></pre><p>This is the simplified battle model. It ignores speed, accuracy, status effects, and switching. Those would come in a more advanced program.</p>
+        </section>
+      </section>
+      <section>
+        <section data-id="py-mixed-collections">
+          <span class="slide-id">py-mixed-collections</span>
+          <h2>Mixed collections</h2>
+          <p>In Python, a list can hold anything: <code>[1, "two", 3.0]</code>. In Rust, a vector must hold a single type. If you need mixed types, use a tuple or a custom struct.</p>
+<p>This is why our Pokemon is a tuple, not a vector. A vector of Pokemon tuples is fine because every tuple has the same shape.</p>
+        </section>
+        <section data-id="py-indexing">
+          <span class="slide-id">py-indexing</span>
+          <h2>Tuple and array indexing</h2>
+          <p>Python lets you index tuples with a variable: <code>t[i]</code>. Rust does not, because the type of <code>t[i]</code> would depend on the runtime value of <code>i</code>.</p>
+<p>Array indexing in Rust is checked at runtime. If you go out of bounds, the program panics instead of returning a nonsense value.</p>
+        </section>
+        <section data-id="py-match">
+          <span class="slide-id">py-match</span>
+          <h2>match is exhaustive</h2>
+          <p>Python does not have an exact equivalent of Rust's <code>match</code>. A Rust <code>match</code> must cover every possible value, or the program will not compile.</p>
+<p>This feels strict at first, but it catches bugs where you forget to handle an unexpected case.</p>
+        </section>
+        <section data-id="py-loops">
+          <span class="slide-id">py-loops</span>
+          <h2>Loops and ranges</h2>
+          <p>Python ranges are exclusive on the right by default: <code>range(0, 3)</code> gives 0, 1, 2. Rust has the same default with <code>..</code>, but also an inclusive version with <code>..=</code>.</p>
+<p>Rust also lets a <code>loop</code> return a value with <code>break value;</code>, which Python does not do.</p>
+        </section>
+      </section>
+      <section>
+        <section data-id="review">
+          <span class="slide-id">review</span>
+          <h2>What we built</h2>
+          <ul>
+<li>Arrays for fixed data like type names and byte buffers.</li>
+<li>Vectors for growable data like a trainer's team.</li>
+<li>Tuples for grouped, mixed-type values like a Pokemon's stats.</li>
+<li>Slices as borrowed views into arrays and vectors.</li>
+<li>Match for type-chart lookup and exhaustive branching.</li>
+<li>Loops for repeated attacks until a battle ends.</li>
+</ul>
+        </section>
+        <section data-id="fin">
+          <span class="slide-id">fin</span>
+          <h2>What comes next</h2>
+          <p class="lede">Next we look at error handling: how to write functions that can fail and how to propagate those failures cleanly.</p>
+<p style="margin-top:1.6rem;color:var(--fg-3);font-family:var(--font-mono);font-size:0.85rem;">Press <code>?</code> for shortcuts, or <a href="../../rust-first-steps/module1/lec04-complex-types/">return to the chapter page</a>.</p>
+        </section>
+      </section>
+
+
+    </div>
+  </div>
+
+  <!-- Live arrow-key indicator -->
+  <div id="nav-keys" aria-label="Navigation keys">
+    <button type="button" class="key up"    data-dir="up"    aria-label="Up: go to previous subsection">↑</button>
+    <button type="button" class="key left"  data-dir="left"  aria-label="Left: go to previous section">←</button>
+    <button type="button" class="key down"  data-dir="down"  aria-label="Down: go to next subsection">↓</button>
+    <button type="button" class="key right" data-dir="right" aria-label="Right: go to next section">→</button>
+  </div>
+
+  <div id="slide-counter" aria-hidden="true">1</div>
+
+  <!-- ? help overlay -->
+  <div id="help" role="dialog" aria-label="Keyboard shortcuts" aria-hidden="true">
+    <pre>Keyboard
+->  Next section
+<-  Previous section
+↓  Next subsection
+↑  Previous subsection
+F  Fullscreen
+S  Speaker view
+ESC Slide overview
+?  Toggle this panel</pre>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/highlight.js"></script>
+  <script>
+    Reveal.initialize({
+      hash: true,
+      controls: false,
+      progress: true,
+      slideNumber: 'c/t',
+      center: false,
+      transition: 'slide',
+      navigationMode: 'default',
+      keyboard: true,
+      highlight: {
+        beforeHighlight: function (hljs) { hljs.configure({ ignoreUnescapedHTML: true }); },
+      },
+      plugins: [ RevealHighlight ],
+    });
+
+    /* -- Copy-to-clipboard button on every <pre> -- */
+    function addCopyButtons() {
+      document.querySelectorAll('.reveal pre').forEach(function (pre) {
+        if (pre.querySelector('.copy-btn')) return;
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'copy-btn';
+        btn.textContent = 'Copy';
+        btn.setAttribute('aria-label', 'Copy code to clipboard');
+        btn.addEventListener('click', function () {
+          var code = pre.querySelector('code');
+          var text = code ? code.innerText : pre.innerText;
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(showCopied);
+          } else {
+            var ta = document.createElement('textarea');
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
+            try { document.execCommand('copy'); showCopied(); } catch (_) {}
+            document.body.removeChild(ta);
+          }
+        });
+        function showCopied() {
+          btn.textContent = 'Copied';
+          btn.classList.add('copied');
+          setTimeout(function () {
+            btn.textContent = 'Copy';
+            btn.classList.remove('copied');
+          }, 1400);
+        }
+        pre.appendChild(btn);
+      });
+    }
+    Reveal.on('ready', addCopyButtons);
+    Reveal.on('slidechanged', addCopyButtons);
+
+    var keys = {
+      up:    document.querySelector('#nav-keys .key.up'),
+      down:  document.querySelector('#nav-keys .key.down'),
+      left:  document.querySelector('#nav-keys .key.left'),
+      right: document.querySelector('#nav-keys .key.right'),
+    };
+
+    var counterEl = document.getElementById('slide-counter');
+
+    function updateKeys() {
+      var routes = Reveal.availableRoutes();
+      ['up','down','left','right'].forEach(function (dir) {
+        keys[dir].classList.toggle('active', !!routes[dir]);
+      });
+      var idx = Reveal.getIndices();
+      var n = (idx.h + 1).toString().padStart(2, '0');
+      if (idx.v && idx.v > 0) n += '.' + idx.v;
+      counterEl.textContent = n;
+    }
+
+    Reveal.on('ready', updateKeys);
+    Reveal.on('slidechanged', updateKeys);
+
+    Object.keys(keys).forEach(function (dir) {
+      keys[dir].addEventListener('click', function () {
+        if (!keys[dir].classList.contains('active')) return;
+        if (dir === 'left')  Reveal.left();
+        if (dir === 'right') Reveal.right();
+        if (dir === 'up')    Reveal.up();
+        if (dir === 'down')  Reveal.down();
+      });
+    });
+
+    var help = document.getElementById('help');
+    document.addEventListener('keydown', function (e) {
+      if (e.key === '?' && e.shiftKey) {
+        e.preventDefault();
+        help.classList.toggle('open');
+        help.setAttribute('aria-hidden', help.classList.contains('open') ? 'false' : 'true');
+      } else if (e.key === 'Escape' && help.classList.contains('open')) {
+        help.classList.remove('open');
+        help.setAttribute('aria-hidden', 'true');
+      }
+    });
+    help.addEventListener('click', function () {
+      help.classList.remove('open');
+      help.setAttribute('aria-hidden', 'true');
+    });
+  </script>
+</body>
+</html>

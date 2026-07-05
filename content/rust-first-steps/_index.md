@@ -30,3 +30,8 @@ Chapter 3 - **The Building Blocks** - builds a small Pokemon team program to
 introduce structs, implementations, associated functions, methods, `Vec` vs
 arrays, `#[derive(Debug)]`, external crates with `cargo add`, the `use` keyword,
 `usize`, and mutable references.
+
+Chapter 4 - **Complex Types** - uses a simplified Pokemon battle helper to
+explore arrays, vectors, tuples, slicing, ranges, `match`, match guards, the `@`
+binding, `loop`, `while`, `for`, labeled loops, `break value`, and more
+Python-vs-Rust notes.

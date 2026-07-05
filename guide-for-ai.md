@@ -280,6 +280,7 @@ for new decks):
 - `scripts/build-deck.py` is the generator for Lecture 1 / rfs-1.
 - `scripts/build-deck-rfs2.py` is the generator for Lecture 2 / rfs-2.
 - `scripts/build-deck-rfs3.py` is the generator for Lecture 3 / rfs-3.
+- `scripts/build-deck-rfs4.py` is the generator for Lecture 4 / rfs-4.
 
 ```bash
 # 1. Copy the generator to a working deck path, or edit scripts/build-deck.py directly.
