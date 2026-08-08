@@ -281,6 +281,7 @@ for new decks):
 - `scripts/build-deck-rfs2.py` is the generator for Lecture 2 / rfs-2.
 - `scripts/build-deck-rfs3.py` is the generator for Lecture 3 / rfs-3.
 - `scripts/build-deck-rfs4.py` is the generator for Lecture 4 / rfs-4.
+- `scripts/build-deck-rfs5.py` is the generator for Lecture 5 / rfs-5.
 
 ```bash
 # 1. Copy the generator to a working deck path, or edit scripts/build-deck.py directly.
@@ -402,6 +403,11 @@ asking.
 
 **`date` format:** `YYYY-MM-DD` as a TOML date literal (no quotes).
 Anything else either won't parse or won't sort.
+
+**`date` spacing for Rust: First Steps:** Lectures are dated two days apart.
+Lecture 1 is 2026-06-15, Lecture 2 is 2026-06-17, and so on. After June ends,
+continue into July. When adding a new lecture, advance the previous lecture's
+date by two days.
 
 **Order matters in TOML:** top-level fields first, then `[extra]`
 table. Putting a regular field after `[extra]` puts it INSIDE `[extra]`

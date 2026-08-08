@@ -1,6 +1,6 @@
 +++
 title       = "Lecture 1 - The Basics"
-date        = 2026-06-18
+date        = 2026-06-15
 description = "A comprehensive summary of Rust Chapter 1. Covers the compiler's teaching style, comments, integers and floats, chars and strings, type inference, printing, functions, code blocks, Display/Debug, mutability, shadowing, and Python-vs-Rust gotchas."
 weight      = 1
 

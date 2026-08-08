@@ -1,6 +1,6 @@
 +++
 title       = "Lecture 2 - Memory and Ownership"
-date        = 2026-06-19
+date        = 2026-06-17
 description = "A comprehensive summary of Rust Chapter 2. Covers the stack and heap, pointers and references, String and &str, UTF-8, const and static, mutable references, shadowing, functions and ownership, Copy types, uninitialized variables, advanced printing, and Python-vs-Rust gotchas."
 weight      = 2
 

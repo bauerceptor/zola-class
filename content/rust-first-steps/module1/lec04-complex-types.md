@@ -1,6 +1,6 @@
 +++
 title       = "Lecture 4 - Complex Types"
-date        = 2026-06-19
+date        = 2026-06-21
 description = "A project-style summary of Rust arrays, vectors, tuples, and control flow. Builds a simplified Pokemon type-advantage and battle helper."
 weight      = 4
 

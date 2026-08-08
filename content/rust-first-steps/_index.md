@@ -35,3 +35,7 @@ Chapter 4 - **Complex Types** - uses a simplified Pokemon battle helper to
 explore arrays, vectors, tuples, slicing, ranges, `match`, match guards, the `@`
 binding, `loop`, `while`, `for`, labeled loops, `break value`, and more
 Python-vs-Rust notes.
+
+Chapter 5 - **Building Your Own Types** - uses a DevOps server lifecycle
+tracker to explore structs, enums, `impl` blocks, destructuring, and the
+dot operator.

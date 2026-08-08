@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rust: First Steps - Lecture 5: Building Your Own Types · Hassan Aziz</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reset.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/white.css" id="reveal-theme">
+
+  <link rel="stylesheet" id="hljs-light" media="(prefers-color-scheme: light)"
+        href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github.min.css">
+  <link rel="stylesheet" id="hljs-dark"  media="(prefers-color-scheme: dark)"
+        href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github-dark.min.css">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../_themes/clean.css">
+</head>
+<body>
+
+  <a href="../" id="back-to-site"><- site</a>
+
+  <div class="reveal">
+    <div class="slides">
+
+        <section data-id="title">
+          <span class="slide-id">title</span>
+          <h1>Rust: First Steps</h1>
+          <p class="kicker">Lecture 5 - Building Your Own Types</p>
+<p class="lede">Structs, enums, implementations, destructuring, and the dot operator. We will model a server lifecycle tracker as the running example.</p>
+<p style="margin-top:1.6rem;color:var(--fg-3);font-family:var(--font-mono);font-size:0.85rem;">Press <code>-></code> to begin. Press <code>?</code> for shortcuts.</p>
+        </section>
+      <section>
+        <section data-id="project-problem">
+          <span class="slide-id">project-problem</span>
+          <h2>The problem</h2>
+          <p>Imagine you are building a small tool to track a fleet of servers. Each server has a hostname, a region, a status, and some current metrics. You want to:</p>
+<ul>
+<li>Create new servers with sensible defaults.</li>
+<li>Change their status as they are provisioned, maintained, or decommissioned.</li>
+<li>Print a human-readable summary of any server.</li>
+</ul><p>This is a perfect fit for structs and enums. The server is a struct, and its status is an enum because a server can only be in one state at a time.</p>
+        </section>
+        <section data-id="project-constructs">
+          <span class="slide-id">project-constructs</span>
+          <h2>Why these constructs?</h2>
+          <ul>
+<li>A <strong>struct</strong> groups the hostname, region, CPU, memory, and status into one type.</li>
+<li>An <strong>enum</strong> represents the current status, because a server is either provisioning, online, in maintenance, or decommissioned.</li>
+<li>An <strong>impl block</strong> adds methods like <code>start</code>, <code>schedule_maintenance</code>, and <code>health_summary</code>.</li>
+<li><strong>Destructuring</strong> lets us pull fields apart when printing or processing a server.</li>
+</ul>
+        </section>
+      </section>
+      <section>
+        <section data-id="structs-overview">
+          <span class="slide-id">structs-overview</span>
+          <h2>Structs group related values</h2>
+          <p>A struct is a custom type that bundles several values together. Rust has three kinds.</p>
+<ul>
+<li><strong>Unit struct</strong>: has no fields. Useful as a marker or type-level token.</li>
+<li><strong>Tuple struct</strong>: has fields but no names. Access by position.</li>
+<li><strong>Named struct</strong>: has named fields. This is the most common kind.</li>
+</ul>
+        </section>
+        <section data-id="unit-struct">
+          <span class="slide-id">unit-struct</span>
+          <h2>Unit struct</h2>
+          <p>A unit struct has no data. It is often used as a marker type.</p>
+<pre><code class="language-rust" data-trim>struct DatabaseNode;
+
+fn main() {
+    let _node = DatabaseNode;
+}</code></pre><p>It takes up no space at runtime, but it is still a distinct type. That distinction matters when you use traits or generic code later.</p>
+        </section>
+        <section data-id="tuple-struct">
+          <span class="slide-id">tuple-struct</span>
+          <h2>Tuple struct</h2>
+          <p>A tuple struct is like a tuple with a custom name. You access its fields by position.</p>
+<pre><code class="language-rust" data-trim>struct Rgb(u8, u8, u8);
+
+fn main() {
+    let color = Rgb(50, 0, 50);
+    println!(&quot;Green channel: {}&quot;, color.1);
+}</code></pre><p>Tuple structs are good when the meaning of the type matters more than the names of the individual fields.</p>
+        </section>
+        <section data-id="named-struct">
+          <span class="slide-id">named-struct</span>
+          <h2>Named struct</h2>
+          <p>A named struct is the most common. Each field has a name and a type.</p>
+<pre><code class="language-rust" data-trim>struct Server {
+    hostname: String,
+    region: String,
+    cpu_percent: u8,
+    memory_percent: u8,
+}
+
+fn main() {
+    let server = Server {
+        hostname: String::from(&quot;web-01&quot;),
+        region: String::from(&quot;us-east&quot;),
+        cpu_percent: 12,
+        memory_percent: 64,
+    };
+
+    println!(&quot;{} in {}&quot;, server.hostname, server.region);
+}</code></pre><p>Use a comma after the last field if you like. It makes reordering fields safer because every line then ends the same way.</p>
+        </section>
+        <section data-id="field-init-shorthand">
+          <span class="slide-id">field-init-shorthand</span>
+          <h2>Field init shorthand</h2>
+          <p>If a variable has the same name as a struct field, you can write the field name once.</p>
+<pre><code class="language-rust" data-trim>struct Server {
+    hostname: String,
+    region: String,
+}
+
+fn main() {
+    let hostname = String::from(&quot;web-01&quot;);
+    let region = String::from(&quot;us-east&quot;);
+
+    let server = Server {
+        hostname,
+        region,
+    };
+
+    println!(&quot;{} {}&quot;, server.hostname, server.region);
+}</code></pre><p>This is not special syntax for structs; it is just a shorthand when the names line up. It keeps constructors readable.</p>
+        </section>
+        <section data-id="structs-nest">
+          <span class="slide-id">structs-nest</span>
+          <h2>Structs can contain other structs and enums</h2>
+          <p>A struct field can be another struct or an enum. We will use this to put a status enum inside our Server struct.</p>
+<pre><code class="language-rust" data-trim>enum ServerStatus {
+    Online,
+    Offline,
+}
+
+struct Server {
+    hostname: String,
+    status: ServerStatus,
+}
+
+fn main() {
+    let server = Server {
+        hostname: String::from(&quot;web-01&quot;),
+        status: ServerStatus::Online,
+    };
+}</code></pre><p>This nesting is one reason Rust types feel composable. You build bigger types out of smaller ones.</p>
+        </section>
+      </section>
+      <section>
+        <section data-id="enums-overview">
+          <span class="slide-id">enums-overview</span>
+          <h2>Enums represent a choice</h2>
+          <p>Use a struct when you want one thing <em>and</em> another thing. Use an enum when you want one thing <em>or</em> another thing.</p>
+<ul>
+<li>A struct groups many values together.</li>
+<li>An enum lists the possible values, and only one can be active at a time.</li>
+</ul>
+        </section>
+        <section data-id="enum-basic">
+          <span class="slide-id">enum-basic</span>
+          <h2>Basic enum</h2>
+          <p>Declare the variants inside an enum block. Use <code>::</code> to choose a variant.</p>
+<pre><code class="language-rust" data-trim>enum ServerStatus {
+    Provisioning,
+    Online,
+    Maintenance,
+    Decommissioned,
+}
+
+fn main() {
+    let status = ServerStatus::Online;
+
+    match status {
+        ServerStatus::Online =&gt; println!(&quot;Server is online&quot;),
+        _ =&gt; println!(&quot;Server is not online&quot;),
+    }
+}</code></pre><p>The compiler knows that <code>status</code> must be one of the four variants. A <code>match</code> on an enum must cover every variant.</p>
+        </section>
+        <section data-id="enum-use">
+          <span class="slide-id">enum-use</span>
+          <h2>Importing variants with use</h2>
+          <p>Typing the enum name every time gets repetitive. You can import the variants with <code>use</code>.</p>
+<pre><code class="language-rust" data-trim>enum ServerStatus {
+    Provisioning,
+    Online,
+    Maintenance,
+    Decommissioned,
+}
+
+fn check(status: &amp;ServerStatus) {
+    use ServerStatus::*;
+
+    match status {
+        Online =&gt; println!(&quot;online&quot;),
+        Maintenance =&gt; println!(&quot;maintenance&quot;),
+        _ =&gt; println!(&quot;other&quot;),
+    }
+}
+
+fn main() {
+    check(&amp;ServerStatus::Maintenance);
+}</code></pre><p><code>use ServerStatus::*</code> imports every variant into the current scope. You can also import individual variants.</p>
+        </section>
+        <section data-id="enum-data">
+          <span class="slide-id">enum-data</span>
+          <h2>Enums that carry data</h2>
+          <p>Rust enums can hold data inside each variant. This makes them much more powerful than enums in some other languages.</p>
+<pre><code class="language-rust" data-trim>enum ServerStatus {
+    Provisioning,
+    Online,
+    Maintenance(String),
+    Decommissioned { reason: String },
+}
+
+fn main() {
+    let status = ServerStatus::Maintenance(String::from(&quot;kernel upgrade&quot;));
+
+    match &amp;status {
+        ServerStatus::Maintenance(reason) =&gt; {
+            println!(&quot;under maintenance: {reason}&quot;);
+        }
+        ServerStatus::Decommissioned { reason } =&gt; {
+            println!(&quot;decommissioned: {reason}&quot;);
+        }
+        _ =&gt; println!(&quot;operational&quot;),
+    }
+}</code></pre><p>The data can be a tuple, named fields, or nothing. You extract it through pattern matching.</p>
+        </section>
+        <section data-id="enum-vs-struct">
+          <span class="slide-id">enum-vs-struct</span>
+          <h2>Enum vs struct: a quick rule</h2>
+          <p>If you are unsure which to use, ask whether the type represents:</p>
+<ul>
+<li>Many things <strong>together</strong> -> struct.</li>
+<li>Many possible <strong>choices</strong>, one active -> enum.</li>
+</ul><p>Our Server is a struct because it has hostname, region, CPU, and memory all at once. Its status is an enum because it can only be one state at a time.</p>
+        </section>
+      </section>
+      <section>
+        <section data-id="enum-cast">
+          <span class="slide-id">enum-cast</span>
+          <h2>Casting simple enums to integers</h2>
+          <p>If an enum variant has no data, Rust assigns it a number starting from 0. You can cast it to an integer.</p>
+<pre><code class="language-rust" data-trim>enum Priority {
+    Low,
+    Medium,
+    High,
+}
+
+fn main() {
+    let p = Priority::High;
+    println!(&quot;{}&quot;, p as u32); // 2
+}</code></pre><p>This only works for simple enums. If a variant holds data like <code>Maintenance(String)</code>, you cannot cast it.</p>
+        </section>
+        <section data-id="enum-discriminant">
+          <span class="slide-id">enum-discriminant</span>
+          <h2>Custom discriminants</h2>
+          <p>You can choose your own numbers. Variants without an explicit number count up from the previous one.</p>
+<pre><code class="language-rust" data-trim>enum HttpStatus {
+    Ok = 200,
+    NotFound = 404,
+    ServerError = 500,
+    Teapot = 418,
+}
+
+fn main() {
+    println!(&quot;{}&quot;, HttpStatus::NotFound as u16); // 404
+}</code></pre><p>Two variants cannot share the same discriminant. This is useful when you need to map enum values to external constants like HTTP status codes.</p>
+        </section>
+      </section>
+        <section data-id="enum-mixed">
+          <span class="slide-id">enum-mixed</span>
+          <h2>Using enums to hold different types in a collection</h2>
+          <p>A Vec can only hold one element type. An enum lets you wrap different types so the Vec stays homogeneous.</p>
+<pre><code class="language-rust" data-trim>enum Metric {
+    Cpu(u8),
+    Memory(u8),
+    Message(String),
+}
+
+fn main() {
+    let metrics = vec![
+        Metric::Cpu(12),
+        Metric::Memory(64),
+        Metric::Message(String::from(&quot;healthy&quot;)),
+    ];
+
+    for metric in &amp;metrics {
+        match metric {
+            Metric::Cpu(value) =&gt; println!(&quot;cpu: {value}%&quot;),
+            Metric::Memory(value) =&gt; println!(&quot;memory: {value}%&quot;),
+            Metric::Message(text) =&gt; println!(&quot;msg: {text}&quot;),
+        }
+    }
+}</code></pre><p>This pattern appears often when reading heterogeneous events or log lines into a single collection.</p>
+        </section>
+      <section>
+        <section data-id="impl-overview">
+          <span class="slide-id">impl-overview</span>
+          <h2>Adding behavior with impl blocks</h2>
+          <p>An <code>impl</code> block lets you attach functions to a struct or enum. These functions are called methods and associated functions.</p>
+<ul>
+<li><strong>Methods</strong> take <code>self</code>, <code>&self</code>, or <code>&mut self</code>. Call them with a dot.</li>
+<li><strong>Associated functions</strong> do not take <code>self</code>. Call them with <code>::</code>.</li>
+</ul>
+        </section>
+        <section data-id="derive-debug">
+          <span class="slide-id">derive-debug</span>
+          <h2>Printing structs and enums</h2>
+          <p>Rust does not let you print a custom type with <code>{}</code> unless you implement the Display trait. For debugging, use <code>#[derive(Debug)]</code> and <code>{:?}</code>.</p>
+<pre><code class="language-rust" data-trim>#[derive(Debug)]
+struct Server {
+    hostname: String,
+    cpu_percent: u8,
+}
+
+fn main() {
+    let server = Server {
+        hostname: String::from(&quot;web-01&quot;),
+        cpu_percent: 12,
+    };
+
+    println!(&quot;{:?}&quot;, server);
+}</code></pre><p><code>#[derive(Debug)]</code> asks the compiler to generate a Debug implementation for you. It is the quickest way to inspect a struct or enum during development.</p>
+        </section>
+        <section data-id="self-vs-self">
+          <span class="slide-id">self-vs-Self</span>
+          <h2>self vs Self</h2>
+          <p>Inside an impl block, <code>Self</code> with a capital S is the type. <code>self</code> with a lowercase s is the variable that refers to the instance.</p>
+<pre><code class="language-rust" data-trim>#[derive(Debug)]
+struct Server {
+    hostname: String,
+}
+
+impl Server {
+    fn new(hostname: &amp;str) -&gt; Self {
+        Self {
+            hostname: String::from(hostname),
+        }
+    }
+
+    fn hostname(&amp;self) -&gt; &amp;str {
+        &amp;self.hostname
+    }
+}
+
+fn main() {
+    let server = Server::new(&quot;web-01&quot;);
+    println!(&quot;{}&quot;, server.hostname());
+}</code></pre><p><code>Self</code> is convenient because if you rename the struct, the impl block does not need to change.</p>
+        </section>
+        <section data-id="associated-functions">
+          <span class="slide-id">associated-functions</span>
+          <h2>Associated functions vs methods</h2>
+          <p>Use an associated function when the value does not exist yet. Use a method when the value already exists.</p>
+<pre><code class="language-rust" data-trim>#[derive(Debug)]
+struct Server {
+    hostname: String,
+}
+
+impl Server {
+    // Associated function: no self, called with Server::new
+    fn new(hostname: &amp;str) -&gt; Self {
+        Self { hostname: String::from(hostname) }
+    }
+
+    // Method: takes &amp;self, called with server.hostname()
+    fn hostname(&amp;self) -&gt; &amp;str {
+        &amp;self.hostname
+    }
+}
+
+fn main() {
+    let server = Server::new(&quot;web-01&quot;);
+    println!(&quot;{}&quot;, server.hostname());
+}</code></pre><p><code>String::from</code> and <code>Vec::new</code> are associated functions you have already used.</p>
+        </section>
+        <section data-id="impl-enum">
+          <span class="slide-id">impl-enum</span>
+          <h2>Implementing methods on enums</h2>
+          <p>Enums can have impl blocks too. This is useful when behavior belongs to the choice itself.</p>
+<pre><code class="language-rust" data-trim>#[derive(Debug)]
+enum ServerStatus {
+    Online,
+    Maintenance(String),
+}
+
+impl ServerStatus {
+    fn is_operational(&amp;self) -&gt; bool {
+        match self {
+            ServerStatus::Online =&gt; true,
+            ServerStatus::Maintenance(_) =&gt; false,
+        }
+    }
+}
+
+fn main() {
+    let status = ServerStatus::Maintenance(String::from(&quot;kernel upgrade&quot;));
+    println!(&quot;{:?}&quot;, status.is_operational()); // false
+}</code></pre><p>Methods on enums often return a value based on which variant is active.</p>
+        </section>
+      </section>
+      <section>
+        <section data-id="tracker-types">
+          <span class="slide-id">tracker-types</span>
+          <h2>Step 1: define the types</h2>
+          <p>We start with the enum for status and the struct for the server.</p>
+<pre><code class="language-rust" data-trim>#[derive(Debug)]
+enum ServerStatus {
+    Provisioning,
+    Online,
+    Maintenance(String),
+    Decommissioned { reason: String },
+}
+
+#[derive(Debug)]
+struct Server {
+    hostname: String,
+    region: String,
+    status: ServerStatus,
+    cpu_percent: u8,
+    memory_percent: u8,
+}</code></pre><p>Both types derive Debug so we can print them while learning.</p>
+        </section>
+        <section data-id="tracker-constructor">
+          <span class="slide-id">tracker-constructor</span>
+          <h2>Step 2: add a constructor</h2>
+          <p>An associated function creates a new server with a default status.</p>
+<pre><code class="language-rust" data-trim>impl Server {
+    fn new(hostname: &amp;str, region: &amp;str) -&gt; Self {
+        Self {
+            hostname: String::from(hostname),
+            region: String::from(region),
+            status: ServerStatus::Provisioning,
+            cpu_percent: 0,
+            memory_percent: 0,
+        }
+    }
+}
+
+fn main() {
+    let server = Server::new(&quot;web-01&quot;, &quot;us-east&quot;);
+    println!(&quot;{:?}&quot;, server);
+}</code></pre><p>New servers start in the Provisioning state with zero CPU and memory usage.</p>
+        </section>
+        <section data-id="tracker-methods">
+          <span class="slide-id">tracker-methods</span>
+          <h2>Step 3: add lifecycle methods</h2>
+          <p>Methods change the server status and update metrics.</p>
+<pre><code class="language-rust" data-trim>impl Server {
+    fn start(&amp;mut self) {
+        self.status = ServerStatus::Online;
+    }
+
+    fn schedule_maintenance(&amp;mut self, reason: &amp;str) {
+        self.status = ServerStatus::Maintenance(String::from(reason));
+    }
+
+    fn decommission(&amp;mut self, reason: &amp;str) {
+        self.status = ServerStatus::Decommissioned {
+            reason: String::from(reason),
+        };
+    }
+
+    fn set_metrics(&amp;mut self, cpu: u8, memory: u8) {
+        self.cpu_percent = cpu;
+        self.memory_percent = memory;
+    }
+}</code></pre><p>Methods that mutate the server take <code>&mut self</code>. Methods that only read take <code>&self</code>.</p>
+        </section>
+        <section data-id="tracker-summary">
+          <span class="slide-id">tracker-summary</span>
+          <h2>Step 4: add a summary method</h2>
+          <p>A summary method reads the fields and returns a formatted string.</p>
+<pre><code class="language-rust" data-trim>impl Server {
+    fn health_summary(&amp;self) -&gt; String {
+        let status_badge = match &amp;self.status {
+            ServerStatus::Online =&gt; &quot;online&quot;,
+            ServerStatus::Provisioning =&gt; &quot;provisioning&quot;,
+            ServerStatus::Maintenance(_) =&gt; &quot;maintenance&quot;,
+            ServerStatus::Decommissioned { .. } =&gt; &quot;decommissioned&quot;,
+        };
+
+        format!(
+            &quot;{} [{}] CPU {}% MEM {}% - {}&quot;,
+            self.hostname, self.region,
+            self.cpu_percent, self.memory_percent,
+            status_badge
+        )
+    }
+}</code></pre><p>The <code>Maintenance(_)</code> pattern ignores the reason. The <code>Decommissioned { .. }</code> pattern ignores all named fields.</p>
+        </section>
+        <section data-id="tracker-main">
+          <span class="slide-id">tracker-main</span>
+          <h2>Step 5: put it together</h2>
+          <p>Now we can create servers, change their status, and print summaries.</p>
+<pre><code class="language-rust" data-trim>fn main() {
+    let mut server = Server::new(&quot;web-01&quot;, &quot;us-east&quot;);
+    server.start();
+    server.set_metrics(12, 64);
+    println!(&quot;{}&quot;, server.health_summary());
+
+    server.schedule_maintenance(&quot;kernel upgrade&quot;);
+    println!(&quot;{}&quot;, server.health_summary());
+
+    server.decommission(&quot;hardware end-of-life&quot;);
+    println!(&quot;{}&quot;, server.health_summary());
+}</code></pre><p>This is intentionally simple. A real inventory tool would persist state, query APIs, and handle many more fields. The Rust constructs stay the same.</p>
+        </section>
+        <section data-id="tracker-fleet">
+          <span class="slide-id">tracker-fleet</span>
+          <h2>Step 6: track a fleet</h2>
+          <p>A Vec of servers lets us manage more than one machine.</p>
+<pre><code class="language-rust" data-trim>fn main() {
+    let mut fleet = vec![
+        Server::new(&quot;web-01&quot;, &quot;us-east&quot;),
+        Server::new(&quot;web-02&quot;, &quot;eu-west&quot;),
+    ];
+
+    for server in &amp;mut fleet {
+        server.start();
+        println!(&quot;{}&quot;, server.health_summary());
+    }
+}</code></pre><p>Because <code>Server</code> owns its <code>String</code> fields, the vector owns the servers. Iterating with <code>&mut fleet</code> lets us call mutating methods.</p>
+        </section>
+      </section>
+      <section>
+        <section data-id="destructure-overview">
+          <span class="slide-id">destructure-overview</span>
+          <h2>Destructuring: taking types apart</h2>
+          <p>Destructuring creates variables from the fields of a struct or enum. It looks like construction in reverse.</p>
+<ul>
+<li><code>let server = Server { ... }</code> constructs.</li>
+<li><code>let Server { hostname, region } = server</code> destructures.</li>
+</ul>
+        </section>
+        <section data-id="destructure-struct">
+          <span class="slide-id">destructure-struct</span>
+          <h2>Destructuring a struct</h2>
+          <p>You can pull fields out into local variables.</p>
+<pre><code class="language-rust" data-trim>#[derive(Debug)]
+struct Server {
+    hostname: String,
+    region: String,
+    cpu_percent: u8,
+}
+
+fn main() {
+    let server = Server {
+        hostname: String::from(&quot;web-01&quot;),
+        region: String::from(&quot;us-east&quot;),
+        cpu_percent: 12,
+    };
+
+    let Server { hostname, region, cpu_percent } = server;
+
+    println!(&quot;{} {} {}&quot;, hostname, region, cpu_percent);
+}</code></pre><p>This moves the fields out of the struct. After destructuring, <code>server</code> is no longer usable unless every field is Copy.</p>
+        </section>
+        <section data-id="destructure-rename">
+          <span class="slide-id">destructure-rename</span>
+          <h2>Renaming while destructuring</h2>
+          <p>You can give the new variables different names.</p>
+<pre><code class="language-rust" data-trim>fn main() {
+    let server = Server {
+        hostname: String::from(&quot;web-01&quot;),
+        region: String::from(&quot;us-east&quot;),
+        cpu_percent: 12,
+    };
+
+    let Server {
+        hostname: name,
+        region: datacenter,
+        cpu_percent: cpu,
+    } = server;
+
+    println!(&quot;{} {} {}%&quot;, name, datacenter, cpu);
+}</code></pre><p>Renaming is useful when the field name is long or when the local variable name needs to fit surrounding code.</p>
+        </section>
+        <section data-id="destructure-ignore">
+          <span class="slide-id">destructure-ignore</span>
+          <h2>Ignoring fields with ..</h2>
+          <p>Use <code>..</code> to ignore the rest of the fields.</p>
+<pre><code class="language-rust" data-trim>fn main() {
+    let server = Server {
+        hostname: String::from(&quot;web-01&quot;),
+        region: String::from(&quot;us-east&quot;),
+        cpu_percent: 12,
+    };
+
+    let Server { hostname, .. } = server;
+    println!(&quot;{}&quot;, hostname);
+}</code></pre><p>This is especially helpful when a struct has many fields but you only care about a few.</p>
+        </section>
+        <section data-id="destructure-function">
+          <span class="slide-id">destructure-function</span>
+          <h2>Destructuring in function parameters</h2>
+          <p>You can destructure directly in a function signature.</p>
+<pre><code class="language-rust" data-trim>fn show(Server { hostname, cpu_percent, .. }: &amp;Server) {
+    println!(&quot;{} is at {}% CPU&quot;, hostname, cpu_percent);
+}
+
+fn main() {
+    let server = Server {
+        hostname: String::from(&quot;web-01&quot;),
+        region: String::from(&quot;us-east&quot;),
+        cpu_percent: 12,
+    };
+
+    show(&amp;server);
+}</code></pre><p>This works because patterns can appear anywhere a value is bound, including function arguments.</p>
+        </section>
+        <section data-id="destructure-move">
+          <span class="slide-id">destructure-move</span>
+          <h2>Destructuring moves non-Copy fields</h2>
+          <p>If a field is not Copy, destructuring moves it. You cannot use the original struct afterward.</p>
+<pre><code class="language-rust" data-trim>fn main() {
+    let server = Server {
+        hostname: String::from(&quot;web-01&quot;),
+        region: String::from(&quot;us-east&quot;),
+        cpu_percent: 12,
+    };
+
+    let Server { hostname, .. } = server;
+    println!(&quot;{}&quot;, hostname);
+
+    // println!(&quot;{:?}&quot;, server); // error: server.hostname has been moved
+}</code></pre><p>To keep the struct usable, destructure by reference: <code>let Server { ref hostname, .. } = server;</code> or borrow the field later with <code>&server.hostname</code>.</p>
+        </section>
+      </section>
+      <section>
+        <section data-id="dot-operator">
+          <span class="slide-id">dot-operator</span>
+          <h2>The dot operator auto-dereferences</h2>
+          <p>When you call a method with <code>.</code>, Rust automatically dereferences as many times as needed.</p>
+<pre><code class="language-rust" data-trim>fn main() {
+    let name = String::from(&quot;Billy&quot;);
+    let double_ref = &amp;&amp;name;
+
+    println!(&quot;{}&quot;, double_ref.is_empty()); // works!
+}</code></pre><p><code>is_empty</code> expects <code>&String</code>, but <code>double_ref</code> is <code>&&String</code>. The dot operator adds the right number of <code>*</code> for us.</p>
+        </section>
+        <section data-id="dot-vs-eq">
+          <span class="slide-id">dot-vs-eq</span>
+          <h2>The dot operator does not help ==</h2>
+          <p>Comparison operators like <code>==</code> do not auto-dereference. You must still deref explicitly.</p>
+<pre><code class="language-rust" data-trim>fn main() {
+    let a = String::from(&quot;Billy&quot;);
+    let b = String::from(&quot;Billy&quot;);
+
+    // println!(&quot;{}&quot;, a == &amp;b); // error: cannot compare String with &amp;String
+    println!(&quot;{}&quot;, a == *(&amp;b)); // ok: String == String
+}</code></pre><p>This trips up newcomers. Remember: <code>.</code> handles derefs for method calls, but operators do not.</p>
+        </section>
+        <section data-id="dot-many-derefs">
+          <span class="slide-id">dot-many-derefs</span>
+          <h2>Even many references work</h2>
+          <p>The dot operator will chase through a chain of references.</p>
+<pre><code class="language-rust" data-trim>fn main() {
+    let name = String::from(&quot;Billy&quot;);
+    let ref_chain = &amp;&amp;&amp;&amp;&amp;name;
+
+    println!(&quot;{}&quot;, ref_chain.is_empty()); // still works
+}</code></pre><p>This is why you rarely need to write <code>*</code> when calling methods. Rust keeps the syntax clean.</p>
+        </section>
+      </section>
+      <section>
+        <section data-id="py-classes">
+          <span class="slide-id">py-classes</span>
+          <h2>Classes vs structs and impl blocks</h2>
+          <p>Python puts data and methods together in a class. Rust separates the data definition (struct or enum) from the behavior (impl block).</p>
+<p>You can have multiple impl blocks for the same type, and impl blocks can live in different modules. This separation helps large codebases.</p>
+        </section>
+        <section data-id="py-enums">
+          <span class="slide-id">py-enums</span>
+          <h2>Enums are not just integers</h2>
+          <p>In Python, an enum is usually an integer with names attached. In Rust, enums can carry data and are fully type-checked. A <code>ServerStatus::Maintenance(String)</code> is a different shape from <code>ServerStatus::Online</code>, and the compiler enforces that.</p>
+        </section>
+        <section data-id="py-match">
+          <span class="slide-id">py-match</span>
+          <h2>Match is exhaustive</h2>
+          <p>Rust requires every <code>match</code> to cover every possible variant. Python does not have an exact equivalent. This catches bugs where you forget to handle a new status.</p>
+        </section>
+        <section data-id="py-mutability">
+          <span class="slide-id">py-mutability</span>
+          <h2>Mutability is explicit</h2>
+          <p>In Python, any method can mutate an object unless you write defensive code. In Rust, a method must take <code>&mut self</code> to mutate. Callers know from the signature whether the method changes the server.</p>
+        </section>
+      </section>
+      <section>
+        <section data-id="review">
+          <span class="slide-id">review</span>
+          <h2>What we built</h2>
+          <ul>
+<li>Structs group related data: hostname, region, CPU, memory, status.</li>
+<li>Enums represent a single choice among variants, with optional data.</li>
+<li>impl blocks attach constructors and methods to types.</li>
+<li>Self is the type; self is the instance variable.</li>
+<li>Destructuring pulls fields out of structs and enums.</li>
+<li>The dot operator auto-dereferences for method calls, but operators like == do not.</li>
+</ul>
+        </section>
+        <section data-id="fin">
+          <span class="slide-id">fin</span>
+          <h2>What comes next</h2>
+          <p class="lede">Next we look at error handling: how to write functions that can fail and how to propagate those failures cleanly.</p>
+<p style="margin-top:1.6rem;color:var(--fg-3);font-family:var(--font-mono);font-size:0.85rem;">Press <code>?</code> for shortcuts, or <a href="../../rust-first-steps/module1/lec05-building-your-own-types/">return to the chapter page</a>.</p>
+        </section>
+      </section>
+
+
+    </div>
+  </div>
+
+  <!-- Live arrow-key indicator -->
+  <div id="nav-keys" aria-label="Navigation keys">
+    <button type="button" class="key up"    data-dir="up"    aria-label="Up: go to previous subsection">↑</button>
+    <button type="button" class="key left"  data-dir="left"  aria-label="Left: go to previous section">←</button>
+    <button type="button" class="key down"  data-dir="down"  aria-label="Down: go to next subsection">↓</button>
+    <button type="button" class="key right" data-dir="right" aria-label="Right: go to next section">→</button>
+  </div>
+
+  <div id="slide-counter" aria-hidden="true">1</div>
+
+  <!-- ? help overlay -->
+  <div id="help" role="dialog" aria-label="Keyboard shortcuts" aria-hidden="true">
+    <pre>Keyboard
+->  Next section
+<-  Previous section
+↓  Next subsection
+↑  Previous subsection
+F  Fullscreen
+S  Speaker view
+ESC Slide overview
+?  Toggle this panel</pre>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/highlight.js"></script>
+  <script>
+    Reveal.initialize({
+      hash: true,
+      controls: false,
+      progress: true,
+      slideNumber: 'c/t',
+      center: false,
+      transition: 'slide',
+      navigationMode: 'default',
+      keyboard: true,
+      highlight: {
+        beforeHighlight: function (hljs) { hljs.configure({ ignoreUnescapedHTML: true }); },
+      },
+      plugins: [ RevealHighlight ],
+    });
+
+    /* -- Copy-to-clipboard button on every <pre> -- */
+    function addCopyButtons() {
+      document.querySelectorAll('.reveal pre').forEach(function (pre) {
+        if (pre.querySelector('.copy-btn')) return;
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'copy-btn';
+        btn.textContent = 'Copy';
+        btn.setAttribute('aria-label', 'Copy code to clipboard');
+        btn.addEventListener('click', function () {
+          var code = pre.querySelector('code');
+          var text = code ? code.innerText : pre.innerText;
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(showCopied);
+          } else {
+            var ta = document.createElement('textarea');
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
+            try { document.execCommand('copy'); showCopied(); } catch (_) {}
+            document.body.removeChild(ta);
+          }
+        });
+        function showCopied() {
+          btn.textContent = 'Copied';
+          btn.classList.add('copied');
+          setTimeout(function () {
+            btn.textContent = 'Copy';
+            btn.classList.remove('copied');
+          }, 1400);
+        }
+        pre.appendChild(btn);
+      });
+    }
+    Reveal.on('ready', addCopyButtons);
+    Reveal.on('slidechanged', addCopyButtons);
+
+    var keys = {
+      up:    document.querySelector('#nav-keys .key.up'),
+      down:  document.querySelector('#nav-keys .key.down'),
+      left:  document.querySelector('#nav-keys .key.left'),
+      right: document.querySelector('#nav-keys .key.right'),
+    };
+
+    var counterEl = document.getElementById('slide-counter');
+
+    function updateKeys() {
+      var routes = Reveal.availableRoutes();
+      ['up','down','left','right'].forEach(function (dir) {
+        keys[dir].classList.toggle('active', !!routes[dir]);
+      });
+      var idx = Reveal.getIndices();
+      var n = (idx.h + 1).toString().padStart(2, '0');
+      if (idx.v && idx.v > 0) n += '.' + idx.v;
+      counterEl.textContent = n;
+    }
+
+    Reveal.on('ready', updateKeys);
+    Reveal.on('slidechanged', updateKeys);
+
+    Object.keys(keys).forEach(function (dir) {
+      keys[dir].addEventListener('click', function () {
+        if (!keys[dir].classList.contains('active')) return;
+        if (dir === 'left')  Reveal.left();
+        if (dir === 'right') Reveal.right();
+        if (dir === 'up')    Reveal.up();
+        if (dir === 'down')  Reveal.down();
+      });
+    });
+
+    var help = document.getElementById('help');
+    document.addEventListener('keydown', function (e) {
+      if (e.key === '?' && e.shiftKey) {
+        e.preventDefault();
+        help.classList.toggle('open');
+        help.setAttribute('aria-hidden', help.classList.contains('open') ? 'false' : 'true');
+      } else if (e.key === 'Escape' && help.classList.contains('open')) {
+        help.classList.remove('open');
+        help.setAttribute('aria-hidden', 'true');
+      }
+    });
+    help.addEventListener('click', function () {
+      help.classList.remove('open');
+      help.setAttribute('aria-hidden', 'true');
+    });
+  </script>
+</body>
+</html>
