@@ -43,3 +43,8 @@ dot operator.
 Chapter 6 - **Enums in Detail** - builds a media catalog to explore
 algebraic data types, pattern matching, `Option`, and how Rust enums
 compare to enums in Python, C++, Java, and Go.
+
+Chapter 7 - **Modules and Code Organization** - takes the media catalog
+from the previous lecture and refactors it into a `content` module with
+`media` and `catalog` submodules, covering `mod`, `pub`, `use`, `super`,
+and nested-module rules.

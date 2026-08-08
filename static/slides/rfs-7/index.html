@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rust: First Steps - Lecture 7: Modules and Code Organization · Hassan Aziz</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reset.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/white.css" id="reveal-theme">
+
+  <link rel="stylesheet" id="hljs-light" media="(prefers-color-scheme: light)"
+        href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github.min.css">
+  <link rel="stylesheet" id="hljs-dark"  media="(prefers-color-scheme: dark)"
+        href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github-dark.min.css">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../_themes/clean.css">
+</head>
+<body>
+
+  <a href="../" id="back-to-site"><- site</a>
+
+  <div class="reveal">
+    <div class="slides">
+
+        <section data-id="title">
+          <span class="slide-id">title</span>
+          <h1>Rust: First Steps</h1>
+          <p class="kicker">Lecture 7 - Modules and Code Organization</p>
+<p class="lede">Grouping code, controlling privacy, and refactoring a growing project into modules.</p>
+<p style="margin-top:1.6rem;color:var(--fg-3);font-family:var(--font-mono);font-size:0.85rem;">Press <code>-></code> to begin. Press <code>?</code> for shortcuts.</p>
+        </section>
+      <section>
+        <section data-id="why-modules">
+          <span class="slide-id">why-modules</span>
+          <h2>Why modules matter</h2>
+          <p>As a project grows, <code>main.rs</code> collects structs, enums, functions, and implementations.</p>
+<p>Modules let us group related code so the project stays readable.</p>
+        </section>
+        <section data-id="why-modules-example">
+          <span class="slide-id">why-modules-example</span>
+          <h2>A messy main.rs</h2>
+          <p>Our media catalog from the last lecture currently lives in one file:</p>
+<ul>
+<li>The <code>Media</code> enum and its <code>impl</code> block.</li>
+<li>The <code>Catalog</code> struct and its <code>impl</code> block.</li>
+<li>The <code>main</code> function and helper functions.</li>
+</ul><p>We will split this into a <code>content</code> module with two submodules.</p>
+        </section>
+      </section>
+      <section>
+        <section data-id="module-inline">
+          <span class="slide-id">module-inline</span>
+          <h2>Option 1: Inline module</h2>
+          <p>Use <code>mod</code> inside an existing file when you want structure without creating new files.</p>
+<pre><code class="language-rust" data-trim>mod content {
+    pub enum Media { Book, Movie }
+    pub struct Catalog { items: Vec&lt;Media&gt; }
+}
+
+fn main() {
+    let catalog = content::Catalog { items: vec![] };
+}</code></pre><p>Access items with <code>module_name::item_name</code>.</p>
+        </section>
+        <section data-id="module-file">
+          <span class="slide-id">module-file</span>
+          <h2>Option 2: Separate file</h2>
+          <p>A file named <code>content.rs</code> becomes a module named <code>content</code>.</p>
+<pre><code class="language-rust" data-trim>// content.rs
+pub enum Media { Book, Movie }
+pub struct Catalog { items: Vec&lt;Media&gt; }</code></pre><pre><code class="language-rust" data-trim>// main.rs
+mod content;
+
+fn main() {
+    let catalog = content::Catalog { items: vec![] };
+}</code></pre><p><code>mod content;</code> tells Rust to look for <code>content.rs</code>.</p>
+        </section>
+        <section data-id="module-folder">
+          <span class="slide-id">module-folder</span>
+          <h2>Option 3: Nested folder</h2>
+          <p>For larger modules, use a folder with a <code>mod.rs</code> file and sibling files.</p>
+<pre><code class="language-text" data-trim>src/
+├── main.rs
+└── content/
+    ├── mod.rs
+    ├── media.rs
+    └── catalog.rs</code></pre><p>This is the pattern we will use for the media catalog.</p>
+        </section>
+      </section>
+      <section>
+        <section data-id="privacy-default">
+          <span class="slide-id">privacy-default</span>
+          <h2>Everything is private by default</h2>
+          <p>Items inside a module are hidden from the outside world unless marked <code>pub</code>.</p>
+<pre><code class="language-rust" data-trim>mod content {
+    enum Media { Book, Movie }          // private
+    pub struct Catalog { items: Vec&lt;Media&gt; } // public
+}</code></pre><p>Without <code>pub</code>, <code>main.rs</code> cannot use <code>Media</code> or <code>Catalog</code>.</p>
+        </section>
+        <section data-id="privacy-methods">
+          <span class="slide-id">privacy-methods</span>
+          <h2>Public methods too</h2>
+          <p>Functions and methods also need <code>pub</code> to be callable from outside.</p>
+<pre><code class="language-rust" data-trim>impl Catalog {
+    pub fn new() -&gt; Self {
+        Self { items: vec![] }
+    }
+    pub fn add(&amp;mut self, media: Media) {
+        self.items.push(media);
+    }
+}</code></pre><p>If <code>new</code> is not <code>pub</code>, other modules cannot create a <code>Catalog</code>.</p>
+        </section>
+      </section>
+      <section>
+        <section data-id="mod-keyword">
+          <span class="slide-id">mod-keyword</span>
+          <h2>mod declares a module</h2>
+          <p><code>mod</code> tells the compiler that a module exists and should be compiled.</p>
+<pre><code class="language-rust" data-trim>// main.rs
+mod content;
+
+fn main() {
+    let catalog = content::Catalog::new();
+}</code></pre><p>Without <code>mod content;</code>, Rust ignores <code>content.rs</code> or the <code>content/</code> folder.</p>
+        </section>
+        <section data-id="use-keyword">
+          <span class="slide-id">use-keyword</span>
+          <h2>use abbreviates paths</h2>
+          <p>Long paths get tiring. <code>use</code> creates a shortcut.</p>
+<pre><code class="language-rust" data-trim>// main.rs
+mod content;
+use content::Catalog;
+
+fn main() {
+    let catalog = Catalog::new();
+}</code></pre><p><code>use</code> does not change privacy. It only shortens how we write a path.</p>
+        </section>
+      </section>
+      <section>
+        <section data-id="rule-files">
+          <span class="slide-id">rule-files</span>
+          <h2>Every file is a module</h2>
+          <p>In a nested folder, each file creates its own module.</p>
+<pre><code class="language-text" data-trim>content/
+├── mod.rs      -&gt; content module
+├── media.rs    -&gt; media module
+└── catalog.rs  -&gt; catalog module</code></pre><p>The folder name becomes a module because it contains <code>mod.rs</code>.</p>
+        </section>
+        <section data-id="rule-modrs">
+          <span class="slide-id">rule-modrs</span>
+          <h2>mod.rs is required for folders</h2>
+          <p>A folder only becomes a module when it contains <code>mod.rs</code>.</p>
+<pre><code class="language-rust" data-trim>// content/mod.rs
+pub mod media;
+pub mod catalog;</code></pre><p><code>pub mod media;</code> imports the <code>media</code> submodule and re-exports it publicly.</p>
+        </section>
+        <section data-id="rule-no-deep">
+          <span class="slide-id">rule-no-deep</span>
+          <h2>No deeply nested imports</h2>
+          <p>The root module cannot reach directly into <code>content/media.rs</code>.</p>
+<p>Imports happen one level at a time:</p>
+<ul>
+<li><code>content/mod.rs</code> imports <code>media</code> and <code>catalog</code>.</li>
+<li><code>main.rs</code> imports <code>content</code>.</li>
+<li>Then <code>main.rs</code> can reach <code>content::media::Media</code>.</li>
+</ul>
+        </section>
+      </section>
+      <section>
+        <section data-id="refactor-media">
+          <span class="slide-id">refactor-media</span>
+          <h2>Move Media to content/media.rs</h2>
+          <pre><code class="language-rust" data-trim>// content/media.rs
+#[derive(Debug)]
+pub enum Media {
+    Book { title: String, author: String },
+    Movie { title: String, director: String },
+    Audiobook { title: String },
+    Podcast(u32),
+    Placeholder,
+}
+
+impl Media {
+    pub fn description(&amp;self) -&gt; String {
+        match self {
+            Media::Book { title, author } =&gt; format!(&quot;Book: {} by {}&quot;, title, author),
+            Media::Movie { title, director } =&gt; format!(&quot;Movie: {} by {}&quot;, title, director),
+            Media::Audiobook { title } =&gt; format!(&quot;Audiobook: {}&quot;, title),
+            Media::Podcast(episode) =&gt; format!(&quot;Podcast episode {}&quot;, episode),
+            Media::Placeholder =&gt; String::from(&quot;Placeholder&quot;),
+        }
+    }
+}</code></pre><p>Mark the enum and the method as <code>pub</code>.</p>
+        </section>
+        <section data-id="refactor-catalog">
+          <span class="slide-id">refactor-catalog</span>
+          <h2>Move Catalog to content/catalog.rs</h2>
+          <pre><code class="language-rust" data-trim>// content/catalog.rs
+use super::media::Media;
+
+#[derive(Debug)]
+pub struct Catalog {
+    items: Vec&lt;Media&gt;,
+}
+
+impl Catalog {
+    pub fn new() -&gt; Self {
+        Self { items: vec![] }
+    }
+    pub fn add(&amp;mut self, media: Media) {
+        self.items.push(media);
+    }
+    pub fn get_by_index(&amp;self, index: usize) -&gt; Option&lt;&amp;Media&gt; {
+        self.items.get(index)
+    }
+}</code></pre><p>We will explain <code>super</code> in the next section.</p>
+        </section>
+        <section data-id="refactor-modrs">
+          <span class="slide-id">refactor-modrs</span>
+          <h2>Wire up content/mod.rs</h2>
+          <pre><code class="language-rust" data-trim>// content/mod.rs
+pub mod media;
+pub mod catalog;</code></pre><p>These two lines import the submodules and re-export them publicly.</p>
+        </section>
+        <section data-id="refactor-main">
+          <span class="slide-id">refactor-main</span>
+          <h2>Update main.rs</h2>
+          <pre><code class="language-rust" data-trim>// main.rs
+mod content;
+use content::media::Media;
+use content::catalog::Catalog;
+
+fn main() {
+    let mut catalog = Catalog::new();
+    catalog.add(Media::Audiobook {
+        title: String::from(&quot;A Brief History&quot;),
+    });
+    println!(&quot;{:?}&quot;, catalog);
+}</code></pre><p>With <code>use</code>, the code reads almost the same as before.</p>
+        </section>
+      </section>
+      <section>
+        <section data-id="super-intro">
+          <span class="slide-id">super-intro</span>
+          <h2>super means parent module</h2>
+          <p>Inside <code>content/catalog.rs</code>, we need the <code>Media</code> enum from <code>content/media.rs</code>.</p>
+<p>We use <code>super</code> to move up one module level:</p>
+<pre><code class="language-rust" data-trim>// content/catalog.rs
+use super::media::Media;</code></pre><p><code>super</code> is <code>content</code>, so <code>super::media::Media</code> finds the enum.</p>
+        </section>
+        <section data-id="super-diagram">
+          <span class="slide-id">super-diagram</span>
+          <h2>Visualizing the module tree</h2>
+          <p>Think of modules as a tree:</p>
+<pre><code class="language-text" data-trim>crate (main.rs)
+└── content
+    ├── media
+    └── catalog</code></pre><p>From <code>catalog</code>, <code>super</code> is <code>content</code>.</p>
+        </section>
+      </section>
+      <section>
+        <section data-id="py-modules">
+          <span class="slide-id">py-modules</span>
+          <h2>Python modules</h2>
+          <p>In Python, modules are files. Privacy is by convention:</p>
+<ul>
+<li><code>import content.media</code> imports a file or package.</li>
+<li>Names starting with <code>_</code> are considered private.</li>
+<li>There is no compiler enforcement of privacy.</li>
+</ul><p>You can still import and use <code>_private</code> things if you try.</p>
+        </section>
+        <section data-id="rust-modules">
+          <span class="slide-id">rust-modules</span>
+          <h2>Rust modules</h2>
+          <p>In Rust, modules are explicit and privacy is enforced:</p>
+<ul>
+<li><code>mod content;</code> declares the module.</li>
+<li>Items are private unless marked <code>pub</code>.</li>
+<li>The compiler rejects code that uses private items.</li>
+</ul><p>This makes boundaries clear and prevents accidental dependencies.</p>
+        </section>
+      </section>
+      <section>
+        <section data-id="takeaway-1">
+          <span class="slide-id">takeaway-1</span>
+          <h2>Takeaways</h2>
+          <ul>
+<li>Modules group related code: enums, structs, functions, and impl blocks.</li>
+<li>Everything inside a module is private by default.</li>
+<li><code>pub</code> makes an item accessible from outside.</li>
+<li><code>mod</code> declares a module; <code>use</code> abbreviates a path.</li>
+</ul>
+        </section>
+        <section data-id="takeaway-2">
+          <span class="slide-id">takeaway-2</span>
+          <h2>More takeaways</h2>
+          <ul>
+<li>Nested folders need a <code>mod.rs</code> file.</li>
+<li>Imports happen one level at a time.</li>
+<li><code>pub mod</code> imports and re-exports a submodule.</li>
+<li><code>super</code> refers to the parent module.</li>
+</ul>
+        </section>
+        <section data-id="fin">
+          <span class="slide-id">fin</span>
+          <h2>What comes next</h2>
+          <p class="lede">Next we look at error handling with <code>Result</code> and how to propagate failures cleanly.</p>
+<p style="margin-top:1.6rem;color:var(--fg-3);font-family:var(--font-mono);font-size:0.85rem;">Press <code>?</code> for shortcuts, or <a href="../../rust-first-steps/module1/lec07-modules/">return to the chapter page</a>.</p>
+        </section>
+      </section>
+
+
+    </div>
+  </div>
+
+  <!-- Live arrow-key indicator -->
+  <div id="nav-keys" aria-label="Navigation keys">
+    <button type="button" class="key up"    data-dir="up"    aria-label="Up: go to previous subsection">↑</button>
+    <button type="button" class="key left"  data-dir="left"  aria-label="Left: go to previous section">←</button>
+    <button type="button" class="key down"  data-dir="down"  aria-label="Down: go to next subsection">↓</button>
+    <button type="button" class="key right" data-dir="right" aria-label="Right: go to next section">→</button>
+  </div>
+
+  <div id="slide-counter" aria-hidden="true">1</div>
+
+  <!-- ? help overlay -->
+  <div id="help" role="dialog" aria-label="Keyboard shortcuts" aria-hidden="true">
+    <pre>Keyboard
+->  Next section
+<-  Previous section
+↓  Next subsection
+↑  Previous subsection
+F  Fullscreen
+S  Speaker view
+ESC Slide overview
+?  Toggle this panel</pre>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/highlight.js"></script>
+  <script>
+    Reveal.initialize({
+      hash: true,
+      controls: false,
+      progress: true,
+      slideNumber: 'c/t',
+      center: false,
+      transition: 'slide',
+      navigationMode: 'default',
+      keyboard: true,
+      highlight: {
+        beforeHighlight: function (hljs) { hljs.configure({ ignoreUnescapedHTML: true }); },
+      },
+      plugins: [ RevealHighlight ],
+    });
+
+    /* -- Copy-to-clipboard button on every <pre> -- */
+    function addCopyButtons() {
+      document.querySelectorAll('.reveal pre').forEach(function (pre) {
+        if (pre.querySelector('.copy-btn')) return;
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'copy-btn';
+        btn.textContent = 'Copy';
+        btn.setAttribute('aria-label', 'Copy code to clipboard');
+        btn.addEventListener('click', function () {
+          var code = pre.querySelector('code');
+          var text = code ? code.innerText : pre.innerText;
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(showCopied);
+          } else {
+            var ta = document.createElement('textarea');
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
+            try { document.execCommand('copy'); showCopied(); } catch (_) {}
+            document.body.removeChild(ta);
+          }
+        });
+        function showCopied() {
+          btn.textContent = 'Copied';
+          btn.classList.add('copied');
+          setTimeout(function () {
+            btn.textContent = 'Copy';
+            btn.classList.remove('copied');
+          }, 1400);
+        }
+        pre.appendChild(btn);
+      });
+    }
+    Reveal.on('ready', addCopyButtons);
+    Reveal.on('slidechanged', addCopyButtons);
+
+    var keys = {
+      up:    document.querySelector('#nav-keys .key.up'),
+      down:  document.querySelector('#nav-keys .key.down'),
+      left:  document.querySelector('#nav-keys .key.left'),
+      right: document.querySelector('#nav-keys .key.right'),
+    };
+
+    var counterEl = document.getElementById('slide-counter');
+
+    function updateKeys() {
+      var routes = Reveal.availableRoutes();
+      ['up','down','left','right'].forEach(function (dir) {
+        keys[dir].classList.toggle('active', !!routes[dir]);
+      });
+      var idx = Reveal.getIndices();
+      var n = (idx.h + 1).toString().padStart(2, '0');
+      if (idx.v && idx.v > 0) n += '.' + idx.v;
+      counterEl.textContent = n;
+    }
+
+    Reveal.on('ready', updateKeys);
+    Reveal.on('slidechanged', updateKeys);
+
+    Object.keys(keys).forEach(function (dir) {
+      keys[dir].addEventListener('click', function () {
+        if (!keys[dir].classList.contains('active')) return;
+        if (dir === 'left')  Reveal.left();
+        if (dir === 'right') Reveal.right();
+        if (dir === 'up')    Reveal.up();
+        if (dir === 'down')  Reveal.down();
+      });
+    });
+
+    var help = document.getElementById('help');
+    document.addEventListener('keydown', function (e) {
+      if (e.key === '?' && e.shiftKey) {
+        e.preventDefault();
+        help.classList.toggle('open');
+        help.setAttribute('aria-hidden', help.classList.contains('open') ? 'false' : 'true');
+      } else if (e.key === 'Escape' && help.classList.contains('open')) {
+        help.classList.remove('open');
+        help.setAttribute('aria-hidden', 'true');
+      }
+    });
+    help.addEventListener('click', function () {
+      help.classList.remove('open');
+      help.setAttribute('aria-hidden', 'true');
+    });
+  </script>
+</body>
+</html>

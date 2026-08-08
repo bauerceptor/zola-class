@@ -360,6 +360,7 @@ Record the new commit hash in `config.toml` under `[extra]`.
 | `scripts/build-deck-rfs4.py` | Python generator for the rfs-4 / Lecture 4 deck. |
 | `scripts/build-deck-rfs5.py` | Python generator for the rfs-5 / Lecture 5 deck. |
 | `scripts/build-deck-rfs6.py` | Python generator for the rfs-6 / Lecture 6 deck. |
+| `scripts/build-deck-rfs7.py` | Python generator for the rfs-7 / Lecture 7 deck. |
 | `themes/neovim-theme/` | Vendored upstream theme + the patches listed above. |
 
 ---
