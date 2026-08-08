@@ -39,3 +39,7 @@ Python-vs-Rust notes.
 Chapter 5 - **Building Your Own Types** - uses a DevOps server lifecycle
 tracker to explore structs, enums, `impl` blocks, destructuring, and the
 dot operator.
+
+Chapter 6 - **Enums in Detail** - builds a media catalog to explore
+algebraic data types, pattern matching, `Option`, and how Rust enums
+compare to enums in Python, C++, Java, and Go.

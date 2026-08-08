@@ -16,7 +16,7 @@ copy        = true
 
 ## Slides
 
-{{ slides(src="/slides/rfs-5/index.html", title="Lec 5 - Building Your Own Types", note="43 slides · ~55 min") }}
+{{ slides(src="/slides/rfs-5/index.html", title="Lec 5 - Building Your Own Types", note="58 slides · ~55 min") }}
 
 ## At a glance
 

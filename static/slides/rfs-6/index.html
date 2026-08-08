@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rust: First Steps - Lecture 6: Enums in Detail · Hassan Aziz</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reset.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/white.css" id="reveal-theme">
+
+  <link rel="stylesheet" id="hljs-light" media="(prefers-color-scheme: light)"
+        href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github.min.css">
+  <link rel="stylesheet" id="hljs-dark"  media="(prefers-color-scheme: dark)"
+        href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github-dark.min.css">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../_themes/clean.css">
+</head>
+<body>
+
+  <a href="../" id="back-to-site"><- site</a>
+
+  <div class="reveal">
+    <div class="slides">
+
+        <section data-id="title">
+          <span class="slide-id">title</span>
+          <h1>Rust: First Steps</h1>
+          <p class="kicker">Lecture 6 - Enums in Detail</p>
+<p class="lede">Algebraic data types, pattern matching, and Option. We will build a media catalog as the running example.</p>
+<p style="margin-top:1.6rem;color:var(--fg-3);font-family:var(--font-mono);font-size:0.85rem;">Press <code>-></code> to begin. Press <code>?</code> for shortcuts.</p>
+        </section>
+      <section>
+        <section data-id="project-problem">
+          <span class="slide-id">project-problem</span>
+          <h2>The problem</h2>
+          <p>We want a catalog that can hold different kinds of media:</p>
+<ul>
+<li>Books have a title and an author.</li>
+<li>Movies have a title and a director.</li>
+<li>Audiobooks have only a title.</li>
+<li>Podcasts have an episode number.</li>
+</ul><p>They are similar but not identical. An enum is a natural fit.</p>
+        </section>
+        <section data-id="project-structs">
+          <span class="slide-id">project-structs</span>
+          <h2>Could we use structs?</h2>
+          <p>We could define a separate struct for each media type. That works, but then every function or collection has to pick one type.</p>
+<p>An enum lets us treat all media as a single type while keeping their distinct data.</p>
+        </section>
+      </section>
+      <section>
+        <section data-id="enum-definition">
+          <span class="slide-id">enum-definition</span>
+          <h2>A media enum</h2>
+          <p>Each variant holds the data that makes sense for that kind of media.</p>
+<pre><code class="language-rust" data-trim>#[derive(Debug)]
+enum Media {
+    Book { title: String, author: String },
+    Movie { title: String, director: String },
+    Audiobook { title: String },
+}</code></pre><p>Every value is still of type <code>Media</code>.</p>
+        </section>
+        <section data-id="enum-values">
+          <span class="slide-id">enum-values</span>
+          <h2>Creating values</h2>
+          <pre><code class="language-rust" data-trim>fn main() {
+    let book = Media::Book {
+        title: String::from(&quot;The Rust Book&quot;),
+        author: String::from(&quot;Rust Contributors&quot;),
+    };
+
+    let movie = Media::Movie {
+        title: String::from(&quot;Inception&quot;),
+        director: String::from(&quot;Christopher Nolan&quot;),
+    };
+
+    println!(&quot;{:?}&quot;, book);
+}</code></pre><p>We choose the variant with <code>::</code> and fill in its fields.</p>
+        </section>
+      </section>
+      <section>
+        <section data-id="impl-intro">
+          <span class="slide-id">impl-intro</span>
+          <h2>Adding behavior to enums</h2>
+          <p>Enums can have <code>impl</code> blocks. We can define one method that behaves differently for each variant.</p>
+        </section>
+        <section data-id="impl-if-let">
+          <span class="slide-id">impl-if-let</span>
+          <h2>Checking the variant with if let</h2>
+          <p>Before accessing fields, we must find out which variant we have.</p>
+<pre><code class="language-rust" data-trim>impl Media {
+    fn description(&amp;self) -&gt; String {
+        if let Media::Book { title, author } = self {
+            return format!(&quot;Book: {} by {}&quot;, title, author);
+        }
+        if let Media::Movie { title, director } = self {
+            return format!(&quot;Movie: {} directed by {}&quot;, title, director);
+        }
+        String::from(&quot;Some other media&quot;)
+    }
+}</code></pre><p><code>if let</code> checks one variant at a time.</p>
+        </section>
+        <section data-id="impl-match">
+          <span class="slide-id">impl-match</span>
+          <h2>Checking the variant with match</h2>
+          <p><code>match</code> is usually cleaner because it forces us to handle every variant.</p>
+<pre><code class="language-rust" data-trim>impl Media {
+    fn description(&amp;self) -&gt; String {
+        match self {
+            Media::Book { title, author } =&gt; {
+                format!(&quot;Book: {} by {}&quot;, title, author)
+            }
+            Media::Movie { title, director } =&gt; {
+                format!(&quot;Movie: {} by {}&quot;, title, director)
+            }
+            Media::Audiobook { title } =&gt; {
+                format!(&quot;Audiobook: {}&quot;, title)
+            }
+        }
+    }
+}</code></pre><p>Rust requires the match to be exhaustive.</p>
+        </section>
+        <section data-id="impl-match-note">
+          <span class="slide-id">impl-match-note</span>
+          <h2>Why exhaustive matching matters</h2>
+          <p>If we add a new variant later, the compiler tells us every place we forgot to update.</p>
+<p>This catches real bugs. In many other languages, adding a new enum case silently breaks logic elsewhere.</p>
+        </section>
+      </section>
+      <section>
+        <section data-id="struct-vs-enum">
+          <span class="slide-id">struct-vs-enum</span>
+          <h2>When to use structs vs enums</h2>
+          <p>Use an enum when every variant needs the same set of methods.</p>
+<p>Use structs when different types need different methods that should not be shared.</p>
+        </section>
+        <section data-id="struct-vs-enum-example">
+          <span class="slide-id">struct-vs-enum-example</span>
+          <h2>An example</h2>
+          <p>A <code>read()</code> method makes sense for a book but not a movie. A <code>play()</code> method makes sense for a movie but not a book.</p>
+<p>If methods diverge like that, separate structs are usually clearer.</p>
+        </section>
+        <section data-id="struct-vs-enum-fields">
+          <span class="slide-id">struct-vs-enum-fields</span>
+          <h2>Another consideration: fields</h2>
+          <p>If each variant has many unique fields, match statements become tedious.</p>
+<p>That is a sign that structs might be a better fit.</p>
+        </section>
+      </section>
+      <section>
+        <section data-id="catalog-struct">
+          <span class="slide-id">catalog-struct</span>
+          <h2>The catalog</h2>
+          <p>A catalog owns a vector of media items.</p>
+<pre><code class="language-rust" data-trim>#[derive(Debug)]
+struct Catalog {
+    items: Vec&lt;Media&gt;,
+}
+
+impl Catalog {
+    fn new() -&gt; Self {
+        Self { items: vec![] }
+    }
+}</code></pre><p>The vector holds one type, <code>Media</code>, but that type can represent many different things.</p>
+        </section>
+        <section data-id="catalog-add">
+          <span class="slide-id">catalog-add</span>
+          <h2>Adding items</h2>
+          <pre><code class="language-rust" data-trim>impl Catalog {
+    fn add(&amp;mut self, media: Media) {
+        self.items.push(media);
+    }
+}</code></pre><p><code>add</code> takes <code>&mut self</code> because it changes the catalog.</p>
+        </section>
+        <section data-id="catalog-use">
+          <span class="slide-id">catalog-use</span>
+          <h2>Using the catalog</h2>
+          <pre><code class="language-rust" data-trim>fn main() {
+    let mut catalog = Catalog::new();
+
+    catalog.add(Media::Audiobook {
+        title: String::from(&quot;A Brief History&quot;),
+    });
+    catalog.add(Media::Book {
+        title: String::from(&quot;Dune&quot;),
+        author: String::from(&quot;Frank Herbert&quot;),
+    });
+
+    println!(&quot;{:?}&quot;, catalog);
+}</code></pre><p><code>catalog</code> must be mutable because we call <code>add</code>.</p>
+        </section>
+      </section>
+      <section>
+        <section data-id="unlabeled-fields">
+          <span class="slide-id">unlabeled-fields</span>
+          <h2>Unlabeled fields</h2>
+          <p>Variants can hold a single value without naming it.</p>
+<pre><code class="language-rust" data-trim>#[derive(Debug)]
+enum Media {
+    Book { title: String, author: String },
+    Movie { title: String, director: String },
+    Audiobook { title: String },
+    Podcast(u32),
+}</code></pre><p><code>Podcast(10)</code> is less explicit than a named field, but fine when the meaning is obvious.</p>
+        </section>
+        <section data-id="unlabeled-pattern">
+          <span class="slide-id">unlabeled-pattern</span>
+          <h2>Matching unlabeled fields</h2>
+          <pre><code class="language-rust" data-trim>impl Media {
+    fn description(&amp;self) -&gt; String {
+        match self {
+            Media::Podcast(episode) =&gt; {
+                format!(&quot;Podcast episode {}&quot;, episode)
+            }
+            _ =&gt; String::from(&quot;other media&quot;),
+        }
+    }
+}</code></pre><p>We bind the value inside the parentheses to a variable.</p>
+        </section>
+        <section data-id="unit-variants">
+          <span class="slide-id">unit-variants</span>
+          <h2>Unit variants</h2>
+          <p>A variant with no data is called a unit variant.</p>
+<pre><code class="language-rust" data-trim>#[derive(Debug)]
+enum Media {
+    Book { title: String, author: String },
+    Placeholder,
+}
+
+fn main() {
+    let placeholder = Media::Placeholder;
+    println!(&quot;{:?}&quot;, placeholder);
+}</code></pre><p>Unit variants are useful as placeholders or markers.</p>
+        </section>
+      </section>
+      <section>
+        <section data-id="option-intro">
+          <span class="slide-id">option-intro</span>
+          <h2>No null in Rust</h2>
+          <p>Rust does not have <code>null</code>, <code>nil</code>, or <code>undefined</code>.</p>
+<p>Instead, Rust uses the <code>Option</code> enum to represent a value that may or may not be present.</p>
+        </section>
+        <section data-id="option-definition">
+          <span class="slide-id">option-definition</span>
+          <h2>The Option enum</h2>
+          <p><code>Option</code> is built into the standard library.</p>
+<pre><code class="language-rust" data-trim>enum Option&lt;T&gt; {
+    Some(T),
+    None,
+}</code></pre><p><code>Some</code> wraps a value. <code>None</code> means there is no value.</p>
+        </section>
+        <section data-id="option-get">
+          <span class="slide-id">option-get</span>
+          <h2>A real example: Vec::get</h2>
+          <p><code>Vec::get</code> returns an <code>Option</code> because the index might be out of bounds.</p>
+<pre><code class="language-rust" data-trim>fn main() {
+    let catalog = Catalog::new();
+    let item = catalog.items.get(0);
+
+    match item {
+        Some(media) =&gt; println!(&quot;{:?}&quot;, media),
+        None =&gt; println!(&quot;no item at that index&quot;),
+    }
+}</code></pre><p>We must handle both cases.</p>
+        </section>
+      </section>
+      <section>
+        <section data-id="custom-option">
+          <span class="slide-id">custom-option</span>
+          <h2>Why Option works this way</h2>
+          <p>To see why <code>Option</code> is designed like this, we can build our own version.</p>
+        </section>
+        <section data-id="custom-option-enum">
+          <span class="slide-id">custom-option-enum</span>
+          <h2>A custom Maybe enum</h2>
+          <pre><code class="language-rust" data-trim>enum MaybeValue&lt;&#x27;a&gt; {
+    HasValue(&amp;&#x27;a Media),
+    NoValue,
+}</code></pre><p>This is conceptually identical to <code>Option<&Media></code>.</p>
+        </section>
+        <section data-id="custom-option-impl">
+          <span class="slide-id">custom-option-impl</span>
+          <h2>Using the custom enum</h2>
+          <pre><code class="language-rust" data-trim>impl Catalog {
+    fn get_media(&amp;self, index: usize) -&gt; MaybeValue {
+        if index &lt; self.items.len() {
+            MaybeValue::HasValue(&amp;self.items[index])
+        } else {
+            MaybeValue::NoValue
+        }
+    }
+}</code></pre><p>The lifetime annotation <code>'a</code> is required because we return a reference.</p>
+        </section>
+        <section data-id="custom-option-use">
+          <span class="slide-id">custom-option-use</span>
+          <h2>Matching the custom enum</h2>
+          <pre><code class="language-rust" data-trim>fn main() {
+    let catalog = Catalog::new();
+
+    match catalog.get_media(0) {
+        MaybeValue::HasValue(media) =&gt; println!(&quot;{:?}&quot;, media),
+        MaybeValue::NoValue =&gt; println!(&quot;nothing here&quot;),
+    }
+}</code></pre>
+        </section>
+        <section data-id="replace-with-option">
+          <span class="slide-id">replace-with-option</span>
+          <h2>Replacing with the real Option</h2>
+          <pre><code class="language-rust" data-trim>impl Catalog {
+    fn get_media(&amp;self, index: usize) -&gt; Option&lt;&amp;Media&gt; {
+        if index &lt; self.items.len() {
+            Some(&amp;self.items[index])
+        } else {
+            None
+        }
+    }
+}</code></pre><p>Real code uses <code>Option</code> instead of reinventing it.</p>
+        </section>
+      </section>
+      <section>
+        <section data-id="unwrap">
+          <span class="slide-id">unwrap</span>
+          <h2>unwrap</h2>
+          <p><code>unwrap</code> extracts the value from <code>Some</code>.</p>
+<pre><code class="language-rust" data-trim>fn main() {
+    let item = catalog.items.get(0);
+    println!(&quot;{:?}&quot;, item.unwrap());
+}</code></pre><p>If the value is <code>None</code>, the program panics and crashes.</p>
+        </section>
+        <section data-id="unwrap-warning">
+          <span class="slide-id">unwrap-warning</span>
+          <h2>Be careful with unwrap</h2>
+          <p><code>unwrap</code> is fine for quick scripts and prototypes.</p>
+<p>In production code, prefer <code>match</code> or <code>if let</code> so you handle <code>None</code> safely.</p>
+        </section>
+        <section data-id="expect">
+          <span class="slide-id">expect</span>
+          <h2>expect</h2>
+          <p><code>expect</code> is like <code>unwrap</code> but lets you provide a panic message.</p>
+<pre><code class="language-rust" data-trim>fn main() {
+    let item = catalog.items.get(0);
+    println!(&quot;{:?}&quot;, item.expect(&quot;catalog should not be empty&quot;));
+}</code></pre><p>Useful when a missing value means the program is fundamentally misconfigured.</p>
+        </section>
+        <section data-id="unwrap-or">
+          <span class="slide-id">unwrap-or</span>
+          <h2>unwrap_or</h2>
+          <p><code>unwrap_or</code> returns the value inside <code>Some</code>, or a fallback value if it is <code>None</code>.</p>
+<pre><code class="language-rust" data-trim>fn main() {
+    let item = catalog.items.get(100);
+    let placeholder = Media::Placeholder;
+    println!(&quot;{:?}&quot;, item.unwrap_or(&amp;placeholder));
+}</code></pre><p>This avoids a panic by providing a default.</p>
+        </section>
+        <section data-id="match-recommended">
+          <span class="slide-id">match-recommended</span>
+          <h2>match is still the default</h2>
+          <p>For most code, use <code>match</code> or <code>if let</code>.</p>
+<p><code>unwrap</code>, <code>expect</code>, and <code>unwrap_or</code> are shortcuts for specific situations.</p>
+        </section>
+      </section>
+      <section>
+        <section data-id="lang-compare-intro">
+          <span class="slide-id">lang-compare-intro</span>
+          <h2>How other languages handle enums</h2>
+          <p>Rust enums are different from enums in Python, C++, Java, and Go. Each language makes a different trade-off.</p>
+        </section>
+        <section data-id="python-enums">
+          <span class="slide-id">python-enums</span>
+          <h2>Python enums</h2>
+          <p>Python has <code>enum.Enum</code>.</p>
+<ul>
+<li>Variants are names attached to values, often integers.</li>
+<li>No per-variant data fields.</li>
+<li>No exhaustive matching at compile time.</li>
+<li>Missing values use <code>None</code>, which can be forgotten at runtime.</li>
+</ul>
+        </section>
+        <section data-id="cpp-enums">
+          <span class="slide-id">cpp-enums</span>
+          <h2>C++ enums</h2>
+          <p>C++ has <code>enum</code> and <code>enum class</code>.</p>
+<ul>
+<li>Plain enums are basically integers.</li>
+<li><code>enum class</code> adds type safety but still no per-variant data.</li>
+<li>No exhaustive switch checking.</li>
+<li>Missing values use <code>std::optional</code>, introduced in C++17.</li>
+</ul>
+        </section>
+        <section data-id="java-enums">
+          <span class="slide-id">java-enums</span>
+          <h2>Java enums</h2>
+          <p>Java enums can have fields and methods shared by all variants.</p>
+<ul>
+<li>All variants share the same fields.</li>
+<li>No per-variant data shapes.</li>
+<li><code>switch</code> on enums can be exhaustive with modern tooling.</li>
+<li>Missing values use <code>Optional<T></code>.</li>
+</ul>
+        </section>
+        <section data-id="go-enums">
+          <span class="slide-id">go-enums</span>
+          <h2>Go enums</h2>
+          <p>Go does not have a dedicated enum type.</p>
+<ul>
+<li>Use typed constants with <code>iota</code>.</li>
+<li>No compile-time exhaustiveness checking.</li>
+<li>No per-variant data.</li>
+<li>Missing values use <code>nil</code>, like other reference types.</li>
+</ul>
+        </section>
+        <section data-id="rust-enums">
+          <span class="slide-id">rust-enums</span>
+          <h2>Rust enums</h2>
+          <p>Rust enums are algebraic data types.</p>
+<ul>
+<li>Each variant can carry different data.</li>
+<li><code>match</code> must be exhaustive.</li>
+<li>No null; missing values use <code>Option<T></code>.</li>
+<li>The compiler prevents many null-pointer-style bugs.</li>
+</ul>
+        </section>
+        <section data-id="lang-compare-strengths">
+          <span class="slide-id">lang-compare-strengths</span>
+          <h2>Where Rust is stronger</h2>
+          <p>Rust combines three features that are usually separate in other languages:</p>
+<ul>
+<li>Sum types: one type, many possible shapes.</li>
+<li>Exhaustive pattern matching.</li>
+<li>Null-free option types.</li>
+</ul><p>This catches whole categories of bugs at compile time.</p>
+        </section>
+        <section data-id="lang-compare-tradeoffs">
+          <span class="slide-id">lang-compare-tradeoffs</span>
+          <h2>Where Rust asks more of you</h2>
+          <p>The trade-off is verbosity.</p>
+<ul>
+<li>You must handle every variant in a <code>match</code>.</li>
+<li>You must explicitly unwrap <code>Option</code> values.</li>
+<li>Lifetime and ownership rules apply to references inside variants.</li>
+</ul><p>Other languages let you be sloppier, which is sometimes faster to write but easier to break.</p>
+        </section>
+      </section>
+      <section>
+        <section data-id="py-option">
+          <span class="slide-id">py-option</span>
+          <h2>Option vs None</h2>
+          <p>In Python, a function can return <code>None</code> to mean "no value." The caller might forget to check.</p>
+<p>In Rust, <code>Option</code> forces the check. You cannot accidentally use a <code>None</code> as if it were a real value.</p>
+        </section>
+        <section data-id="py-match">
+          <span class="slide-id">py-match</span>
+          <h2>Exhaustive matching</h2>
+          <p>Python has no compile-time exhaustiveness check for enum-like constants.</p>
+<p>Rust refuses to compile if you add a variant and forget to update a <code>match</code>.</p>
+        </section>
+        <section data-id="py-classes">
+          <span class="slide-id">py-classes</span>
+          <h2>Enums vs classes</h2>
+          <p>Python classes can simulate sum types with subclasses, but the language does not enforce exhaustive handling.</p>
+<p>Rust enums make the shape of data part of the type system.</p>
+        </section>
+      </section>
+      <section>
+        <section data-id="review-1">
+          <span class="slide-id">review-1</span>
+          <h2>What we built</h2>
+          <ul>
+<li>An enum can represent many related shapes as one type.</li>
+<li>Pattern matching extracts data and must be exhaustive.</li>
+<li>Methods on enums use <code>match</code> or <code>if let</code> to behave differently per variant.</li>
+</ul>
+        </section>
+        <section data-id="review-2">
+          <span class="slide-id">review-2</span>
+          <h2>What we built, continued</h2>
+          <ul>
+<li>Unit variants and unlabeled fields keep enums concise.</li>
+<li><code>Option<T></code> replaces null with an explicit <code>Some</code>/<code>None</code> choice.</li>
+<li><code>unwrap</code>, <code>expect</code>, and <code>unwrap_or</code> are shortcuts for specific cases.</li>
+</ul>
+        </section>
+        <section data-id="fin">
+          <span class="slide-id">fin</span>
+          <h2>What comes next</h2>
+          <p class="lede">Next we look at error handling: how to represent failures with <code>Result</code> and how to propagate errors cleanly.</p>
+<p style="margin-top:1.6rem;color:var(--fg-3);font-family:var(--font-mono);font-size:0.85rem;">Press <code>?</code> for shortcuts, or <a href="../../rust-first-steps/module1/lec06-enums-in-detail/">return to the chapter page</a>.</p>
+        </section>
+      </section>
+
+
+    </div>
+  </div>
+
+  <!-- Live arrow-key indicator -->
+  <div id="nav-keys" aria-label="Navigation keys">
+    <button type="button" class="key up"    data-dir="up"    aria-label="Up: go to previous subsection">↑</button>
+    <button type="button" class="key left"  data-dir="left"  aria-label="Left: go to previous section">←</button>
+    <button type="button" class="key down"  data-dir="down"  aria-label="Down: go to next subsection">↓</button>
+    <button type="button" class="key right" data-dir="right" aria-label="Right: go to next section">→</button>
+  </div>
+
+  <div id="slide-counter" aria-hidden="true">1</div>
+
+  <!-- ? help overlay -->
+  <div id="help" role="dialog" aria-label="Keyboard shortcuts" aria-hidden="true">
+    <pre>Keyboard
+->  Next section
+<-  Previous section
+↓  Next subsection
+↑  Previous subsection
+F  Fullscreen
+S  Speaker view
+ESC Slide overview
+?  Toggle this panel</pre>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/highlight.js"></script>
+  <script>
+    Reveal.initialize({
+      hash: true,
+      controls: false,
+      progress: true,
+      slideNumber: 'c/t',
+      center: false,
+      transition: 'slide',
+      navigationMode: 'default',
+      keyboard: true,
+      highlight: {
+        beforeHighlight: function (hljs) { hljs.configure({ ignoreUnescapedHTML: true }); },
+      },
+      plugins: [ RevealHighlight ],
+    });
+
+    /* -- Copy-to-clipboard button on every <pre> -- */
+    function addCopyButtons() {
+      document.querySelectorAll('.reveal pre').forEach(function (pre) {
+        if (pre.querySelector('.copy-btn')) return;
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'copy-btn';
+        btn.textContent = 'Copy';
+        btn.setAttribute('aria-label', 'Copy code to clipboard');
+        btn.addEventListener('click', function () {
+          var code = pre.querySelector('code');
+          var text = code ? code.innerText : pre.innerText;
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(showCopied);
+          } else {
+            var ta = document.createElement('textarea');
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
+            try { document.execCommand('copy'); showCopied(); } catch (_) {}
+            document.body.removeChild(ta);
+          }
+        });
+        function showCopied() {
+          btn.textContent = 'Copied';
+          btn.classList.add('copied');
+          setTimeout(function () {
+            btn.textContent = 'Copy';
+            btn.classList.remove('copied');
+          }, 1400);
+        }
+        pre.appendChild(btn);
+      });
+    }
+    Reveal.on('ready', addCopyButtons);
+    Reveal.on('slidechanged', addCopyButtons);
+
+    var keys = {
+      up:    document.querySelector('#nav-keys .key.up'),
+      down:  document.querySelector('#nav-keys .key.down'),
+      left:  document.querySelector('#nav-keys .key.left'),
+      right: document.querySelector('#nav-keys .key.right'),
+    };
+
+    var counterEl = document.getElementById('slide-counter');
+
+    function updateKeys() {
+      var routes = Reveal.availableRoutes();
+      ['up','down','left','right'].forEach(function (dir) {
+        keys[dir].classList.toggle('active', !!routes[dir]);
+      });
+      var idx = Reveal.getIndices();
+      var n = (idx.h + 1).toString().padStart(2, '0');
+      if (idx.v && idx.v > 0) n += '.' + idx.v;
+      counterEl.textContent = n;
+    }
+
+    Reveal.on('ready', updateKeys);
+    Reveal.on('slidechanged', updateKeys);
+
+    Object.keys(keys).forEach(function (dir) {
+      keys[dir].addEventListener('click', function () {
+        if (!keys[dir].classList.contains('active')) return;
+        if (dir === 'left')  Reveal.left();
+        if (dir === 'right') Reveal.right();
+        if (dir === 'up')    Reveal.up();
+        if (dir === 'down')  Reveal.down();
+      });
+    });
+
+    var help = document.getElementById('help');
+    document.addEventListener('keydown', function (e) {
+      if (e.key === '?' && e.shiftKey) {
+        e.preventDefault();
+        help.classList.toggle('open');
+        help.setAttribute('aria-hidden', help.classList.contains('open') ? 'false' : 'true');
+      } else if (e.key === 'Escape' && help.classList.contains('open')) {
+        help.classList.remove('open');
+        help.setAttribute('aria-hidden', 'true');
+      }
+    });
+    help.addEventListener('click', function () {
+      help.classList.remove('open');
+      help.setAttribute('aria-hidden', 'true');
+    });
+  </script>
+</body>
+</html>

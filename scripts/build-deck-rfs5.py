@@ -97,9 +97,11 @@ fn main() {
     region: String,
     cpu_percent: u8,
     memory_percent: u8,
-}
-
-fn main() {
+}''') +
+     '<p>Use a comma after the last field if you like. It makes reordering fields safer.</p>'),
+    ("named-struct-use",
+     "Creating an instance",
+     code("rust", '''fn main() {
     let server = Server {
         hostname: String::from("web-01"),
         region: String::from("us-east"),
@@ -108,17 +110,17 @@ fn main() {
     };
 
     println!("{} in {}", server.hostname, server.region);
-}''') +
-     '<p>Use a comma after the last field if you like. It makes reordering fields safer because every line then ends the same way.</p>'),
+}''')),
     ("field-init-shorthand",
      "Field init shorthand",
      '<p>If a variable has the same name as a struct field, you can write the field name once.</p>\n' +
      code("rust", '''struct Server {
     hostname: String,
     region: String,
-}
-
-fn main() {
+}''')),
+    ("field-init-shorthand-use",
+     "Using the shorthand",
+     code("rust", '''fn main() {
     let hostname = String::from("web-01");
     let region = String::from("us-east");
 
@@ -129,10 +131,10 @@ fn main() {
 
     println!("{} {}", server.hostname, server.region);
 }''') +
-     '<p>This is not special syntax for structs; it is just a shorthand when the names line up. It keeps constructors readable.</p>'),
+     '<p>This is just a shorthand when the names line up.</p>'),
     ("structs-nest",
      "Structs can contain other structs and enums",
-     '<p>A struct field can be another struct or an enum. We will use this to put a status enum inside our Server struct.</p>\n' +
+     '<p>A struct field can be another struct or an enum. We will put a status enum inside our Server struct.</p>\n' +
      code("rust", '''enum ServerStatus {
     Online,
     Offline,
@@ -141,15 +143,16 @@ fn main() {
 struct Server {
     hostname: String,
     status: ServerStatus,
-}
-
-fn main() {
+}''') +
+     '<p>This nesting is one reason Rust types feel composable.</p>'),
+    ("structs-nest-use",
+     "Creating a nested instance",
+     code("rust", '''fn main() {
     let server = Server {
         hostname: String::from("web-01"),
         status: ServerStatus::Online,
     };
-}''') +
-     '<p>This nesting is one reason Rust types feel composable. You build bigger types out of smaller ones.</p>'),
+}''')),
 ])
 
 # Section 4: Enums
@@ -198,12 +201,14 @@ fn check(status: &ServerStatus) {
         Maintenance => println!("maintenance"),
         _ => println!("other"),
     }
-}
-
-fn main() {
+}''') +
+     '<p><code>use ServerStatus::*</code> imports every variant into scope.</p>'),
+    ("enum-use-main",
+     "Calling the function",
+     code("rust", '''fn main() {
     check(&ServerStatus::Maintenance);
 }''') +
-     '<p><code>use ServerStatus::*</code> imports every variant into the current scope. You can also import individual variants.</p>'),
+     '<p>Because the variants are imported inside <code>check</code>, the function body can use them without the <code>ServerStatus::</code> prefix.</p>'),
     ("enum-data",
      "Enums that carry data",
      '<p>Rust enums can hold data inside each variant. This makes them much more powerful than enums in some other languages.</p>\n' +
@@ -212,9 +217,12 @@ fn main() {
     Online,
     Maintenance(String),
     Decommissioned { reason: String },
-}
-
-fn main() {
+}''') +
+     '<p>The data can be a tuple, named fields, or nothing.</p>'),
+    ("enum-data-match",
+     "Extracting the data",
+     '<p>You extract the data through pattern matching.</p>\n' +
+     code("rust", '''fn main() {
     let status = ServerStatus::Maintenance(String::from("kernel upgrade"));
 
     match &status {
@@ -226,8 +234,7 @@ fn main() {
         }
         _ => println!("operational"),
     }
-}''') +
-     '<p>The data can be a tuple, named fields, or nothing. You extract it through pattern matching.</p>'),
+}''')),
     ("enum-vs-struct",
      "Enum vs struct: a quick rule",
      '<p>If you are unsure which to use, ask whether the type represents:</p>\n' +
@@ -279,24 +286,26 @@ sections.append([
     Cpu(u8),
     Memory(u8),
     Message(String),
-}
-
-fn main() {
+}''') +
+     '<p>This pattern appears when reading heterogeneous events into one collection.</p>'),
+    ("enum-mixed-vec",
+     "A homogeneous-looking vector",
+     code("rust", '''fn main() {
     let metrics = vec![
         Metric::Cpu(12),
         Metric::Memory(64),
-        Metric::Message(String::from("healthy")),
     ];
-
-    for metric in &metrics {
-        match metric {
-            Metric::Cpu(value) => println!("cpu: {value}%"),
-            Metric::Memory(value) => println!("memory: {value}%"),
-            Metric::Message(text) => println!("msg: {text}"),
-        }
-    }
 }''') +
-     '<p>This pattern appears often when reading heterogeneous events or log lines into a single collection.</p>'),
+     '<p>The vector element type is <code>Metric</code>, but the variants wrap different underlying types.</p>'),
+    ("enum-mixed-match",
+     "Matching the mixed collection",
+     code("rust", '''for metric in &metrics {
+    match metric {
+        Metric::Cpu(v) => println!("cpu: {v}%"),
+        Metric::Memory(v) => println!("mem: {v}%"),
+        Metric::Message(t) => println!("msg: {t}"),
+    }
+}''')),
 ])
 
 # Section 7: Implementing types
@@ -344,22 +353,19 @@ impl Server {
     fn hostname(&self) -> &str {
         &self.hostname
     }
-}
-
-fn main() {
+}''') +
+     '<p><code>Self</code> is convenient because if you rename the struct, the impl block does not need to change.</p>'),
+    ("self-vs-Self-use",
+     "Using the type and the instance",
+     code("rust", '''fn main() {
     let server = Server::new("web-01");
     println!("{}", server.hostname());
 }''') +
-     '<p><code>Self</code> is convenient because if you rename the struct, the impl block does not need to change.</p>'),
+     '<p><code>Server::new</code> uses the type. <code>server.hostname()</code> uses the instance.</p>'),
     ("associated-functions",
      "Associated functions vs methods",
      '<p>Use an associated function when the value does not exist yet. Use a method when the value already exists.</p>\n' +
-     code("rust", '''#[derive(Debug)]
-struct Server {
-    hostname: String,
-}
-
-impl Server {
+     code("rust", '''impl Server {
     // Associated function: no self, called with Server::new
     fn new(hostname: &str) -> Self {
         Self { hostname: String::from(hostname) }
@@ -369,18 +375,19 @@ impl Server {
     fn hostname(&self) -> &str {
         &self.hostname
     }
-}
-
-fn main() {
+}''') +
+     '<p><code>String::from</code> and <code>Vec::new</code> are associated functions you have already used.</p>'),
+    ("associated-functions-use",
+     "Calling each kind",
+     code("rust", '''fn main() {
     let server = Server::new("web-01");
     println!("{}", server.hostname());
 }''') +
-     '<p><code>String::from</code> and <code>Vec::new</code> are associated functions you have already used.</p>'),
+     '<p><code>::</code> before the value exists; <code>.</code> after it exists.</p>'),
     ("impl-enum",
      "Implementing methods on enums",
      '<p>Enums can have impl blocks too. This is useful when behavior belongs to the choice itself.</p>\n' +
-     code("rust", '''#[derive(Debug)]
-enum ServerStatus {
+     code("rust", '''enum ServerStatus {
     Online,
     Maintenance(String),
 }
@@ -392,29 +399,32 @@ impl ServerStatus {
             ServerStatus::Maintenance(_) => false,
         }
     }
-}
-
-fn main() {
-    let status = ServerStatus::Maintenance(String::from("kernel upgrade"));
-    println!("{:?}", status.is_operational()); // false
 }''') +
      '<p>Methods on enums often return a value based on which variant is active.</p>'),
+    ("impl-enum-use",
+     "Calling a method on an enum",
+     code("rust", '''fn main() {
+    let status = ServerStatus::Maintenance(String::from("kernel upgrade"));
+    println!("{}", status.is_operational()); // false
+}''')),
 ])
 
 # Section 8: Building the server tracker
 sections.append([
     ("tracker-types",
-     "Step 1: define the types",
-     '<p>We start with the enum for status and the struct for the server.</p>\n' +
+     "Step 1: define the status enum",
+     '<p>We start with the enum for status.</p>\n' +
      code("rust", '''#[derive(Debug)]
 enum ServerStatus {
     Provisioning,
     Online,
     Maintenance(String),
     Decommissioned { reason: String },
-}
-
-#[derive(Debug)]
+}''') +
+     '<p>We derive Debug so we can print the enum while learning.</p>'),
+    ("tracker-struct",
+     "Step 2: define the server struct",
+     code("rust", '''#[derive(Debug)]
 struct Server {
     hostname: String,
     region: String,
@@ -422,9 +432,9 @@ struct Server {
     cpu_percent: u8,
     memory_percent: u8,
 }''') +
-     '<p>Both types derive Debug so we can print them while learning.</p>'),
+     '<p>The struct holds the enum as one of its fields.</p>'),
     ("tracker-constructor",
-     "Step 2: add a constructor",
+     "Step 3: add a constructor",
      '<p>An associated function creates a new server with a default status.</p>\n' +
      code("rust", '''impl Server {
     fn new(hostname: &str, region: &str) -> Self {
@@ -436,16 +446,17 @@ struct Server {
             memory_percent: 0,
         }
     }
-}
-
-fn main() {
+}''') +
+     '<p>New servers start in the Provisioning state.</p>'),
+    ("tracker-constructor-use",
+     "Creating a server",
+     code("rust", '''fn main() {
     let server = Server::new("web-01", "us-east");
     println!("{:?}", server);
-}''') +
-     '<p>New servers start in the Provisioning state with zero CPU and memory usage.</p>'),
+}''')),
     ("tracker-methods",
      "Step 3: add lifecycle methods",
-     '<p>Methods change the server status and update metrics.</p>\n' +
+     '<p>Methods change the server status.</p>\n' +
      code("rust", '''impl Server {
     fn start(&mut self) {
         self.status = ServerStatus::Online;
@@ -454,40 +465,42 @@ fn main() {
     fn schedule_maintenance(&mut self, reason: &str) {
         self.status = ServerStatus::Maintenance(String::from(reason));
     }
-
+}''') +
+     '<p>Methods that mutate take <code>&mut self</code>.</p>'),
+    ("tracker-decommission",
+     "Decommissioning",
+     code("rust", '''impl Server {
     fn decommission(&mut self, reason: &str) {
         self.status = ServerStatus::Decommissioned {
             reason: String::from(reason),
         };
     }
-
+}''')),
+    ("tracker-metrics",
+     "Updating metrics",
+     code("rust", '''impl Server {
     fn set_metrics(&mut self, cpu: u8, memory: u8) {
         self.cpu_percent = cpu;
         self.memory_percent = memory;
     }
 }''') +
-     '<p>Methods that mutate the server take <code>&mut self</code>. Methods that only read take <code>&self</code>.</p>'),
+     '<p>Methods that only read take <code>&self</code>.</p>'),
     ("tracker-summary",
      "Step 4: add a summary method",
-     '<p>A summary method reads the fields and returns a formatted string.</p>\n' +
+     '<p>A summary method reads the status and formats a string.</p>\n' +
      code("rust", '''impl Server {
     fn health_summary(&self) -> String {
-        let status_badge = match &self.status {
+        let badge = match &self.status {
             ServerStatus::Online => "online",
             ServerStatus::Provisioning => "provisioning",
             ServerStatus::Maintenance(_) => "maintenance",
             ServerStatus::Decommissioned { .. } => "decommissioned",
         };
 
-        format!(
-            "{} [{}] CPU {}% MEM {}% - {}",
-            self.hostname, self.region,
-            self.cpu_percent, self.memory_percent,
-            status_badge
-        )
+        format!("{} is {}", self.hostname, badge)
     }
 }''') +
-     '<p>The <code>Maintenance(_)</code> pattern ignores the reason. The <code>Decommissioned { .. }</code> pattern ignores all named fields.</p>'),
+     '<p><code>Maintenance(_)</code> ignores the reason. <code>Decommissioned { .. }</code> ignores all fields.</p>'),
     ("tracker-main",
      "Step 5: put it together",
      '<p>Now we can create servers, change their status, and print summaries.</p>\n' +
@@ -533,14 +546,7 @@ sections.append([
     ("destructure-struct",
      "Destructuring a struct",
      '<p>You can pull fields out into local variables.</p>\n' +
-     code("rust", '''#[derive(Debug)]
-struct Server {
-    hostname: String,
-    region: String,
-    cpu_percent: u8,
-}
-
-fn main() {
+     code("rust", '''fn main() {
     let server = Server {
         hostname: String::from("web-01"),
         region: String::from("us-east"),
@@ -551,26 +557,18 @@ fn main() {
 
     println!("{} {} {}", hostname, region, cpu_percent);
 }''') +
-     '<p>This moves the fields out of the struct. After destructuring, <code>server</code> is no longer usable unless every field is Copy.</p>'),
+     '<p>This moves the fields out of the struct.</p>'),
     ("destructure-rename",
      "Renaming while destructuring",
      '<p>You can give the new variables different names.</p>\n' +
-     code("rust", '''fn main() {
-    let server = Server {
-        hostname: String::from("web-01"),
-        region: String::from("us-east"),
-        cpu_percent: 12,
-    };
+     code("rust", '''let Server {
+    hostname: name,
+    region: datacenter,
+    cpu_percent: cpu,
+} = server;
 
-    let Server {
-        hostname: name,
-        region: datacenter,
-        cpu_percent: cpu,
-    } = server;
-
-    println!("{} {} {}%", name, datacenter, cpu);
-}''') +
-     '<p>Renaming is useful when the field name is long or when the local variable name needs to fit surrounding code.</p>'),
+println!("{} {} {}%", name, datacenter, cpu);''') +
+     '<p>Renaming helps when the local name needs to fit surrounding code.</p>'),
     ("destructure-ignore",
      "Ignoring fields with ..",
      '<p>Use <code>..</code> to ignore the rest of the fields.</p>\n' +
@@ -674,12 +672,16 @@ sections.append([
 
 # Section 12: Review and finish
 sections.append([
-    ("review",
+    ("review-1",
      "What we built",
      bullets([
          "Structs group related data: hostname, region, CPU, memory, status.",
          "Enums represent a single choice among variants, with optional data.",
          "impl blocks attach constructors and methods to types.",
+     ])),
+    ("review-2",
+     "What we built, continued",
+     bullets([
          "Self is the type; self is the instance variable.",
          "Destructuring pulls fields out of structs and enums.",
          "The dot operator auto-dereferences for method calls, but operators like == do not.",

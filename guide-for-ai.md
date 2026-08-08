@@ -282,6 +282,7 @@ for new decks):
 - `scripts/build-deck-rfs3.py` is the generator for Lecture 3 / rfs-3.
 - `scripts/build-deck-rfs4.py` is the generator for Lecture 4 / rfs-4.
 - `scripts/build-deck-rfs5.py` is the generator for Lecture 5 / rfs-5.
+- `scripts/build-deck-rfs6.py` is the generator for Lecture 6 / rfs-6.
 
 ```bash
 # 1. Copy the generator to a working deck path, or edit scripts/build-deck.py directly.
@@ -329,6 +330,24 @@ cp static/slides/dummy-reference-deck/index.html \
           title="Lec 4 — Scheduling",
           note="32 slides · 25 min") }}
 ```
+
+**Slide overflow: keep slides inside the viewport.**
+
+Reveal.js scales slides to fit the viewport. If a slide has too much content,
+text becomes tiny and the viewer has to zoom out. Based on the `clean.css` theme
+and common laptop screens:
+
+- Keep code blocks to **12 lines or fewer**. Ten is safer.
+- Keep bullet lists to **4 or 5 items**. Four is safer.
+- Do not put a long explanatory paragraph both **above and below** a code block.
+  Use one short sentence, or none.
+- Prefer **one main element per slide**: a code block, a short list, or a short
+  explanation. Split combinations across sub-slides.
+- The only reliable overflow check is opening the deck and viewing each slide.
+  Heuristics catch most problems, but screen size and font rendering vary.
+
+If a slide overflows, split it into two vertical sub-slides rather than adding
+scrollbars. Scrollbars inside slides fight with reveal.js navigation.
 
 **Shortcode params:** `src` (required, absolute-style path under
 `static/`); `title` (default "Slide deck"); `note` (default "Slide deck

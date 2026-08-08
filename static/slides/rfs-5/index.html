@@ -97,9 +97,12 @@ fn main() {
     region: String,
     cpu_percent: u8,
     memory_percent: u8,
-}
-
-fn main() {
+}</code></pre><p>Use a comma after the last field if you like. It makes reordering fields safer.</p>
+        </section>
+        <section data-id="named-struct-use">
+          <span class="slide-id">named-struct-use</span>
+          <h2>Creating an instance</h2>
+          <pre><code class="language-rust" data-trim>fn main() {
     let server = Server {
         hostname: String::from(&quot;web-01&quot;),
         region: String::from(&quot;us-east&quot;),
@@ -108,7 +111,7 @@ fn main() {
     };
 
     println!(&quot;{} in {}&quot;, server.hostname, server.region);
-}</code></pre><p>Use a comma after the last field if you like. It makes reordering fields safer because every line then ends the same way.</p>
+}</code></pre>
         </section>
         <section data-id="field-init-shorthand">
           <span class="slide-id">field-init-shorthand</span>
@@ -117,9 +120,12 @@ fn main() {
 <pre><code class="language-rust" data-trim>struct Server {
     hostname: String,
     region: String,
-}
-
-fn main() {
+}</code></pre>
+        </section>
+        <section data-id="field-init-shorthand-use">
+          <span class="slide-id">field-init-shorthand-use</span>
+          <h2>Using the shorthand</h2>
+          <pre><code class="language-rust" data-trim>fn main() {
     let hostname = String::from(&quot;web-01&quot;);
     let region = String::from(&quot;us-east&quot;);
 
@@ -129,12 +135,12 @@ fn main() {
     };
 
     println!(&quot;{} {}&quot;, server.hostname, server.region);
-}</code></pre><p>This is not special syntax for structs; it is just a shorthand when the names line up. It keeps constructors readable.</p>
+}</code></pre><p>This is just a shorthand when the names line up.</p>
         </section>
         <section data-id="structs-nest">
           <span class="slide-id">structs-nest</span>
           <h2>Structs can contain other structs and enums</h2>
-          <p>A struct field can be another struct or an enum. We will use this to put a status enum inside our Server struct.</p>
+          <p>A struct field can be another struct or an enum. We will put a status enum inside our Server struct.</p>
 <pre><code class="language-rust" data-trim>enum ServerStatus {
     Online,
     Offline,
@@ -143,14 +149,17 @@ fn main() {
 struct Server {
     hostname: String,
     status: ServerStatus,
-}
-
-fn main() {
+}</code></pre><p>This nesting is one reason Rust types feel composable.</p>
+        </section>
+        <section data-id="structs-nest-use">
+          <span class="slide-id">structs-nest-use</span>
+          <h2>Creating a nested instance</h2>
+          <pre><code class="language-rust" data-trim>fn main() {
     let server = Server {
         hostname: String::from(&quot;web-01&quot;),
         status: ServerStatus::Online,
     };
-}</code></pre><p>This nesting is one reason Rust types feel composable. You build bigger types out of smaller ones.</p>
+}</code></pre>
         </section>
       </section>
       <section>
@@ -202,11 +211,14 @@ fn check(status: &amp;ServerStatus) {
         Maintenance =&gt; println!(&quot;maintenance&quot;),
         _ =&gt; println!(&quot;other&quot;),
     }
-}
-
-fn main() {
+}</code></pre><p><code>use ServerStatus::*</code> imports every variant into scope.</p>
+        </section>
+        <section data-id="enum-use-main">
+          <span class="slide-id">enum-use-main</span>
+          <h2>Calling the function</h2>
+          <pre><code class="language-rust" data-trim>fn main() {
     check(&amp;ServerStatus::Maintenance);
-}</code></pre><p><code>use ServerStatus::*</code> imports every variant into the current scope. You can also import individual variants.</p>
+}</code></pre><p>Because the variants are imported inside <code>check</code>, the function body can use them without the <code>ServerStatus::</code> prefix.</p>
         </section>
         <section data-id="enum-data">
           <span class="slide-id">enum-data</span>
@@ -217,9 +229,13 @@ fn main() {
     Online,
     Maintenance(String),
     Decommissioned { reason: String },
-}
-
-fn main() {
+}</code></pre><p>The data can be a tuple, named fields, or nothing.</p>
+        </section>
+        <section data-id="enum-data-match">
+          <span class="slide-id">enum-data-match</span>
+          <h2>Extracting the data</h2>
+          <p>You extract the data through pattern matching.</p>
+<pre><code class="language-rust" data-trim>fn main() {
     let status = ServerStatus::Maintenance(String::from(&quot;kernel upgrade&quot;));
 
     match &amp;status {
@@ -231,7 +247,7 @@ fn main() {
         }
         _ =&gt; println!(&quot;operational&quot;),
     }
-}</code></pre><p>The data can be a tuple, named fields, or nothing. You extract it through pattern matching.</p>
+}</code></pre>
         </section>
         <section data-id="enum-vs-struct">
           <span class="slide-id">enum-vs-struct</span>
@@ -275,6 +291,7 @@ fn main() {
 }</code></pre><p>Two variants cannot share the same discriminant. This is useful when you need to map enum values to external constants like HTTP status codes.</p>
         </section>
       </section>
+      <section>
         <section data-id="enum-mixed">
           <span class="slide-id">enum-mixed</span>
           <h2>Using enums to hold different types in a collection</h2>
@@ -283,24 +300,30 @@ fn main() {
     Cpu(u8),
     Memory(u8),
     Message(String),
-}
-
-fn main() {
+}</code></pre><p>This pattern appears when reading heterogeneous events into one collection.</p>
+        </section>
+        <section data-id="enum-mixed-vec">
+          <span class="slide-id">enum-mixed-vec</span>
+          <h2>A homogeneous-looking vector</h2>
+          <pre><code class="language-rust" data-trim>fn main() {
     let metrics = vec![
         Metric::Cpu(12),
         Metric::Memory(64),
-        Metric::Message(String::from(&quot;healthy&quot;)),
     ];
-
-    for metric in &amp;metrics {
-        match metric {
-            Metric::Cpu(value) =&gt; println!(&quot;cpu: {value}%&quot;),
-            Metric::Memory(value) =&gt; println!(&quot;memory: {value}%&quot;),
-            Metric::Message(text) =&gt; println!(&quot;msg: {text}&quot;),
-        }
-    }
-}</code></pre><p>This pattern appears often when reading heterogeneous events or log lines into a single collection.</p>
+}</code></pre><p>The vector element type is <code>Metric</code>, but the variants wrap different underlying types.</p>
         </section>
+        <section data-id="enum-mixed-match">
+          <span class="slide-id">enum-mixed-match</span>
+          <h2>Matching the mixed collection</h2>
+          <pre><code class="language-rust" data-trim>for metric in &amp;metrics {
+    match metric {
+        Metric::Cpu(v) =&gt; println!(&quot;cpu: {v}%&quot;),
+        Metric::Memory(v) =&gt; println!(&quot;mem: {v}%&quot;),
+        Metric::Message(t) =&gt; println!(&quot;msg: {t}&quot;),
+    }
+}</code></pre>
+        </section>
+      </section>
       <section>
         <section data-id="impl-overview">
           <span class="slide-id">impl-overview</span>
@@ -349,23 +372,21 @@ impl Server {
     fn hostname(&amp;self) -&gt; &amp;str {
         &amp;self.hostname
     }
-}
-
-fn main() {
+}</code></pre><p><code>Self</code> is convenient because if you rename the struct, the impl block does not need to change.</p>
+        </section>
+        <section data-id="self-vs-self-use">
+          <span class="slide-id">self-vs-Self-use</span>
+          <h2>Using the type and the instance</h2>
+          <pre><code class="language-rust" data-trim>fn main() {
     let server = Server::new(&quot;web-01&quot;);
     println!(&quot;{}&quot;, server.hostname());
-}</code></pre><p><code>Self</code> is convenient because if you rename the struct, the impl block does not need to change.</p>
+}</code></pre><p><code>Server::new</code> uses the type. <code>server.hostname()</code> uses the instance.</p>
         </section>
         <section data-id="associated-functions">
           <span class="slide-id">associated-functions</span>
           <h2>Associated functions vs methods</h2>
           <p>Use an associated function when the value does not exist yet. Use a method when the value already exists.</p>
-<pre><code class="language-rust" data-trim>#[derive(Debug)]
-struct Server {
-    hostname: String,
-}
-
-impl Server {
+<pre><code class="language-rust" data-trim>impl Server {
     // Associated function: no self, called with Server::new
     fn new(hostname: &amp;str) -&gt; Self {
         Self { hostname: String::from(hostname) }
@@ -375,19 +396,21 @@ impl Server {
     fn hostname(&amp;self) -&gt; &amp;str {
         &amp;self.hostname
     }
-}
-
-fn main() {
+}</code></pre><p><code>String::from</code> and <code>Vec::new</code> are associated functions you have already used.</p>
+        </section>
+        <section data-id="associated-functions-use">
+          <span class="slide-id">associated-functions-use</span>
+          <h2>Calling each kind</h2>
+          <pre><code class="language-rust" data-trim>fn main() {
     let server = Server::new(&quot;web-01&quot;);
     println!(&quot;{}&quot;, server.hostname());
-}</code></pre><p><code>String::from</code> and <code>Vec::new</code> are associated functions you have already used.</p>
+}</code></pre><p><code>::</code> before the value exists; <code>.</code> after it exists.</p>
         </section>
         <section data-id="impl-enum">
           <span class="slide-id">impl-enum</span>
           <h2>Implementing methods on enums</h2>
           <p>Enums can have impl blocks too. This is useful when behavior belongs to the choice itself.</p>
-<pre><code class="language-rust" data-trim>#[derive(Debug)]
-enum ServerStatus {
+<pre><code class="language-rust" data-trim>enum ServerStatus {
     Online,
     Maintenance(String),
 }
@@ -399,39 +422,45 @@ impl ServerStatus {
             ServerStatus::Maintenance(_) =&gt; false,
         }
     }
-}
-
-fn main() {
-    let status = ServerStatus::Maintenance(String::from(&quot;kernel upgrade&quot;));
-    println!(&quot;{:?}&quot;, status.is_operational()); // false
 }</code></pre><p>Methods on enums often return a value based on which variant is active.</p>
+        </section>
+        <section data-id="impl-enum-use">
+          <span class="slide-id">impl-enum-use</span>
+          <h2>Calling a method on an enum</h2>
+          <pre><code class="language-rust" data-trim>fn main() {
+    let status = ServerStatus::Maintenance(String::from(&quot;kernel upgrade&quot;));
+    println!(&quot;{}&quot;, status.is_operational()); // false
+}</code></pre>
         </section>
       </section>
       <section>
         <section data-id="tracker-types">
           <span class="slide-id">tracker-types</span>
-          <h2>Step 1: define the types</h2>
-          <p>We start with the enum for status and the struct for the server.</p>
+          <h2>Step 1: define the status enum</h2>
+          <p>We start with the enum for status.</p>
 <pre><code class="language-rust" data-trim>#[derive(Debug)]
 enum ServerStatus {
     Provisioning,
     Online,
     Maintenance(String),
     Decommissioned { reason: String },
-}
-
-#[derive(Debug)]
+}</code></pre><p>We derive Debug so we can print the enum while learning.</p>
+        </section>
+        <section data-id="tracker-struct">
+          <span class="slide-id">tracker-struct</span>
+          <h2>Step 2: define the server struct</h2>
+          <pre><code class="language-rust" data-trim>#[derive(Debug)]
 struct Server {
     hostname: String,
     region: String,
     status: ServerStatus,
     cpu_percent: u8,
     memory_percent: u8,
-}</code></pre><p>Both types derive Debug so we can print them while learning.</p>
+}</code></pre><p>The struct holds the enum as one of its fields.</p>
         </section>
         <section data-id="tracker-constructor">
           <span class="slide-id">tracker-constructor</span>
-          <h2>Step 2: add a constructor</h2>
+          <h2>Step 3: add a constructor</h2>
           <p>An associated function creates a new server with a default status.</p>
 <pre><code class="language-rust" data-trim>impl Server {
     fn new(hostname: &amp;str, region: &amp;str) -&gt; Self {
@@ -443,17 +472,20 @@ struct Server {
             memory_percent: 0,
         }
     }
-}
-
-fn main() {
+}</code></pre><p>New servers start in the Provisioning state.</p>
+        </section>
+        <section data-id="tracker-constructor-use">
+          <span class="slide-id">tracker-constructor-use</span>
+          <h2>Creating a server</h2>
+          <pre><code class="language-rust" data-trim>fn main() {
     let server = Server::new(&quot;web-01&quot;, &quot;us-east&quot;);
     println!(&quot;{:?}&quot;, server);
-}</code></pre><p>New servers start in the Provisioning state with zero CPU and memory usage.</p>
+}</code></pre>
         </section>
         <section data-id="tracker-methods">
           <span class="slide-id">tracker-methods</span>
           <h2>Step 3: add lifecycle methods</h2>
-          <p>Methods change the server status and update metrics.</p>
+          <p>Methods change the server status.</p>
 <pre><code class="language-rust" data-trim>impl Server {
     fn start(&amp;mut self) {
         self.status = ServerStatus::Online;
@@ -462,40 +494,45 @@ fn main() {
     fn schedule_maintenance(&amp;mut self, reason: &amp;str) {
         self.status = ServerStatus::Maintenance(String::from(reason));
     }
-
+}</code></pre><p>Methods that mutate take <code>&mut self</code>.</p>
+        </section>
+        <section data-id="tracker-decommission">
+          <span class="slide-id">tracker-decommission</span>
+          <h2>Decommissioning</h2>
+          <pre><code class="language-rust" data-trim>impl Server {
     fn decommission(&amp;mut self, reason: &amp;str) {
         self.status = ServerStatus::Decommissioned {
             reason: String::from(reason),
         };
     }
-
+}</code></pre>
+        </section>
+        <section data-id="tracker-metrics">
+          <span class="slide-id">tracker-metrics</span>
+          <h2>Updating metrics</h2>
+          <pre><code class="language-rust" data-trim>impl Server {
     fn set_metrics(&amp;mut self, cpu: u8, memory: u8) {
         self.cpu_percent = cpu;
         self.memory_percent = memory;
     }
-}</code></pre><p>Methods that mutate the server take <code>&mut self</code>. Methods that only read take <code>&self</code>.</p>
+}</code></pre><p>Methods that only read take <code>&self</code>.</p>
         </section>
         <section data-id="tracker-summary">
           <span class="slide-id">tracker-summary</span>
           <h2>Step 4: add a summary method</h2>
-          <p>A summary method reads the fields and returns a formatted string.</p>
+          <p>A summary method reads the status and formats a string.</p>
 <pre><code class="language-rust" data-trim>impl Server {
     fn health_summary(&amp;self) -&gt; String {
-        let status_badge = match &amp;self.status {
+        let badge = match &amp;self.status {
             ServerStatus::Online =&gt; &quot;online&quot;,
             ServerStatus::Provisioning =&gt; &quot;provisioning&quot;,
             ServerStatus::Maintenance(_) =&gt; &quot;maintenance&quot;,
             ServerStatus::Decommissioned { .. } =&gt; &quot;decommissioned&quot;,
         };
 
-        format!(
-            &quot;{} [{}] CPU {}% MEM {}% - {}&quot;,
-            self.hostname, self.region,
-            self.cpu_percent, self.memory_percent,
-            status_badge
-        )
+        format!(&quot;{} is {}&quot;, self.hostname, badge)
     }
-}</code></pre><p>The <code>Maintenance(_)</code> pattern ignores the reason. The <code>Decommissioned { .. }</code> pattern ignores all named fields.</p>
+}</code></pre><p><code>Maintenance(_)</code> ignores the reason. <code>Decommissioned { .. }</code> ignores all fields.</p>
         </section>
         <section data-id="tracker-main">
           <span class="slide-id">tracker-main</span>
@@ -545,14 +582,7 @@ fn main() {
           <span class="slide-id">destructure-struct</span>
           <h2>Destructuring a struct</h2>
           <p>You can pull fields out into local variables.</p>
-<pre><code class="language-rust" data-trim>#[derive(Debug)]
-struct Server {
-    hostname: String,
-    region: String,
-    cpu_percent: u8,
-}
-
-fn main() {
+<pre><code class="language-rust" data-trim>fn main() {
     let server = Server {
         hostname: String::from(&quot;web-01&quot;),
         region: String::from(&quot;us-east&quot;),
@@ -562,27 +592,19 @@ fn main() {
     let Server { hostname, region, cpu_percent } = server;
 
     println!(&quot;{} {} {}&quot;, hostname, region, cpu_percent);
-}</code></pre><p>This moves the fields out of the struct. After destructuring, <code>server</code> is no longer usable unless every field is Copy.</p>
+}</code></pre><p>This moves the fields out of the struct.</p>
         </section>
         <section data-id="destructure-rename">
           <span class="slide-id">destructure-rename</span>
           <h2>Renaming while destructuring</h2>
           <p>You can give the new variables different names.</p>
-<pre><code class="language-rust" data-trim>fn main() {
-    let server = Server {
-        hostname: String::from(&quot;web-01&quot;),
-        region: String::from(&quot;us-east&quot;),
-        cpu_percent: 12,
-    };
+<pre><code class="language-rust" data-trim>let Server {
+    hostname: name,
+    region: datacenter,
+    cpu_percent: cpu,
+} = server;
 
-    let Server {
-        hostname: name,
-        region: datacenter,
-        cpu_percent: cpu,
-    } = server;
-
-    println!(&quot;{} {} {}%&quot;, name, datacenter, cpu);
-}</code></pre><p>Renaming is useful when the field name is long or when the local variable name needs to fit surrounding code.</p>
+println!(&quot;{} {} {}%&quot;, name, datacenter, cpu);</code></pre><p>Renaming helps when the local name needs to fit surrounding code.</p>
         </section>
         <section data-id="destructure-ignore">
           <span class="slide-id">destructure-ignore</span>
@@ -695,13 +717,19 @@ fn main() {
         </section>
       </section>
       <section>
-        <section data-id="review">
-          <span class="slide-id">review</span>
+        <section data-id="review-1">
+          <span class="slide-id">review-1</span>
           <h2>What we built</h2>
           <ul>
 <li>Structs group related data: hostname, region, CPU, memory, status.</li>
 <li>Enums represent a single choice among variants, with optional data.</li>
 <li>impl blocks attach constructors and methods to types.</li>
+</ul>
+        </section>
+        <section data-id="review-2">
+          <span class="slide-id">review-2</span>
+          <h2>What we built, continued</h2>
+          <ul>
 <li>Self is the type; self is the instance variable.</li>
 <li>Destructuring pulls fields out of structs and enums.</li>
 <li>The dot operator auto-dereferences for method calls, but operators like == do not.</li>
